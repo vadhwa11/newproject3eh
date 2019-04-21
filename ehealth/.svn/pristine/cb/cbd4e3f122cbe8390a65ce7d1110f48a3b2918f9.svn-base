@@ -1,0 +1,943 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="CompanyWiseBillDetals"
+		 columnCount="1"
+		 printOrder="Horizontal"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoDataSection"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.zoom" value="1.0" />
+	<property name="ireport.x" value="0" />
+	<property name="ireport.y" value="48" />
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="fromBillDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toBillDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="company_id" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hin_no" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String(" ")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 1 as seq,p.hin_no,opb.company_id,'Out Patient Servicing' as type,case when opb.status='n' then 'Cancel' else ' ' end as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname,
+opb.bill_no,coalesce(opb.net_amt,0) as net_amt,opb.bill_date,coalesce(opb.discount_amt,0) as discount_amt,coalesce(opb.payable_amt,0) as payable_amt,coalesce(opb.outstanding,0) as outstanding,
+opb.op_bill_header_id,opd.charge_code_id,mcd.charge_code_name,opd.quantity,coalesce(opd.net_amt,0) as opd_net_amt,
+coalesce(opd.discount_amt, 0) as opd_discopunt_amt,com.company_name,m.hospital_name,m.address
+from patient p
+right join bl_op_bill_header opb on opb.hin_id=p.hin_id
+left outer join bl_op_bill_details opd on opb.op_bill_header_id=opd.op_bill_header_id
+left outer join mas_charge_code mcd on opd.charge_code_id=mcd.charge_code_id
+left join mas_company com on  opb.company_id=com.company_id
+left join mas_hospital m on opb.hospital_id=m.hospital_id
+where opb.company_id is not null
+and opb.bill_date between $P{fromBillDate} and $P{toBillDate}
+and opb.hin_no=(case when $P{hin_no}='' then p.hin_no else $P{hin_no} end )
+and opb.company_id=(case when $P{company_id}=0 then opb.company_id else $P{company_id} end )
+and opb.patient_type_id=1
+
+union
+select 2 as seq,p.hin_no,csm.company_id,'In Patient Servicing' as type,case when csm.status='n' then 'Cancel' else ' ' end  as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,''))as pname,
+cast(csm.charge_slip_no as varchar) ,coalesce(csm.net_amt,0) as net_amt,csm.chg_slp_date ,coalesce(csm.discount_amt,0) as discount_amt,coalesce(csm.receipt_amt,0) as payable_amt,coalesce(csm.os_amt,0) as outstanding,
+csm.charge_slip_main_id as op_bill_header_id,csd.charge_code_id,mcd.charge_code_name,csd.quantity,
+csd.net_amt as opd_net_amt,csd.discount_amt,com.company_name,m.hospital_name,m.address
+from patient p
+right join bl_charge_slip_main csm on csm.hin_id =p.hin_id
+left outer join bl_charge_slip_detail csd on csm.charge_slip_main_id=csd.charge_slip_main_id
+left outer join mas_charge_code mcd on csd.charge_code_id=mcd.charge_code_id
+left join mas_company com on  csm.company_id=com.company_id
+left join mas_hospital m on csm.hospital_id=m.hospital_id
+where csm.company_id is not null 
+and csm.chg_slp_date between $P{fromBillDate} and $P{toBillDate}
+and p.hin_no=(case when $P{hin_no}='' then p.hin_no else $P{hin_no} end )
+and csm.company_id=(case when $P{company_id}=0 then csm.company_id else $P{company_id} end)
+and csm.patient_type_id=1
+
+union all
+select 3 as seq,p.hin_no,bdh.company_id,
+(case when bdh.inpatient_id is null then '0' else 'Out Patient Dispensing' end ) as type,(case when bdh.status='n' then 'Cancel' else '' end ) as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname,
+bdh.bill_no,coalesce(bdh.net_amt,0) as net_amt,bdh.bill_date,coalesce(bdh.discount_amt,0) as discount_amt,coalesce(bdh.payable_amt,0) as payable_amt,coalesce(bdh.outstanding,0) as outstanding,
+bdh.dispensing_header_id,msi.item_id,msi.nomenclature,bdd.qty as quantity,
+(case when bdd.net_amt is null then 0 else bdd.net_amt end ) as bdd_bill_amt,
+(case when bdd.discount_amt is null then 0 else bdd.discount_amt end ) as discopunt_amt,
+com.company_name,m.hospital_name,m.address
+from patient p
+right join bl_dispensing_header bdh on bdh.hin_id=p.hin_id
+left outer join bl_dispensing_details bdd on bdh.dispensing_header_id=bdd.dispensing_header_id
+left outer join mas_store_item msi on bdd.item_id=msi.item_id
+left join mas_company com on  bdh.company_id=com.company_id
+left join mas_hospital m on bdh.hospital_id=m.hospital_id
+where bdh.company_id is not null
+and bdh.bill_date between $P{fromBillDate} and $P{toBillDate}
+and bdh.hin_no=(case when $P{hin_no}='' then bdh.hin_no else $P{hin_no} end)
+and bdh.company_id=(case when $P{company_id}=0 then bdh.company_id else $P{company_id} end)
+and bdh.patient_type_id=1
+
+union all
+select 4 as seq,p.hin_no,bdh.company_id,
+(case when bph.inpatient_id is null then '0' else 'Out Patient Advice Dispensing' end ) as type,(case when bdh.status='n' then 'Cancel' else '' end ) as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname,
+bph.payment_advice_no,coalesce(bph.total_advice_amt,0) as net_amt,bph.payment_advice_date,coalesce(bph.total_advice_charity_amt,0) as discount_amt,coalesce(bph.cash_advice_amt,0) as payable_amt,coalesce(bph.on_account_amt,0) as outstanding,
+bph.pymnt_advice_disp_header_id,msi.item_id,msi.nomenclature,bpd.advice_qty as quantity,
+(case when bpd.advice_amt is null then 0 else bpd.advice_amt end ) as bdd_bill_amt,
+(case when bpd.advice_charity_amt is null then 0 else bpd.advice_charity_amt end ) as discopunt_amt,
+com.company_name,m.hospital_name,m.address
+from patient p
+right join bl_pymnt_advice_disp_header bph on bph.hin_id=p.hin_id
+left outer join bl_pymnt_advice_disp_details bpd
+on bph.pymnt_advice_disp_header_id = bpd.pymnt_advice_disp_header_id
+left  join bl_dispensing_header bdh on bph.bill_dispensing_id=bdh.dispensing_header_id
+and bph.hin_id=bdh.hin_id
+left outer join mas_store_item msi on bpd.item_id=msi.item_id
+left join mas_company com on  bdh.company_id=com.company_id
+left join mas_hospital m on bdh.hospital_id=m.hospital_id
+where bdh.company_id is not null
+and bph.payment_advice_date between  $P{fromBillDate} and $P{toBillDate}
+and bdh.patient_type_id=1
+and bdh.hin_no=(case when $P{hin_no}='' then bdh.hin_no else $P{hin_no} end)
+and bdh.company_id=(case when $P{company_id}=0 then bdh.company_id else $P{company_id} end)
+
+union all
+select 5 as seq,p.hin_no,opb.company_id,'Out Patient Advice Servicing' as type,
+(case when opb.status='n' then 'Cancel' else '' end ) as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname,
+bph.payment_advice_no,coalesce(bph.total_advice_amt,0) as net_amt,
+bph.payment_advice_date,coalesce(bph.total_advice_charity_amt,0) as discount_amt,
+coalesce(bph.cash_advice_amt,0) as payable_amt,coalesce(bph.on_account_amt,0) as outstanding,
+bph.payment_advice_header_id,bpd.charge_id,mcd.charge_code_name,bpd.advice_qty,
+coalesce(bpd.advice_amt ,0) as opd_net_amt,coalesce(bpd.advice_charity_amt ,0) as opd_discopunt_amt,com.company_name,m.hospital_name,m.address
+from patient p
+right join bl_payment_advice_header bph on bph.hin_id=p.hin_id
+inner join bl_op_bill_header opb on bph.bill_id=opb.op_bill_header_id
+inner join bl_payment_advice_details bpd
+on bph.payment_advice_header_id= bpd.payment_advice_header_id
+inner join mas_charge_code mcd on bpd.charge_id=mcd.charge_code_id
+inner join mas_company com on  opb.company_id=com.company_id
+inner join mas_hospital m on opb.hospital_id=m.hospital_id
+where opb.company_id is not null
+and bph.payment_advice_date between $P{fromBillDate} and $P{toBillDate}
+and p.hin_no=(case when $P{hin_no}='' then p.hin_no else $P{hin_no} end)
+and opb.company_id=(case when $P{company_id}=0 then opb.company_id else $P{company_id} end)
+and opb.patient_type_id=1
+
+union all
+select 6 as seq,p.hin_no,csm.company_id,'In Patient Advice Servicing' as type,(case when csm.status='n' then 'Cancel' else '' end ) as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'0')||' '||coalesce(p.p_last_name,'0'))as pname,
+cast(csm.charge_slip_no as varchar) ,sum(coalesce(csd.net_amt,0)) as net_amt,csm.chg_slp_date ,
+sum(coalesce(csd.discount_amt,0)) as discount_amt,0 as payable_amt,sum(coalesce(csd.net_amt,0)) as outstanding,
+csm.charge_slip_main_id as op_bill_header_id,csd.charge_code_id,mcd.charge_code_name,csd.quantity,csd.net_amt as opd_net_amt,
+csd.discount_amt,com.company_name,m.hospital_name,m.address
+
+from patient p
+right join bl_charge_slip_main csm on csm.hin_id =p.hin_id
+left outer join bl_charge_slip_detail csd on csm.charge_slip_main_id=csd.charge_slip_main_id
+left outer join mas_charge_code mcd on csd.charge_code_id=mcd.charge_code_id
+left join mas_company com on  csm.company_id=com.company_id
+left join mas_hospital m on csm.hospital_id=m.hospital_id
+where csm.company_id is not null
+and csm.chg_slp_date between $P{fromBillDate} and $P{toBillDate}
+and p.hin_no=(case when $P{hin_no}='' then p.hin_no else $P{hin_no} end)
+and csm.company_id=(case when $P{company_id}=0 then csm.company_id else $P{company_id} end)
+and csd.status='n' and csm.patient_type_id=1
+group by csd.charge_slip_main_id,p.hin_no,csm.company_id,
+csm.status,p.p_first_name,p.p_middle_name,p.p_last_name,csm.charge_slip_no,csm.chg_slp_date,
+csm.charge_slip_main_id,csd.charge_code_id,mcd.charge_code_name, csd.quantity,csd.net_amt,csd.discount_amt,
+com.company_name,m.hospital_name,m.address
+union all
+select 5 as seq,p.hin_no,opb.company_id,'In Patient Advice Servicing' as type,
+case when opb.status='n' then 'Cancel' else '' end  as status,
+(p.p_first_name||' '||coalesce(p.p_middle_name,'0')||' '||coalesce(p.p_last_name,'0')) as pname,
+bph.payment_advice_no,coalesce(bph.total_advice_amt,0) as net_amt,
+bph.payment_advice_date,coalesce(bph.total_advice_charity_amt,'0') as discount_amt,
+coalesce(bph.cash_advice_amt,0) as payable_amt,coalesce(bph.on_account_amt,0) as outstanding,
+bph.payment_advice_header_id,bpd.charge_id,mcd.charge_code_name,bpd.advice_qty,
+coalesce(bpd.advice_amt,0) as opd_net_amt,coalesce(bpd.advice_charity_amt,0) as opd_discopunt_amt,
+com.company_name,m.hospital_name,m.address
+from patient p
+right join bl_payment_advice_header bph on bph.hin_id=p.hin_id
+inner join bl_charge_slip_main opb on bph.charge_slip_main_id=opb.charge_slip_main_id
+inner join bl_payment_advice_details bpd
+on bph.payment_advice_header_id= bpd.payment_advice_header_id
+inner join mas_charge_code mcd on bpd.charge_id=mcd.charge_code_id
+inner join mas_company com on  opb.company_id=com.company_id
+inner join mas_hospital m on opb.hospital_id=m.hospital_id
+where opb.company_id is not null
+and bph.payment_advice_date between $P{fromBillDate} and $P{toBillDate}
+and p.hin_no=(case when $P{hin_no}='' then p.hin_no else $P{hin_no} end )
+and opb.inpatient_id is not null
+and opb.company_id=(case when $P{company_id}=0 then opb.company_id else $P{company_id} end)
+and opb.patient_type_id=1
+]]></queryString>
+
+	<field name="seq" class="java.lang.Integer"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="company_id" class="java.lang.Integer"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="pname" class="java.lang.String"/>
+	<field name="bill_no" class="java.lang.Integer"/>
+	<field name="net_amt" class="java.math.BigDecimal"/>
+	<field name="bill_date" class="java.sql.Timestamp"/>
+	<field name="discount_amt" class="java.math.BigDecimal"/>
+	<field name="payable_amt" class="java.math.BigDecimal"/>
+	<field name="outstanding" class="java.math.BigDecimal"/>
+	<field name="op_bill_header_id" class="java.lang.Integer"/>
+	<field name="charge_code_id" class="java.lang.Integer"/>
+	<field name="charge_code_name" class="java.lang.String"/>
+	<field name="quantity" class="java.math.BigDecimal"/>
+	<field name="opd_net_amt" class="java.math.BigDecimal"/>
+	<field name="opd_discopunt_amt" class="java.math.BigDecimal"/>
+	<field name="company_name" class="java.lang.String"/>
+	<field name="hospital_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+
+	<variable name="SUM_opd_net_amt_1" class="java.math.BigDecimal" resetType="Group" resetGroup="patient" calculation="Sum">
+		<variableExpression><![CDATA[$F{opd_net_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_opd_net_amt_2" class="java.math.BigDecimal" resetType="Group" resetGroup="Comapny" calculation="Sum">
+		<variableExpression><![CDATA[$F{opd_net_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_type_ost" class="java.math.BigDecimal" resetType="Group" resetGroup="Op_bill_header" calculation="Average">
+		<variableExpression><![CDATA[$F{outstanding}]]></variableExpression>
+	</variable>
+	<variable name="Sum_patient_var_ost" class="java.math.BigDecimal" resetType="Group" resetGroup="patient" calculation="Sum">
+		<variableExpression><![CDATA[$V{SUM_type_ost}]]></variableExpression>
+	</variable>
+
+		<group  name="Comapny" >
+			<groupExpression><![CDATA[$F{company_name}]]></groupExpression>
+			<groupHeader>
+			<band height="53"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="116"
+						y="1"
+						width="176"
+						height="21"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="0"
+						y="1"
+						width="111"
+						height="22"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Company Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="10"
+						y="27"
+						width="79"
+						height="22"
+						key="staticText-16"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Reg No ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="89"
+						y="27"
+						width="233"
+						height="22"
+						key="staticText-17"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Patient Name]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="24"
+						width="535"
+						height="1"
+						key="line-9"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="30"  isSplitAllowed="true" >
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="7"
+						width="535"
+						height="20"
+						key="subreport-2"/>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="company_id">
+						<subreportParameterExpression><![CDATA[$F{company_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_No">
+						<subreportParameterExpression><![CDATA[$P{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="fromBillDate">
+						<subreportParameterExpression><![CDATA[$P{fromBillDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="toBillDate">
+						<subreportParameterExpression><![CDATA[$P{toBillDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//sub_report_company_wise_report.jasper"]]></subreportExpression>
+				</subreport>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="4"
+						width="535"
+						height="1"
+						key="line-10"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="patient" >
+			<groupExpression><![CDATA[$F{hin_no}]]></groupExpression>
+			<groupHeader>
+			<band height="29"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="89"
+						y="3"
+						width="233"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{pname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="3"
+						width="81"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{hin_no}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="24"
+						width="535"
+						height="1"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="30"  isSplitAllowed="true" >
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="5"
+						width="535"
+						height="21"
+						key="subreport-1"/>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="company_id">
+						<subreportParameterExpression><![CDATA[$F{company_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="fromBillDate">
+						<subreportParameterExpression><![CDATA[$P{fromBillDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="toBillDate">
+						<subreportParameterExpression><![CDATA[$P{toBillDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_no">
+						<subreportParameterExpression><![CDATA[$F{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//sub_report_comapnywiseDetails.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="type" >
+			<groupExpression><![CDATA[$F{type}]]></groupExpression>
+			<groupHeader>
+			<band height="25"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="89"
+						y="2"
+						width="282"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{type}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="10"
+						y="4"
+						width="75"
+						height="17"
+						key="staticText-32"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill Type]]></text>
+				</staticText>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="Op_bill_header" >
+			<groupExpression><![CDATA[$F{op_bill_header_id}]]></groupExpression>
+			<groupHeader>
+			<band height="57"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="34"
+						width="76"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-BoldOblique" size="8" isBold="true" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{bill_no}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="76"
+						y="34"
+						width="58"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-BoldOblique" size="8" isBold="true" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{bill_date}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="470"
+						y="34"
+						width="62"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{status}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="1"
+						y="9"
+						width="75"
+						height="17"
+						key="staticText-22"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill No]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="76"
+						y="9"
+						width="58"
+						height="17"
+						key="staticText-23"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="294"
+						y="9"
+						width="55"
+						height="17"
+						key="staticText-24"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill Amt]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="356"
+						y="9"
+						width="55"
+						height="17"
+						key="staticText-26"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Pending  Amt]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="470"
+						y="9"
+						width="62"
+						height="17"
+						key="staticText-28"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Status]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="138"
+						y="9"
+						width="69"
+						height="17"
+						key="staticText-29"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Item Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="252"
+						y="9"
+						width="40"
+						height="17"
+						key="staticText-30"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Quantity]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="29"
+						width="535"
+						height="1"
+						key="line-15"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="415"
+						y="9"
+						width="55"
+						height="17"
+						key="staticText-35"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Cash Amt]]></text>
+				</staticText>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="25"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="294"
+						y="7"
+						width="55"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{net_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="356"
+						y="7"
+						width="55"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{outstanding}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="3"
+						width="535"
+						height="1"
+						key="line-13"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="23"
+						width="535"
+						height="1"
+						key="line-14"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="180"
+						y="7"
+						width="69"
+						height="17"
+						key="staticText-34"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Total]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="415"
+						y="7"
+						width="55"
+						height="18"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{payable_amt}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="charge_name" >
+			<groupExpression><![CDATA[$F{charge_code_name}]]></groupExpression>
+			<groupHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="67"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="535"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{hospital_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="34"
+						width="535"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{address}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="52"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="51"
+						width="535"
+						height="1"
+						key="line-6"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="0"
+						y="1"
+						width="535"
+						height="22"
+						key="staticText-15"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Company--Patient  Wise Billing Details]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="23"
+						width="535"
+						height="1"
+						key="line-8"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="106"
+						y="29"
+						width="75"
+						height="22"
+						key="staticText-20"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Date From :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="186"
+						y="29"
+						width="100"
+						height="22"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{fromBillDate}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="291"
+						y="29"
+						width="29"
+						height="22"
+						key="staticText-21"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[To :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="329"
+						y="29"
+						width="100"
+						height="22"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{toBillDate}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="22"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="125"
+						y="2"
+						width="125"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{charge_code_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="252"
+						y="2"
+						width="40"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{quantity}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="294"
+						y="2"
+						width="55"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{opd_net_amt}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="25"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy h.mm a" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2"
+						y="6"
+						width="172"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="396"
+						y="6"
+						width="96"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="492"
+						y="6"
+						width="42"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["" + $V{PAGE_NUMBER} + ""]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="2"
+						width="535"
+						height="1"
+						key="line-12"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="5"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="2"
+						width="535"
+						height="1"
+						key="line-4"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</summary>
+		<noData>
+			<band height="50"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="24"
+						y="14"
+						width="483"
+						height="30"
+						key="staticText-36"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<text><![CDATA[No Record Found]]></text>
+				</staticText>
+			</band>
+		</noData>
+</jasperReport>

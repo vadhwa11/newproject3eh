@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="oralMedicineCaseRecordRpt_4" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="bf369785-92ac-4752-8562-0718c74d17f0">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="templateName" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+oiph.*,
+     visit.visit_no as visit_no,
+     patient.age as patient_age,
+     visit.visit_date as visit_date,
+     hosp.hospital_name as mas_hospital_hospital_name,
+     patient.hin_no as hin_no,
+    patient.date_of_birth as dob,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     mas.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+coalesce(mv.village_name, '') || coalesce(md.district_name, '') || coalesce(ms.state_name, '') as address
+from
+
+     opd_oral_medicine_dental oiph
+     left outer join visit visit on oiph.visit_id = visit.visit_id
+     left outer join patient patient  on visit.hin_id = patient.hin_id
+     left outer join mas_hospital hosp on oiph.hospital_id = hosp.hospital_id
+     left outer join mas_administrative_sex mas on patient.sex_id = mas.administrative_sex_id
+     left join patient_address pa on pa.hin_id = patient.hin_id and pa.address_type_id =
+CASE
+    WHEN (EXISTS(select address from patient_address where address_type_id = 2)) THEN 2
+    WHEN (EXISTS(select address from patient_address where address_type_id = 1)) THEN 1
+    ELSE 4
+END
+left join mas_village mv on mv.village_id = pa.village
+left join mas_district md on md.district_id = pa.district
+left join mas_state ms on ms.state_id = pa.state_id
+where
+
+ 	oiph.visit_id = $P{opdvid}]]>
+	</queryString>
+	<field name="oral_medicine_id" class="java.lang.Integer"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="hospital_id" class="java.lang.Integer"/>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="presenting_complaints" class="java.lang.String"/>
+	<field name="history_presenting_complaint" class="java.lang.String"/>
+	<field name="past_medical_dental_history" class="java.lang.String"/>
+	<field name="family_history" class="java.lang.String"/>
+	<field name="personal_social_history" class="java.lang.String"/>
+	<field name="dietary_habbits" class="java.lang.String"/>
+	<field name="brushing_habbits" class="java.lang.String"/>
+	<field name="smoking_currently" class="java.lang.String"/>
+	<field name="smokeless_currently" class="java.lang.String"/>
+	<field name="alcohol_currently" class="java.lang.String"/>
+	<field name="smoking_daily_past" class="java.lang.String"/>
+	<field name="smokeless_daily_past" class="java.lang.String"/>
+	<field name="alcohol_daily_past" class="java.lang.String"/>
+	<field name="smoking_frequency_past" class="java.lang.String"/>
+	<field name="smokeless_frequency_past" class="java.lang.String"/>
+	<field name="alcohol_frequency_past" class="java.lang.String"/>
+	<field name="smoking_daily_start_age" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_age" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_age" class="java.lang.Integer"/>
+	<field name="smoking_daily_start_year" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_year" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_year" class="java.lang.Integer"/>
+	<field name="smoking_daily_product" class="java.lang.Integer"/>
+	<field name="smokeless_daily_product" class="java.lang.Integer"/>
+	<field name="alcohol_daily_product" class="java.lang.Integer"/>
+	<field name="smoking_after_wakeup" class="java.lang.Integer"/>
+	<field name="smokeless_after_wakeup" class="java.lang.Integer"/>
+	<field name="alcohol_after_wakeup" class="java.lang.Integer"/>
+	<field name="smoking_less_daily_start_age" class="java.lang.Integer"/>
+	<field name="smokeless_less_daily_start_age" class="java.lang.Integer"/>
+	<field name="alcohol_less_daily_start_age" class="java.lang.Integer"/>
+	<field name="smoking_less_daily_start_year" class="java.lang.Integer"/>
+	<field name="smokeless_less_daily_start_year" class="java.lang.Integer"/>
+	<field name="alcohol_less_daily_start_year" class="java.lang.Integer"/>
+	<field name="smoking_less_daily_product" class="java.lang.Integer"/>
+	<field name="smokeless_less_daily_product" class="java.lang.Integer"/>
+	<field name="alcohol_less_daily_product" class="java.lang.Integer"/>
+	<field name="smoking_daily_start_age_former" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_age_former" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_age_former" class="java.lang.Integer"/>
+	<field name="smoking_daily_start_year_former" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_year_former" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_year_former" class="java.lang.Integer"/>
+	<field name="smoking_stop_year_former" class="java.lang.Integer"/>
+	<field name="smokeless_stop_year_former" class="java.lang.Integer"/>
+	<field name="alcohol_stop_year_former" class="java.lang.Integer"/>
+	<field name="smoking_visited_doctor_fromer" class="java.lang.String"/>
+	<field name="smokeless_visited_doctor_fromer" class="java.lang.String"/>
+	<field name="alcohol_visited_doctor_fromer" class="java.lang.String"/>
+	<field name="smoking_no_visited_doctor_fromer" class="java.lang.Integer"/>
+	<field name="smokeless_no_visited_doctor_fromer" class="java.lang.Integer"/>
+	<field name="alcohol_no_visited_doctor_fromer" class="java.lang.Integer"/>
+	<field name="smoking_doctor_ask_fromer" class="java.lang.String"/>
+	<field name="smokeless_doctor_ask_fromer" class="java.lang.String"/>
+	<field name="alcohol_doctor_ask_fromer" class="java.lang.String"/>
+	<field name="smoking_quit_tobacoo_fromer" class="java.lang.String"/>
+	<field name="smokeless_quit_tobacoo_fromer" class="java.lang.String"/>
+	<field name="alcohol_quit_tobacoo_fromer" class="java.lang.String"/>
+	<field name="smoking_quit_any_fromer" class="java.lang.String"/>
+	<field name="smokeless_quit_any_fromer" class="java.lang.String"/>
+	<field name="alcohol_quit_any_fromer" class="java.lang.String"/>
+	<field name="smoking_try_stop" class="java.lang.String"/>
+	<field name="smokeless_try_stop" class="java.lang.String"/>
+	<field name="alcohol_try_stop" class="java.lang.String"/>
+	<field name="smoking_quit_period" class="java.lang.Integer"/>
+	<field name="smokeless_quit_period" class="java.lang.Integer"/>
+	<field name="alcohol_quit_period" class="java.lang.Integer"/>
+	<field name="smoking_try_stop_using" class="java.lang.String"/>
+	<field name="smokeless_try_stop_using" class="java.lang.String"/>
+	<field name="alcohol_try_stop_using" class="java.lang.String"/>
+	<field name="smoking_try_quitting" class="java.lang.String"/>
+	<field name="smokeless_try_quitting" class="java.lang.String"/>
+	<field name="alcohol_try_quitting" class="java.lang.String"/>
+	<field name="appetite" class="java.lang.String"/>
+	<field name="weight_loss_gain" class="java.lang.Integer"/>
+	<field name="indigestion" class="java.lang.String"/>
+	<field name="bowels" class="java.lang.String"/>
+	<field name="chest_pain" class="java.lang.String"/>
+	<field name="angina" class="java.lang.String"/>
+	<field name="dyspnoea" class="java.lang.String"/>
+	<field name="orthopnoea" class="java.lang.String"/>
+	<field name="oedema_feet" class="java.lang.String"/>
+	<field name="cough" class="java.lang.String"/>
+	<field name="haemoptysis" class="java.lang.String"/>
+	<field name="sputum" class="java.lang.String"/>
+	<field name="sputum_colour" class="java.lang.String"/>
+	<field name="sputum_quantity" class="java.lang.String"/>
+	<field name="sputum_smell" class="java.lang.String"/>
+	<field name="vision" class="java.lang.String"/>
+	<field name="hearing" class="java.lang.String"/>
+	<field name="micturition" class="java.lang.String"/>
+	<field name="micturition_frequency" class="java.lang.Integer"/>
+	<field name="dysuria" class="java.lang.String"/>
+	<field name="haematuria" class="java.lang.String"/>
+	<field name="nocturia" class="java.lang.String"/>
+	<field name="period" class="java.lang.Integer"/>
+	<field name="menarche" class="java.lang.Integer"/>
+	<field name="flow_days" class="java.lang.Integer"/>
+	<field name="menopause" class="java.lang.Integer"/>
+	<field name="hoarseness" class="java.lang.String"/>
+	<field name="sore_throat" class="java.lang.String"/>
+	<field name="epistaxis" class="java.lang.String"/>
+	<field name="frequent_colds" class="java.lang.String"/>
+	<field name="headache" class="java.lang.String"/>
+	<field name="vomiting" class="java.lang.String"/>
+	<field name="fits" class="java.lang.String"/>
+	<field name="gen_developmental" class="java.lang.String"/>
+	<field name="gen_nutritional" class="java.lang.String"/>
+	<field name="gen_head" class="java.lang.String"/>
+	<field name="gen_skull" class="java.lang.String"/>
+	<field name="gen_eyes" class="java.lang.String"/>
+	<field name="gen_ears" class="java.lang.String"/>
+	<field name="gen_nose" class="java.lang.String"/>
+	<field name="gen_skin" class="java.lang.String"/>
+	<field name="gen_hair" class="java.lang.String"/>
+	<field name="gen_nails" class="java.lang.String"/>
+	<field name="gen_lymph_nodes" class="java.lang.String"/>
+	<field name="oral_head" class="java.lang.String"/>
+	<field name="oral_facial_form" class="java.lang.String"/>
+	<field name="oral_hair" class="java.lang.String"/>
+	<field name="oral_skin" class="java.lang.String"/>
+	<field name="oral_eyes" class="java.lang.String"/>
+	<field name="oral_ear" class="java.lang.String"/>
+	<field name="oral_nose" class="java.lang.String"/>
+	<field name="oral_throat" class="java.lang.String"/>
+	<field name="oral_salivary_glands" class="java.lang.String"/>
+	<field name="oral_salivary_glands_palpable" class="java.lang.String"/>
+	<field name="oral_cranial_nerves_examination" class="java.lang.String"/>
+	<field name="oral_neck" class="java.lang.String"/>
+	<field name="oral_tmj" class="java.lang.String"/>
+	<field name="submental_submandibular" class="java.lang.String"/>
+	<field name="high_jugular" class="java.lang.String"/>
+	<field name="mid_jugular" class="java.lang.String"/>
+	<field name="low_jugular" class="java.lang.String"/>
+	<field name="posterior_jugular" class="java.lang.String"/>
+	<field name="tracheo_oesophageal" class="java.lang.String"/>
+	<field name="superior_mediastinal" class="java.lang.String"/>
+	<field name="mouth_opening" class="java.lang.String"/>
+	<field name="oral_hygiene_status" class="java.lang.String"/>
+	<field name="dentition_status" class="java.lang.String"/>
+	<field name="teeth_18" class="java.lang.String"/>
+	<field name="teeth_17" class="java.lang.String"/>
+	<field name="teeth_16" class="java.lang.String"/>
+	<field name="teeth_15" class="java.lang.String"/>
+	<field name="teeth_14" class="java.lang.String"/>
+	<field name="teeth_13" class="java.lang.String"/>
+	<field name="teeth_12" class="java.lang.String"/>
+	<field name="teeth_11" class="java.lang.String"/>
+	<field name="teeth_21" class="java.lang.String"/>
+	<field name="teeth_22" class="java.lang.String"/>
+	<field name="teeth_23" class="java.lang.String"/>
+	<field name="teeth_24" class="java.lang.String"/>
+	<field name="teeth_25" class="java.lang.String"/>
+	<field name="teeth_26" class="java.lang.String"/>
+	<field name="teeth_27" class="java.lang.String"/>
+	<field name="teeth_28" class="java.lang.String"/>
+	<field name="teeth_48" class="java.lang.String"/>
+	<field name="teeth_47" class="java.lang.String"/>
+	<field name="teeth_46" class="java.lang.String"/>
+	<field name="teeth_45" class="java.lang.String"/>
+	<field name="teeth_44" class="java.lang.String"/>
+	<field name="teeth_43" class="java.lang.String"/>
+	<field name="teeth_42" class="java.lang.String"/>
+	<field name="teeth_41" class="java.lang.String"/>
+	<field name="teeth_31" class="java.lang.String"/>
+	<field name="teeth_32" class="java.lang.String"/>
+	<field name="teeth_33" class="java.lang.String"/>
+	<field name="teeth_34" class="java.lang.String"/>
+	<field name="teeth_35" class="java.lang.String"/>
+	<field name="teeth_36" class="java.lang.String"/>
+	<field name="teeth_37" class="java.lang.String"/>
+	<field name="teeth_38" class="java.lang.String"/>
+	<field name="teeth_51" class="java.lang.String"/>
+	<field name="teeth_52" class="java.lang.String"/>
+	<field name="teeth_53" class="java.lang.String"/>
+	<field name="teeth_54" class="java.lang.String"/>
+	<field name="teeth_55" class="java.lang.String"/>
+	<field name="teeth_61" class="java.lang.String"/>
+	<field name="teeth_62" class="java.lang.String"/>
+	<field name="teeth_63" class="java.lang.String"/>
+	<field name="teeth_64" class="java.lang.String"/>
+	<field name="teeth_65" class="java.lang.String"/>
+	<field name="teeth_81" class="java.lang.String"/>
+	<field name="teeth_82" class="java.lang.String"/>
+	<field name="teeth_83" class="java.lang.String"/>
+	<field name="teeth_84" class="java.lang.String"/>
+	<field name="teeth_85" class="java.lang.String"/>
+	<field name="teeth_71" class="java.lang.String"/>
+	<field name="teeth_72" class="java.lang.String"/>
+	<field name="teeth_73" class="java.lang.String"/>
+	<field name="teeth_74" class="java.lang.String"/>
+	<field name="teeth_75" class="java.lang.String"/>
+	<field name="teeth_18_value" class="java.lang.String"/>
+	<field name="teeth_17_value" class="java.lang.String"/>
+	<field name="teeth_16_value" class="java.lang.String"/>
+	<field name="teeth_15_value" class="java.lang.String"/>
+	<field name="teeth_14_value" class="java.lang.String"/>
+	<field name="teeth_13_value" class="java.lang.String"/>
+	<field name="teeth_12_value" class="java.lang.String"/>
+	<field name="teeth_11_value" class="java.lang.String"/>
+	<field name="teeth_21_value" class="java.lang.String"/>
+	<field name="teeth_22_value" class="java.lang.String"/>
+	<field name="teeth_23_value" class="java.lang.String"/>
+	<field name="teeth_24_value" class="java.lang.String"/>
+	<field name="teeth_25_value" class="java.lang.String"/>
+	<field name="teeth_26_value" class="java.lang.String"/>
+	<field name="teeth_27_value" class="java.lang.String"/>
+	<field name="teeth_28_value" class="java.lang.String"/>
+	<field name="teeth_48_value" class="java.lang.String"/>
+	<field name="teeth_47_value" class="java.lang.String"/>
+	<field name="teeth_46_value" class="java.lang.String"/>
+	<field name="teeth_45_value" class="java.lang.String"/>
+	<field name="teeth_44_value" class="java.lang.String"/>
+	<field name="teeth_43_value" class="java.lang.String"/>
+	<field name="teeth_42_value" class="java.lang.String"/>
+	<field name="teeth_41_value" class="java.lang.String"/>
+	<field name="teeth_31_value" class="java.lang.String"/>
+	<field name="teeth_32_value" class="java.lang.String"/>
+	<field name="teeth_33_value" class="java.lang.String"/>
+	<field name="teeth_34_value" class="java.lang.String"/>
+	<field name="teeth_35_value" class="java.lang.String"/>
+	<field name="teeth_36_value" class="java.lang.String"/>
+	<field name="teeth_37_value" class="java.lang.String"/>
+	<field name="teeth_38_value" class="java.lang.String"/>
+	<field name="teeth_51_value" class="java.lang.String"/>
+	<field name="teeth_52_value" class="java.lang.String"/>
+	<field name="teeth_53_value" class="java.lang.String"/>
+	<field name="teeth_54_value" class="java.lang.String"/>
+	<field name="teeth_55_value" class="java.lang.String"/>
+	<field name="teeth_61_value" class="java.lang.String"/>
+	<field name="teeth_62_value" class="java.lang.String"/>
+	<field name="teeth_63_value" class="java.lang.String"/>
+	<field name="teeth_64_value" class="java.lang.String"/>
+	<field name="teeth_65_value" class="java.lang.String"/>
+	<field name="teeth_81_value" class="java.lang.String"/>
+	<field name="teeth_82_value" class="java.lang.String"/>
+	<field name="teeth_83_value" class="java.lang.String"/>
+	<field name="teeth_84_value" class="java.lang.String"/>
+	<field name="teeth_85_value" class="java.lang.String"/>
+	<field name="teeth_71_value" class="java.lang.String"/>
+	<field name="teeth_72_value" class="java.lang.String"/>
+	<field name="teeth_73_value" class="java.lang.String"/>
+	<field name="teeth_74_value" class="java.lang.String"/>
+	<field name="teeth_75_value" class="java.lang.String"/>
+	<field name="tongue_inspection" class="java.lang.String"/>
+	<field name="dorsum" class="java.lang.String"/>
+	<field name="ventral_surface" class="java.lang.String"/>
+	<field name="lateral_border" class="java.lang.String"/>
+	<field name="lateral_border_details" class="java.lang.String"/>
+	<field name="local_examination_findings" class="java.lang.String"/>
+	<field name="case_summary" class="java.lang.String"/>
+	<field name="visit_no" class="java.lang.Integer"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_date" class="java.sql.Date"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Prevent"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Prevent"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Prevent"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="140" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-1" positionType="Float" x="0" y="0" width="553" height="18" uuid="c42a3983-f12c-4099-8137-0be858ddc6d6"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Tongue
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" positionType="Float" x="0" y="18" width="172" height="18" uuid="70488f1c-f792-47b8-acda-c39f07b3cfb3"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Inspection
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" positionType="Float" x="0" y="39" width="553" height="18" uuid="b064bc4d-f923-4242-bcb4-4812889b99ca"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Palpation
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" positionType="Float" x="295" y="57" width="69" height="18" uuid="e33b9fb1-7016-49cf-a77a-87faf1f4d0ff"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Dorsum
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-5" positionType="Float" x="0" y="57" width="172" height="18" uuid="69a82cc4-785d-41b2-b27e-e64e77adc99b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Ventral Surface]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-6" positionType="Float" x="0" y="78" width="172" height="18" uuid="26b5cdfd-0d09-47d7-b8f4-f6fa8a4bc61a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Lateral Border
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-7" positionType="Float" x="0" y="99" width="172" height="19" uuid="de8988c2-2938-4f7d-83c5-c792dbf2a5df"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Local Examination Findings
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-8" positionType="Float" x="0" y="123" width="172" height="17" uuid="fecbe972-ea3e-4178-94ff-44fc82dbc97d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Case Summary]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-1" positionType="Float" x="172" y="18" width="381" height="18" uuid="cd67c6fb-74c0-44df-8201-d171be6f52d8"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{tongue_inspection}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-2" positionType="Float" x="364" y="57" width="189" height="18" uuid="87dd43ae-f104-4764-a520-e2df481cdcb7"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{dorsum}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-3" positionType="Float" x="172" y="57" width="100" height="18" uuid="40071bc9-571c-4f81-b295-8b657a89ce34"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{ventral_surface}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-4" positionType="Float" x="172" y="78" width="100" height="18" uuid="a9f2e896-53f8-430c-a081-f3a9cabfd4fa"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{lateral_border}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" x="272" y="78" width="281" height="18" uuid="d0ac095b-e235-4ed0-9e36-ff0503e57fea"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{lateral_border_details}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-6" positionType="Float" x="172" y="99" width="381" height="19" uuid="fce4ec02-0140-49e1-8a88-25935ba11a0b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{local_examination_findings}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-7" positionType="Float" x="172" y="122" width="381" height="18" uuid="92e6d50a-da4f-40df-8520-60f197decfef"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{case_summary}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-1" positionType="Float" x="1" y="36" width="553" height="3" uuid="232e872d-4069-43e3-b9e3-8733569be251"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-1" positionType="Float" x="1" y="75" width="553" height="3" uuid="c35f2862-7183-48d4-8d95-9365964e0285"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-1" positionType="Float" x="2" y="96" width="553" height="3" uuid="a4a4a13b-0cef-45b4-92e1-d5f61eadc3bf"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-1" positionType="Float" x="1" y="119" width="553" height="3" uuid="52dbdd0e-9036-40dd-8ca2-4dcd7ca42e80"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</summary>
+	<noData>
+		<band height="38" splitType="Stretch"/>
+	</noData>
+</jasperReport>

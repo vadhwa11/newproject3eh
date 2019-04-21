@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="sub_report_comapnywiseDetails"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="535"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="hin_no" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="company_id" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromBillDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toBillDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select main.company_id, main.hin_no, 
+('TOTAL PENDING AMOUNT OF  '||pname||' = =  ') as Name, 
+sum(coalesce(main.os_amt,0)) as os_amt,
+sum(coalesce(main.payable_amt,0)) as payable_amt,
+sum(coalesce(main.os_amt,0)) as payable_amt
+from(
+select p.company_id, opb.hin_no, 
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname, 
+coalesce(outstanding,0) as os_amt,
+coalesce(opb.payable_amt,0) as payable_amt
+from patient p
+right join bl_op_bill_header opb on opb.hin_id=p.hin_id
+where opb.status='y' and p.company_id is not null
+and opb.hin_no=$P{hin_no}
+and opb.bill_date between $P{fromBillDate} and $P{toBillDate}
+and p.company_id = case when $P{company_id}=0 then p.company_id else
+$P{company_id} end
+
+union
+
+select p.company_id, p.hin_no, 
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname,
+coalesce(os_amt,0) as os_amt,
+coalesce(csm.receipt_amt,0) as payable_amt
+from patient p
+right join bl_charge_slip_main csm on csm.hin_id = p.hin_id
+where p.company_id is not null and csm.final_bill_id is not null
+and csm.chg_slp_date between $P{fromBillDate} and $P{toBillDate}
+and p.company_id is not null and csm.final_bill_id is not null
+and csm.status ='y' and p.hin_no=$P{hin_no}
+and p.company_id = case when $P{company_id}=0 then p.company_id else $P{company_id} end
+
+union
+
+select p.company_id, bdh.hin_no, 
+(p.p_first_name||' '||coalesce(p.p_middle_name,'')||' '||coalesce(p.p_last_name,'')) as pname,
+coalesce(outstanding,0) as os_amt,
+coalesce(bdh.payable_amt,0) as payable_amt
+from patient p
+right join bl_dispensing_header bdh on bdh.hin_id=p.hin_id
+where bdh.status='y' and p.company_id is not null
+and bdh.hin_no=$P{hin_no}
+and bdh.bill_date between $P{fromBillDate} and $P{toBillDate}
+and p.company_id = case when $P{company_id}=0 then p.company_id else $P{company_id} end
+) as main
+group by main.company_id,main.hin_no,main.pname
+order by 1]]></queryString>
+
+	<field name="company_id" class="java.lang.Integer"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="Name" class="java.lang.String"/>
+	<field name="os_amt" class="java.math.BigDecimal"/>
+	<field name="payable_amt" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="26"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="324"
+						y="3"
+						width="200"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{os_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="22"
+						y="3"
+						width="300"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{Name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

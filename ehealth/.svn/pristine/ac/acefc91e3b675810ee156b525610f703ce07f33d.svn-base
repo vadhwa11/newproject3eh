@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ipd_investigation" pageWidth="683" pageHeight="842" columnWidth="623" leftMargin="30" rightMargin="30" topMargin="5" bottomMargin="5" uuid="ed27a36d-b000-4ef0-b49e-3bc5ad2506ff">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="visit_id" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hin_id" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpatient_id" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select cc.department_id,department_name,hd.visit_id,
+hd.orderhd_id,c.charge_code_code,c.charge_code_name,(e.first_name||' '||e.last_name)as name,hd.urgent_remarks,
+ih.other_investigation,hd.test_type,cc.main_chargecode_name,sc.sub_chargecode_name,
+hd.clinical_note ,dt.orderdt_id,dt.charge_code_id,
+case hd.order_status when 'P' then 'Pending'
+when 'A' then 'Sample Accepted'
+when 'C' then 'Collected'
+when 'X' then 'Test Cancelled' end as status
+from dg_orderhd hd left join dg_orderdt dt on hd.orderhd_id=dt.orderhd_id
+left join mas_charge_code c on dt.charge_code_id=c.charge_code_id
+left join mas_employee e on hd.prescribed_by=e.employee_id
+left join mas_main_chargecode cc on dt.main_chargecode_id=cc.main_chargecode_id
+left join mas_sub_chargecode sc on dt.sub_chargeid=sc.sub_chargecode_id
+left join mas_department md on md.department_id=cc.department_id
+left join patient_investigation_header ih on hd.investigation_requestion_no=ih.investigation_header_id
+where hd.hin_id=$P{hin_id} and hd.inpatient_id=$P{inpatient_id}
+and patient_type = 'IP']]>
+	</queryString>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="department_name" class="java.lang.String"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="orderhd_id" class="java.lang.Integer"/>
+	<field name="charge_code_code" class="java.lang.String"/>
+	<field name="charge_code_name" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="urgent_remarks" class="java.lang.String"/>
+	<field name="other_investigation" class="java.lang.String"/>
+	<field name="test_type" class="java.lang.String"/>
+	<field name="main_chargecode_name" class="java.lang.String"/>
+	<field name="sub_chargecode_name" class="java.lang.String"/>
+	<field name="clinical_note" class="java.lang.String"/>
+	<field name="orderdt_id" class="java.lang.Integer"/>
+	<field name="charge_code_id" class="java.lang.Integer"/>
+	<field name="status" class="java.lang.String"/>
+	<variable name="srNo" class="java.lang.Integer">
+		<variableExpression><![CDATA[new java.lang.Integer($V{REPORT_COUNT}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<group name="investigation">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band height="57" splitType="Stretch">
+				<staticText>
+					<reportElement key="staticText-11" x="0" y="18" width="40" height="18" uuid="55e655d6-996d-425a-ae41-7dd504ecc567">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Sl No.]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="623" height="18" uuid="294dd32a-73e3-482b-ab96-0b20f43ab8e3"/>
+					<textElement>
+						<font size="13" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{department_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField-1" x="40" y="37" width="230" height="20" uuid="adf17ec9-de6e-4e81-ad14-95248fa40511">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left"/>
+					<textFieldExpression><![CDATA[$F{charge_code_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField-2" x="547" y="37" width="70" height="20" uuid="2f917e6e-103a-49ad-965b-e60cb2807d55">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField-10" x="0" y="37" width="40" height="20" uuid="aa12ba71-337a-4ab8-884c-b1ccec65a2a7">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left"/>
+					<textFieldExpression><![CDATA[$V{srNo}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement key="staticText-1" x="40" y="18" width="230" height="18" uuid="d19c312c-e0cd-4d1c-8581-d4a5c6e7e262">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left">
+						<font isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Test Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-2" x="547" y="18" width="70" height="18" uuid="70309715-e936-473c-b9d9-c1f36cdc55ef">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Status]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-3" x="0" y="36" width="620" height="1" uuid="7e031386-2bcd-4918-bb43-34cd7c59d567">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<staticText>
+					<reportElement key="staticText-1" x="270" y="18" width="277" height="18" uuid="bb565f5e-e2c8-4a89-be94-7c13ab09f2e5">
+						<printWhenExpression><![CDATA[$F{department_name}.equals("Radiology " )? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left">
+						<font isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Result]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField-1" x="270" y="37" width="277" height="20" uuid="c7d9408e-0606-43c8-a079-934a6a35f9f1">
+						<printWhenExpression><![CDATA[$F{department_name}.equals("Radiology " )? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left"/>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="32" splitType="Stretch">
+				<subreport isUsingCache="true">
+					<reportElement key="subreport-1" x="-30" y="2" width="300" height="30" isRemoveLineWhenBlank="true" uuid="d2b5d5eb-7474-44dd-9e6e-c127ae105e70">
+						<printWhenExpression><![CDATA[$F{status}.equals("Sample Accepted" )? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpatient_id">
+						<subreportParameterExpression><![CDATA[$P{inpatient_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="visit_id">
+						<subreportParameterExpression><![CDATA[$P{visit_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="hin_id">
+						<subreportParameterExpression><![CDATA[$P{hin_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="orderhd_id">
+						<subreportParameterExpression><![CDATA[$F{orderhd_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} +"//opd_investigatioin_details.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="19" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-7" x="0" y="0" width="623" height="18" uuid="fb7fd4b4-7740-4838-a0fa-b0e7ce34c1f5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font size="12" isBold="true" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Investigation Details]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-1" x="0" y="18" width="620" height="1" uuid="ad347cc4-3962-4f78-bc50-b7b3ada2c294"/>
+			</line>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,470 @@
+/*******************************************************************************
+ * DISCLAIMER: The sample code or utility or tool described herein
+ *    is provided on an "as is" basis, without warranty of any kind.
+ *    UIDAI does not warrant or guarantee the individual success
+ *    developers may have in implementing the sample code on their
+ *    environment. 
+ *    
+ *    UIDAI does not warrant, guarantee or make any representations
+ *    of any kind with respect to the sample code and does not make
+ *    any representations or warranties regarding the use, results
+ *    of use, accuracy, timeliness or completeness of any data or
+ *    information relating to the sample code. UIDAI disclaims all
+ *    warranties, express or implied, and in particular, disclaims
+ *    all warranties of merchantability, fitness for a particular
+ *    purpose, and warranties related to the code, or any service
+ *    or software related thereto. 
+ *    
+ *    UIDAI is not responsible for and shall not be liable directly
+ *    or indirectly for any direct, indirect damages or costs of any
+ *    type arising out of use or any action taken by you or others
+ *    related to the sample code.
+ *    
+ *    THIS IS NOT A SUPPORTED SOFTWARE.
+ ******************************************************************************/
+package in.gov.uidai.auth.aua.httpclient;
+
+import in.gov.uidai.auth.aua.helper.DigitalSigner;
+import in.gov.uidai.auth.device.helper.PidCreator;
+import in.gov.uidai.authentication.uid_auth_request._1.Auth;
+import in.gov.uidai.authentication.uid_auth_request._1.Uses;
+import in.gov.uidai.kyc.client.DataDecryptor;
+import in.gov.uidai.kyc.common.types._1.YesNoType;
+import in.gov.uidai.kyc.uid_kyc_request._1.Kyc;
+import in.gov.uidai.kyc.uid_kyc_request._1.RaType;
+
+import java.io.StringWriter;
+import java.net.URI;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
+/**
+ * <code>OtpClient</code> class can be used for submitting an OTP Generation
+ * request to UIDAI OTP Server, and to get the response back
+ * 
+ * @author UIDAI
+ * 
+ */
+public class KYCClient {
+	private URI kycServerURI = null;
+
+	public static final String SLASH = "/";
+
+	private String asaLicenseKey;
+	private DigitalSigner digitalSignator;
+	private DataDecryptor dataDecryptor;
+
+
+	public KYCClient(URI kycServerURI) {
+		this.kycServerURI = kycServerURI;
+	}
+
+	// Changed for Mobile/Email ID consent and Local  Language required Consent
+	String mecType;
+	String lrType;
+	String deType;
+	String pfrType;
+	public String kycTrans(Auth auth, String kua, boolean isRcReceived,
+			String ksaLicense, Uses usesElement, String customXML
+	) {
+		
+		System.out.println("Inside kycTrans in KYCClient");
+		
+		setAsaLicenseKey(ksaLicense);
+
+		String raType = "";
+		if (usesElement.getBt().contains("FIR")
+				|| usesElement.getBt().contains("FMR")) {
+			raType += "F";
+		}
+		if (usesElement.getBt().contains("IIR")) {
+			raType += "I";
+		}
+		if (usesElement.getOtp().toString().contains("Y")) {
+			raType += "O";
+		}
+		if (raType.isEmpty())
+			raType = "F";
+
+		String rcType = "N";
+		if (isRcReceived) {
+			rcType = "Y";
+		}
+
+
+		try {
+			
+			Kyc kyc = new Kyc();
+			kyc.setRa(RaType.valueOf(raType));
+			kyc.setRc(YesNoType.valueOf(rcType));
+			kyc.setMec(YesNoType.valueOf(mecType));
+			kyc.setLr(YesNoType.valueOf(lrType));
+			kyc.setDe(YesNoType.valueOf(deType));
+			kyc.setPfr(YesNoType.valueOf(pfrType));
+			kyc.setVer("2.1");
+			XMLGregorianCalendar calendar = DatatypeFactory
+			.newInstance()
+			.newXMLGregorianCalendar(
+					(GregorianCalendar) Calendar.getInstance());
+			System.out.println("KYC################  "+PidCreator.pidTs.getTs());
+			kyc.setTs(PidCreator.pidTs.getTs());
+			
+			//kyc.setRad(auth);
+			
+			auth.setKyc(kyc);
+			
+			String signedXML = generateSignedAuthXML(auth);
+			
+			System.out.println("signedXML=======:"+signedXML);
+			
+	/*		byte[] codedAuthXML =signedXML
+			.getBytes();
+			Kyc kyc = new Kyc();
+			kyc.setRa(RaType.valueOf(raType));
+			kyc.setRc(YesNoType.valueOf(rcType));
+			kyc.setMec(YesNoType.valueOf(mecType));
+			kyc.setLr(YesNoType.valueOf(lrType));
+			kyc.setDe(YesNoType.valueOf(deType));
+			kyc.setVer("1.0");
+			XMLGregorianCalendar calendar = DatatypeFactory
+			.newInstance()
+			.newXMLGregorianCalendar(
+					(GregorianCalendar) GregorianCalendar.getInstance());
+			kyc.setTs(PidCreator.pidTs.getTs());
+			System.out.println("KYC"+PidCreator.pidTs.getTs());
+			kyc.setRad(codedAuthXML);
+
+			String kycSignedXML;
+			if (StringUtils.isBlank(System.getenv("USE_CUSTOM_KYC_XML"))) {
+				kycSignedXML = generateSignedKycXML(kyc);
+			//	System.out.println(kycSignedXML);
+			} else {
+				String customKYCXML = customXML;
+				Document kycDOM = XMLUtilities.getDomObject(customKYCXML);
+				XMLUtilities.addRarNode(kycDOM, codedAuthXML);
+				String updatedCustomKYCXML = XMLUtilities.getString(kycDOM);
+			//	System.out.println(updatedCustomKYCXML);
+				kycSignedXML = generateSignedKycXML(updatedCustomKYCXML);
+			}
+
+			String uriString = kycServerURI + SLASH + kua + SLASH + "1" + SLASH + "0" + SLASH
+			+ ksaLicense;
+			URI authServiceURI = new URI(uriString);
+
+			WebResource webResource = Client.create(
+					HttpClientHelper.getClientConfig(kycServerURI.getScheme()))
+					.resource(authServiceURI);
+			System.out.println("kycSignedXML====:"+kycSignedXML);
+		*/	
+			
+		/*	String responseXML = webResource.header("REMOTE_ADDR",
+					InetAddress.getLocalHost().getHostAddress()).post(
+							String.class, kycSignedXML);  */
+			
+			
+
+		/*	String kycXML;
+			
+			kycXML = generateKycXML(kyc);
+			
+			System.out.println("kycXML=====:"+kycXML);
+		*/	
+			String uriString = kycServerURI.toString();
+			
+			//System.out.println("kycServerURI===="+uriString);
+			
+			URI authServiceURI = new URI(uriString);
+			
+			WebResource webResource = Client.create(HttpClientHelper.getClientConfig(kycServerURI.getScheme())).resource(authServiceURI);
+			//webResource.type(MediaType.APPLICATION_XML_TYPE);
+			//webResource.header("Content-Type", "application/xml");
+			String responseXML = webResource.header("Content-Type", "application/xml").post(String.class,signedXML);
+		//	String responseXML=null;
+			//Thread.sleep(4000);
+	//		responseXML="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><AuthRes xmlns:ns2=\"http://www.uidai.gov.in/authentication/uid-bfd-response/1.0\"><DeviceId>ksitm</DeviceId><UID>282484930987</UID><SubAUAtransId>UKC:KSITMLAB:20150703012106746</SubAUAtransId><Ret>Y</Ret><ResponseTs>2015-07-03T13:16:56.309+05:30</ResponseTs><SubAUACode>KSITM</SubAUACode><KycResponse>&lt;?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?&gt;&lt;KycRes code=\"2d4c706d6ba34140a2c8838dd5c9c834\" ret=\"Y\" ts=\"2015-07-03T13:16:56.309+05:30\" ttl=\"2016-07-02T13:16:56\" txn=\"UKC:STGKSITM01:20150703011448938\"&gt;&lt;Rar&gt;PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48QXV0aFJlcyBjb2RlPSI5YTQwNTFjY2YxMzU0OWZkOTcwZmRmNzJhYjVjNzQ1NSIgaW5mbz0iMDJ7ODIxMGE5N2E4NTZjNTRlOWQ2MDk2MjM2Nzk5OTI3YjRhYmViNDlhMzNhNmMxNTJlYTYzMzgxZTMwNTk4MDQ4YSwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwLDAxMDAwMDIwMDAwMDAyMDAsMS4wLDIwMTUwNzAzMTMyMTA2LDEsMCwwLDEuNixlMzgwNmEzMDg2ZjQ3ZWI5ODdlYzY4MWUwY2U5MGZhYmQwOTEzNmJlNGEyNDIzN2E0MDllMzhhM2ExZjA2YzUwLDY5ZTgzMWRlNDk2ZjdhYzczNTE3NTk1YTlhNWRlODI2MzJmN2MwMTQ2OTAxMDlhNWYzZjZmZDk3YzFiMTdhNDYsS1NJVE0sUCw1NjAxMDMsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsZWZhMWYzNzVkNzYxOTRmYTUxYTM1NTZhOTdlNjQxZTYxNjg1ZjkxNGQ0NDY5NzlkYTUwYTU1MWE0MzMzZmZkN30iIHJldD0ieSIgdHM9IjIwMTUtMDctMDNUMTM6MTY6NTUuNjQzKzA1OjMwIiB0eG49IlVLQzpTVEdLU0lUTTAxOjIwMTUwNzAzMDExNDQ4OTM4Ij48U2lnbmF0dXJlIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjIj48U2lnbmVkSW5mbz48Q2Fub25pY2FsaXphdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLXhtbC1jMTRuLTIwMDEwMzE1Ii8+PFNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNyc2Etc2hhMSIvPjxSZWZlcmVuY2UgVVJJPSIiPjxUcmFuc2Zvcm1zPjxUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjZW52ZWxvcGVkLXNpZ25hdHVyZSIvPjwvVHJhbnNmb3Jtcz48RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8+PERpZ2VzdFZhbHVlPnVqOFEvVE1RcXRpeE9LMDhDNm8wbFlBcmRYdGRpMVlrWGlQT0ZqLzlpSFU9PC9EaWdlc3RWYWx1ZT48L1JlZmVyZW5jZT48L1NpZ25lZEluZm8+PFNpZ25hdHVyZVZhbHVlPnFsOXl6YW9yRFVpUmw4VmFUT2V0ZmR6K1pqTjB4RFlhMTkvT1hOMDFiaVZQV2N0VWs3bFNzV1hkOUUyWHNOY3cyTDlyRFNIaml4VkEKRHROM3dNaVBWWTU5c2JqN3ptNThOV001QWd2RTBDUHVsQzlRV0o2ZzR4SVdHZElEbzlHUDBGdjl2Wk5HdS9mRnZIcG51RlJHTE0xNApnK0lyUG9mYUVXR3JWUlJLYjNsZ01ZaC9JZm9JbnZGLy9QOUROb3VpUFAwdTJlVUVVS3djRE5HdGNOZmxJem0rZFlTMHQyL2lCWG9XCmlCZFY0dmdmV2JzRFExYnM3aTc2TlBTbUV2YlZtSnB2SXdmdUhVSE1CTitpWGtlUEZuVzlyUFRaakxxOUpSOWNFUUl1WGhGbk1Tdk4KK0pIVURkYXVXUnlFQnFiN2IxSDZ0Q3JrWkUwOWRsZmxUT1A5bnc9PTwvU2lnbmF0dXJlVmFsdWU+PC9TaWduYXR1cmU+PC9BdXRoUmVzPg==&lt;/Rar&gt;&lt;UidData uid=\"282484930987\"&gt;&lt;Poi dob=\"28-05-1985\" gender=\"M\" name=\"SREEJITH R\"/&gt;&lt;Poa dist=\"Thiruvananthapuram\" house=\"6 169 AMRITHAVARSHINI PALLICHAVILAKAM\" lm=\"VILAPPILSALA\" pc=\"695573\" po=\"Vilappilsala\" state=\"Kerala\" street=\"PUTUMMELKONAM\" vtc=\"Vilappil\"/&gt;&lt;LData/&gt;&lt;Pht&gt;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&lt;/Pht&gt;&lt;/UidData&gt;&lt;Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"&gt;&lt;SignedInfo&gt;&lt;CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/&gt;&lt;SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/&gt;&lt;Reference URI=\"\"&gt;&lt;Transforms&gt;&lt;Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/&gt;&lt;/Transforms&gt;&lt;DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/&gt;&lt;DigestValue&gt;3WxMfVjvrNxV2NvbjIUPlZkM5w6Y1uv0e0JDvoQkpG0=&lt;/DigestValue&gt;&lt;/Reference&gt;&lt;/SignedInfo&gt;&lt;SignatureValue&gt;xu0X1qmLJiqTHfLJBkRq4Df/Onw/Od+qbdQA+dXP8n5fKSnlVr9pFZK0Mp/SoUWX3IOjgdO+D5IvSNUNAeVICMOlCl/D/0C/z3xS9kD1l6Dk/8QWXi1SjKX0H054hkzmxrsWJpUPuaYCM94jZ8lNd8AOS4uIe56cgiztxgVfGkgsXdJ2Y6MPMDrJyCqpU8cRlGtNkO512/tqXNi3dsRob7cJMp8D8/DcSJLhu9MXlION5EyCoTHZwBWF6DRHLDRiQ/GTHZ6PyQpT818xCiBB2jL0zTYeng8BEJ4tBCNaX1MgD3DF/EHnjXirKS+q55Sm6nz6WmFb/eX58XszDNtVxQ==&lt;/SignatureValue&gt;&lt;KeyInfo&gt;&lt;X509Data&gt;&lt;X509SubjectName&gt;CN=Auth Benchmarking Server,OU=Tech Center,O=UIDAI,L=Bangalore,ST=KARNATAKA,C=IN&lt;/X509SubjectName&gt;&lt;X509Certificate&gt;MIIDijCCAnKgAwIBAgICBNIwDQYJKoZIhvcNAQEFBQAwfjELMAkGA1UEBhMCSU4xEjAQBgNVBAgTCUtBUk5BVEFLQTESMBAGA1UEBxMJQmFuZ2Fsb3JlMQ4wDAYDVQQKEwVVSURBSTEUMBIGA1UECxMLVGVjaCBDZW50ZXIxITAfBgNVBAMTGEF1dGggQmVuY2htYXJraW5nIFNlcnZlcjAeFw0xNDEwMTQwMDAwMDBaFw0xNTExMTAwMDAwMDBaMH4xCzAJBgNVBAYTAklOMRIwEAYDVQQIEwlLQVJOQVRBS0ExEjAQBgNVBAcTCUJhbmdhbG9yZTEOMAwGA1UEChMFVUlEQUkxFDASBgNVBAsTC1RlY2ggQ2VudGVyMSEwHwYDVQQDExhBdXRoIEJlbmNobWFya2luZyBTZXJ2ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDcGsICTAFhgR2blgG/KpQldEpBFO++SsPWGijD+kreLxnpkY3ORNGE11PzgJDPW+QmLwvLapAsvc2pmwDDrbfd2+gQLT317aS3LGUHKjL0gsgmJT45pMLZSS34iw+uasIrvOBvSbVcwHBNvTrzVjIbjVq6Wm1M3FsHXicUw0OG8zQVXEZ8XFs2qp5N4Dyr5jOWeT/9AOFVach8sjxuxiZssgWcs7pg549gu8nAYGUnMzSYFd07Kp6X6JCkyHt2PylgjedyxDutGK2W1jwOg8+WRN5C5XzvGA+T09nHJuMBn4Csdh9cizbz31aAt7mmeD6GZ0u+pcMDJaHcwevMpTgTAgMBAAGjEjAQMA4GA1UdDwEB/wQEAwICBDANBgkqhkiG9w0BAQUFAAOCAQEAUGYiBn3Hmn8PDbcZ0eQsF1cK4BMd8IDUjjUV3sNgH3xIizBPYf2UdsTsJKJu7Nxi+pnjXBZu9Dirzl+FSa234z/dDS7wE4FCKCBdfQ0fqYji/kLyMqNtmgSzLqDnNcIE+IdmQFBXVE9rOW5/qxTvcinF4Dq6Pz9XjZ8eOuXyAjbx7ybOVboXFx3sCGiJt5IWx9mxPaHB770dKRxBbrC8Ws2LLWE4JJpVpK8pV05kk1cvpYl0k6vxUDnzuZ9fG57BkT/kALFYq9Iq4fg3emKKNyJWaB/I1le22TChuW6Kmnrrd2LZrYZct5lKR5AYKGAwZRWp9zy8Vbv6ALXX6H3gEA==&lt;/X509Certificate&gt;&lt;/X509Data&gt;&lt;/KeyInfo&gt;&lt;/Signature&gt;&lt;/KycRes&gt;</KycResponse></AuthRes>";	
+			
+			//SREEJITH
+			
+	//		responseXML="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><AuthRes xmlns:ns2=\"http://www.uidai.gov.in/authentication/uid-bfd-response/1.0\"><DeviceId>ksitm</DeviceId><UID>282484930987</UID><SubAUAtransId>UKC:KSITMLAB:20150703012106746</SubAUAtransId><Ret>Y</Ret><ResponseTs>2015-07-03T13:16:56.309+05:30</ResponseTs><SubAUACode>KSITM</SubAUACode><KycResponse>&lt;?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?&gt;&lt;KycRes code=\"2d4c706d6ba34140a2c8838dd5c9c834\" ret=\"Y\" ts=\"2015-07-03T13:16:56.309+05:30\" ttl=\"2016-07-02T13:16:56\" txn=\"UKC:STGKSITM01:20150703011448938\"&gt;&lt;Rar&gt;PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48QXV0aFJlcyBjb2RlPSI5YTQwNTFjY2YxMzU0OWZkOTcwZmRmNzJhYjVjNzQ1NSIgaW5mbz0iMDJ7ODIxMGE5N2E4NTZjNTRlOWQ2MDk2MjM2Nzk5OTI3YjRhYmViNDlhMzNhNmMxNTJlYTYzMzgxZTMwNTk4MDQ4YSwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwLDAxMDAwMDIwMDAwMDAyMDAsMS4wLDIwMTUwNzAzMTMyMTA2LDEsMCwwLDEuNixlMzgwNmEzMDg2ZjQ3ZWI5ODdlYzY4MWUwY2U5MGZhYmQwOTEzNmJlNGEyNDIzN2E0MDllMzhhM2ExZjA2YzUwLDY5ZTgzMWRlNDk2ZjdhYzczNTE3NTk1YTlhNWRlODI2MzJmN2MwMTQ2OTAxMDlhNWYzZjZmZDk3YzFiMTdhNDYsS1NJVE0sUCw1NjAxMDMsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsZWZhMWYzNzVkNzYxOTRmYTUxYTM1NTZhOTdlNjQxZTYxNjg1ZjkxNGQ0NDY5NzlkYTUwYTU1MWE0MzMzZmZkN30iIHJldD0ieSIgdHM9IjIwMTUtMDctMDNUMTM6MTY6NTUuNjQzKzA1OjMwIiB0eG49IlVLQzpTVEdLU0lUTTAxOjIwMTUwNzAzMDExNDQ4OTM4Ij48U2lnbmF0dXJlIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjIj48U2lnbmVkSW5mbz48Q2Fub25pY2FsaXphdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLXhtbC1jMTRuLTIwMDEwMzE1Ii8+PFNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNyc2Etc2hhMSIvPjxSZWZlcmVuY2UgVVJJPSIiPjxUcmFuc2Zvcm1zPjxUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjZW52ZWxvcGVkLXNpZ25hdHVyZSIvPjwvVHJhbnNmb3Jtcz48RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8+PERpZ2VzdFZhbHVlPnVqOFEvVE1RcXRpeE9LMDhDNm8wbFlBcmRYdGRpMVlrWGlQT0ZqLzlpSFU9PC9EaWdlc3RWYWx1ZT48L1JlZmVyZW5jZT48L1NpZ25lZEluZm8+PFNpZ25hdHVyZVZhbHVlPnFsOXl6YW9yRFVpUmw4VmFUT2V0ZmR6K1pqTjB4RFlhMTkvT1hOMDFiaVZQV2N0VWs3bFNzV1hkOUUyWHNOY3cyTDlyRFNIaml4VkEKRHROM3dNaVBWWTU5c2JqN3ptNThOV001QWd2RTBDUHVsQzlRV0o2ZzR4SVdHZElEbzlHUDBGdjl2Wk5HdS9mRnZIcG51RlJHTE0xNApnK0lyUG9mYUVXR3JWUlJLYjNsZ01ZaC9JZm9JbnZGLy9QOUROb3VpUFAwdTJlVUVVS3djRE5HdGNOZmxJem0rZFlTMHQyL2lCWG9XCmlCZFY0dmdmV2JzRFExYnM3aTc2TlBTbUV2YlZtSnB2SXdmdUhVSE1CTitpWGtlUEZuVzlyUFRaakxxOUpSOWNFUUl1WGhGbk1Tdk4KK0pIVURkYXVXUnlFQnFiN2IxSDZ0Q3JrWkUwOWRsZmxUT1A5bnc9PTwvU2lnbmF0dXJlVmFsdWU+PC9TaWduYXR1cmU+PC9BdXRoUmVzPg==&lt;/Rar&gt;&lt;UidData uid=\"625717459578\"&gt;&lt;Poi dob=\"28-05-1985\" gender=\"M\" name=\"RANJITH\"/&gt;&lt;Poa dist=\"Thiruvananthapuram\" house=\"6 169 AMRITHAVARSHINI PALLICHAVILAKAM\" lm=\"VILAPPILSALA\" pc=\"695573\" po=\"Vilappilsala\" state=\"Kerala\" street=\"PUTUMMELKONAM\" vtc=\"Vilappil\"/&gt;&lt;LData/&gt;&lt;Pht&gt;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&lt;/Pht&gt;&lt;/UidData&gt;&lt;Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"&gt;&lt;SignedInfo&gt;&lt;CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/&gt;&lt;SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/&gt;&lt;Reference URI=\"\"&gt;&lt;Transforms&gt;&lt;Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/&gt;&lt;/Transforms&gt;&lt;DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/&gt;&lt;DigestValue&gt;3WxMfVjvrNxV2NvbjIUPlZkM5w6Y1uv0e0JDvoQkpG0=&lt;/DigestValue&gt;&lt;/Reference&gt;&lt;/SignedInfo&gt;&lt;SignatureValue&gt;xu0X1qmLJiqTHfLJBkRq4Df/Onw/Od+qbdQA+dXP8n5fKSnlVr9pFZK0Mp/SoUWX3IOjgdO+D5IvSNUNAeVICMOlCl/D/0C/z3xS9kD1l6Dk/8QWXi1SjKX0H054hkzmxrsWJpUPuaYCM94jZ8lNd8AOS4uIe56cgiztxgVfGkgsXdJ2Y6MPMDrJyCqpU8cRlGtNkO512/tqXNi3dsRob7cJMp8D8/DcSJLhu9MXlION5EyCoTHZwBWF6DRHLDRiQ/GTHZ6PyQpT818xCiBB2jL0zTYeng8BEJ4tBCNaX1MgD3DF/EHnjXirKS+q55Sm6nz6WmFb/eX58XszDNtVxQ==&lt;/SignatureValue&gt;&lt;KeyInfo&gt;&lt;X509Data&gt;&lt;X509SubjectName&gt;CN=Auth Benchmarking Server,OU=Tech Center,O=UIDAI,L=Bangalore,ST=KARNATAKA,C=IN&lt;/X509SubjectName&gt;&lt;X509Certificate&gt;MIIDijCCAnKgAwIBAgICBNIwDQYJKoZIhvcNAQEFBQAwfjELMAkGA1UEBhMCSU4xEjAQBgNVBAgTCUtBUk5BVEFLQTESMBAGA1UEBxMJQmFuZ2Fsb3JlMQ4wDAYDVQQKEwVVSURBSTEUMBIGA1UECxMLVGVjaCBDZW50ZXIxITAfBgNVBAMTGEF1dGggQmVuY2htYXJraW5nIFNlcnZlcjAeFw0xNDEwMTQwMDAwMDBaFw0xNTExMTAwMDAwMDBaMH4xCzAJBgNVBAYTAklOMRIwEAYDVQQIEwlLQVJOQVRBS0ExEjAQBgNVBAcTCUJhbmdhbG9yZTEOMAwGA1UEChMFVUlEQUkxFDASBgNVBAsTC1RlY2ggQ2VudGVyMSEwHwYDVQQDExhBdXRoIEJlbmNobWFya2luZyBTZXJ2ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDcGsICTAFhgR2blgG/KpQldEpBFO++SsPWGijD+kreLxnpkY3ORNGE11PzgJDPW+QmLwvLapAsvc2pmwDDrbfd2+gQLT317aS3LGUHKjL0gsgmJT45pMLZSS34iw+uasIrvOBvSbVcwHBNvTrzVjIbjVq6Wm1M3FsHXicUw0OG8zQVXEZ8XFs2qp5N4Dyr5jOWeT/9AOFVach8sjxuxiZssgWcs7pg549gu8nAYGUnMzSYFd07Kp6X6JCkyHt2PylgjedyxDutGK2W1jwOg8+WRN5C5XzvGA+T09nHJuMBn4Csdh9cizbz31aAt7mmeD6GZ0u+pcMDJaHcwevMpTgTAgMBAAGjEjAQMA4GA1UdDwEB/wQEAwICBDANBgkqhkiG9w0BAQUFAAOCAQEAUGYiBn3Hmn8PDbcZ0eQsF1cK4BMd8IDUjjUV3sNgH3xIizBPYf2UdsTsJKJu7Nxi+pnjXBZu9Dirzl+FSa234z/dDS7wE4FCKCBdfQ0fqYji/kLyMqNtmgSzLqDnNcIE+IdmQFBXVE9rOW5/qxTvcinF4Dq6Pz9XjZ8eOuXyAjbx7ybOVboXFx3sCGiJt5IWx9mxPaHB770dKRxBbrC8Ws2LLWE4JJpVpK8pV05kk1cvpYl0k6vxUDnzuZ9fG57BkT/kALFYq9Iq4fg3emKKNyJWaB/I1le22TChuW6Kmnrrd2LZrYZct5lKR5AYKGAwZRWp9zy8Vbv6ALXX6H3gEA==&lt;/X509Certificate&gt;&lt;/X509Data&gt;&lt;/KeyInfo&gt;&lt;/Signature&gt;&lt;/KycRes&gt;</KycResponse></AuthRes>";	
+
+			//RANJITH
+	//     	responseXML="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><AuthRes xmlns:ns2=\"http://www.uidai.gov.in/authentication/uid-bfd-response/1.0\"><DeviceId>ksitm</DeviceId><UID>625717459578</UID><SubAUAtransId>UKC:KSITMLAB:20150704125239176</SubAUAtransId><Ret>Y</Ret><ResponseTs>2015-07-04T12:48:27.040+05:30</ResponseTs><SubAUACode>KSITM</SubAUACode><KycResponse>&lt;?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?&gt;&lt;KycRes code=\"c3aeb48e16f54c9796aa9e6a534d1b29\" ret=\"Y\" ts=\"2015-07-04T12:48:27.040+05:30\" ttl=\"2016-07-03T12:48:27\" txn=\"UKC:STGKSITM01:20150704124620029\"&gt;&lt;Rar&gt;PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48QXV0aFJlcyBjb2RlPSI0NTZhYzM5Y2Y0M2U0ZTIzOWYwY2FjNjQ4MjQ1MmYwNiIgaW5mbz0iMDJ7N2UzZTdhNmZhNjQ2Mzc4MGIxNTg1ZTM3NDQ0NDU0Y2FhZTU3ZmJkZGZhNmIxNzE0M2Q0NjI3NTExMjBjYjExNCwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwLDAxMDAwMDIwMDAwMDAyMDAsMS4wLDIwMTUwNzA0MTI1MjM4LDEsMCwwLDEuNixlMzgwNmEzMDg2ZjQ3ZWI5ODdlYzY4MWUwY2U5MGZhYmQwOTEzNmJlNGEyNDIzN2E0MDllMzhhM2ExZjA2YzUwLDY5ZTgzMWRlNDk2ZjdhYzczNTE3NTk1YTlhNWRlODI2MzJmN2MwMTQ2OTAxMDlhNWYzZjZmZDk3YzFiMTdhNDYsS1NJVE0sUCw1NjAxMDMsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsZWZhMWYzNzVkNzYxOTRmYTUxYTM1NTZhOTdlNjQxZTYxNjg1ZjkxNGQ0NDY5NzlkYTUwYTU1MWE0MzMzZmZkN30iIHJldD0ieSIgdHM9IjIwMTUtMDctMDRUMTI6NDg6MjYuNjI4KzA1OjMwIiB0eG49IlVLQzpTVEdLU0lUTTAxOjIwMTUwNzA0MTI0NjIwMDI5Ij48U2lnbmF0dXJlIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjIj48U2lnbmVkSW5mbz48Q2Fub25pY2FsaXphdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLXhtbC1jMTRuLTIwMDEwMzE1Ii8+PFNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNyc2Etc2hhMSIvPjxSZWZlcmVuY2UgVVJJPSIiPjxUcmFuc2Zvcm1zPjxUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjZW52ZWxvcGVkLXNpZ25hdHVyZSIvPjwvVHJhbnNmb3Jtcz48RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8+PERpZ2VzdFZhbHVlPkxsQXVYK3p4ZWNPdHQwOTcyYnlMaFljWDZObEswaXZnOUZTTjBEYlFManc9PC9EaWdlc3RWYWx1ZT48L1JlZmVyZW5jZT48L1NpZ25lZEluZm8+PFNpZ25hdHVyZVZhbHVlPnRJVlpUSDVGRUp0MEUyWWplUjBRaVcvM0ttSXpvcWFOT2NEYmlLWjM3UUhvNDdXajdSQmFnV3VONXEvejZHSWk3ZkVvWlc0UVZtbysKeW5qaGNUL2dMdW1uby84eit2cjVXNk1xbjh4bnJrUlJJMDd5TUx4Qk0yc1F2OUJYTG9tWmxyYWJyZ1pFclA0eGdkcGlJWFN1dFo5UwpYSnFGMlpLTlVQQWZtWXJET1NhTkp2K1BoUy8rY1BHc01Kb2FzeUJmVDNRdjBVclZOMmVWZ0ZKSk5tdlpPaXVIMnhPSVZGQ0V4bjlxCndBUVUxdndkYkQzcUI5WDc0RE5LdGJGUWpobkgwcHRoT3FEVm9MVUR4YmMxL3RZdjJVWlhTNFdqOUxFS2laNitBVXh5R0hadFBGNzYKMUwwSHRKTmNEci9NUHZoMWhNenJjaWtBSkxvcDNWUUVHaW1oZkE9PTwvU2lnbmF0dXJlVmFsdWU+PC9TaWduYXR1cmU+PC9BdXRoUmVzPg==&lt;/Rar&gt;&lt;UidData uid=\"625717459578\"&gt;&lt;Poi dob=\"12-04-1973\" email=\"rvappala@gmail.com\" gender=\"M\" name=\"Ranjit Vappala\" phone=\"9400667010\"/&gt;&lt;Poa co=\"S/O: Aravindakshan K\" dist=\"Palakkad\" house=\"College View\" loc=\"Palappuram\" pc=\"679103\" state=\"Kerala\" street=\"Central School Road\" subdist=\"Ottappalam\" vtc=\"Ottappalam\"/&gt;&lt;LData/&gt;&lt;Pht&gt;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&lt;/Pht&gt;&lt;/UidData&gt;&lt;Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"&gt;&lt;SignedInfo&gt;&lt;CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/&gt;&lt;SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/&gt;&lt;Reference URI=\"\"&gt;&lt;Transforms&gt;&lt;Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/&gt;&lt;/Transforms&gt;&lt;DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/&gt;&lt;DigestValue&gt;jicjJQb/KeHLUFbfL+7YfGoMN6ngxDwIkrIXIuP9w3k=&lt;/DigestValue&gt;&lt;/Reference&gt;&lt;/SignedInfo&gt;&lt;SignatureValue&gt;LxXZf7VKwzb64XZ7EUfyu+Jvu4fhs4/7IrFRnGPID0soymu6klmrjdQn/YGcl0LkdOGECRB6f211o8VsJqhIqaTBpzT6g6ybBH/FVfY47S6qKG8A4VQQiXbCXrhPzKC+RWfeVFp3/ndv5j7w8gwy4wlRII/zkV8KoWJULUx8cKe12QDsX4ftEiG+xN04q+rfGzRiM0uMjU92K3W6I67qr0PDFnUNAJCKT+WtGykBaAXsTB90mCn+66XYM96I/62bfgwLbH6zE1TsrWasNjfvwNfuJb/BnFTTBSYhBWkO74e4zB70+fLOWFEBDSt6rqFRu0ilLBejWLHz7DMqXiYhIQ==&lt;/SignatureValue&gt;&lt;KeyInfo&gt;&lt;X509Data&gt;&lt;X509SubjectName&gt;2.5.4.51=#0c474c4556454c203120424c4f434b20422053414c4152505552494120544f55434853544f4e45204d4152415448414c4c49205341524a41505552204f555445522052494e47205244,CN=DS UNIQUE IDENTIFICATION AUTHORITY OF INDIA (3),O=UIDAI,OU=TECHNOLOGY CENTRE,STREET=BANGALORE,ST=KARNATAKA,2.5.4.17=#0c06353630303932,C=IN&lt;/X509SubjectName&gt;&lt;X509Certificate&gt;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&lt;/X509Certificate&gt;&lt;/X509Data&gt;&lt;/KeyInfo&gt;&lt;/Signature&gt;&lt;/KycRes&gt;</KycResponse></AuthRes>";
+			
+
+	     	//SONY
+
+	 //   	responseXML="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><AuthRes xmlns:ns2=\"http://www.uidai.gov.in/authentication/uid-bfd-response/1.0\"><DeviceId>ksitm</DeviceId><UID>265931298020</UID><SubAUAtransId>UKC:KSITMLAB:20150704021835068</SubAUAtransId><Ret>Y</Ret><ResponseTs>2015-07-04T14:14:22.484+05:30</ResponseTs><SubAUACode>KSITM</SubAUACode><KycResponse>&lt;?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?&gt;&lt;KycRes code=\"34a8b3a2971e40f4a4cc9800fbf863a6\" ret=\"Y\" ts=\"2015-07-04T14:14:22.484+05:30\" ttl=\"2016-07-03T14:14:22\" txn=\"UKC:STGKSITM01:20150704021215510\"&gt;&lt;Rar&gt;PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48QXV0aFJlcyBjb2RlPSJiMThiNWU1Y2ZlZWM0NDlmYTgxNGY5YjI5NzE1YjYxMiIgaW5mbz0iMDJ7M2E1YzczODM2OWIxMzUwZWYxZjNmM2RmZWI1Y2E4N2RjZGU0ZjQ1YWQxMjMyMzQ1ZTY5MWMzZjBlYWE3OGJkYiwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwLDAxMDAwMDIwMDAwMDAyMDAsMS4wLDIwMTUwNzA0MTQxODM1LDEsMCwwLDEuNixlMzgwNmEzMDg2ZjQ3ZWI5ODdlYzY4MWUwY2U5MGZhYmQwOTEzNmJlNGEyNDIzN2E0MDllMzhhM2ExZjA2YzUwLDY5ZTgzMWRlNDk2ZjdhYzczNTE3NTk1YTlhNWRlODI2MzJmN2MwMTQ2OTAxMDlhNWYzZjZmZDk3YzFiMTdhNDYsS1NJVE0sUCw1NjAxMDMsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsTkEsZWZhMWYzNzVkNzYxOTRmYTUxYTM1NTZhOTdlNjQxZTYxNjg1ZjkxNGQ0NDY5NzlkYTUwYTU1MWE0MzMzZmZkN30iIHJldD0ieSIgdHM9IjIwMTUtMDctMDRUMTQ6MTQ6MjEuODk4KzA1OjMwIiB0eG49IlVLQzpTVEdLU0lUTTAxOjIwMTUwNzA0MDIxMjE1NTEwIj48U2lnbmF0dXJlIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjIj48U2lnbmVkSW5mbz48Q2Fub25pY2FsaXphdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLXhtbC1jMTRuLTIwMDEwMzE1Ii8+PFNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNyc2Etc2hhMSIvPjxSZWZlcmVuY2UgVVJJPSIiPjxUcmFuc2Zvcm1zPjxUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjZW52ZWxvcGVkLXNpZ25hdHVyZSIvPjwvVHJhbnNmb3Jtcz48RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8+PERpZ2VzdFZhbHVlPlIrTmptZVppdWNDR1A3SngyMGtCSEQ5Q3BOMFB1K2JvK2JuZUlRTzdEUUU9PC9EaWdlc3RWYWx1ZT48L1JlZmVyZW5jZT48L1NpZ25lZEluZm8+PFNpZ25hdHVyZVZhbHVlPlI4dkxsbUgwdWkvVHdLZ1A5M0wvV1k3MnhRZG1jZ3d1Y0gzTVJoN2pMNVFROHpoRk9YM0l0TVNrRWs4dlVqV21kOTVqZ0F4V2pQUjQKOFFaZHdLTTNHdVBILzBXY2ZoS1N3djE4OUlJekdjK3A2ZEliSHBPUFVBa2FJZzRtcEpndUt2Zy91Q3RBUnlvb1RDUlRJMUdNdFd1YgpFWjJLWVRIZnBPYW4wODlHRWZvbXkyTW5Bbks3clY2NGRUQ3JEUjFVeVJyVno4eTZwWnUza1loSDZpekl2K1U1em53Wm1zTTZKdWJnCkNCRmo3UVIxNFJPQjdFQlZoUHNkaGtXRi9oeTMzbXhsd2pObDRLWHJaOHd2ZzFoTWRRMjJOSS9oSC9hUytKNXRuNDVIVUtIWVVTTTYKWEVzL1RIVWFjSGhLcGxDWEVBN01zSXRyU2ZPcFAyb1lzbXFPdGc9PTwvU2lnbmF0dXJlVmFsdWU+PC9TaWduYXR1cmU+PC9BdXRoUmVzPg==&lt;/Rar&gt;&lt;UidData uid=\"265931298020\"&gt;&lt;Poi dob=\"30-05-1981\" gender=\"M\" name=\"Sony Babu\" phone=\"9847976374\"/&gt;&lt;Poa co=\"S/O: Babu L\" dist=\"Kollam\" house=\"K B HOME\" lm=\"KOTTARAKKARA\" pc=\"691557\" state=\"Kerala\" street=\"CHENGAMANADU P O\" subdist=\"Kottarakkara\" vtc=\"Melila\"/&gt;&lt;LData/&gt;&lt;Pht&gt;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&lt;/Pht&gt;&lt;/UidData&gt;&lt;Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"&gt;&lt;SignedInfo&gt;&lt;CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/&gt;&lt;SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/&gt;&lt;Reference URI=\"\"&gt;&lt;Transforms&gt;&lt;Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/&gt;&lt;/Transforms&gt;&lt;DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/&gt;&lt;DigestValue&gt;AHuExlByQfVaK0jmgo+/lbu9UYbJeSw8htAjCgTUbBM=&lt;/DigestValue&gt;&lt;/Reference&gt;&lt;/SignedInfo&gt;&lt;SignatureValue&gt;ABiCmA9YlMRWdnsNb+iUw0aSChp3Oe6lBAqtUy03LmkFYuQIkxvicNv/5L+jnodt+9Bil7GT99UMTnZ5IeRnmrZaPqL7PProTQgFL5KaDM2dhQUcGdKgiSeZwwV0YRqz3CFEuLUnGDDY56nrXdeZ8H2lQDf8H2d4oUZpZmsfbBm+Wv2T1bc0SscEywKIDJCDtWEgUZ+vs7B9V0qmKSI5QO4t9BAQ9U1F8ApA4e7EYT/xou6KGff1xdTYaRW8EFBEe7dYlZD+sfoYO3h0gMFuZpbZRYl+2d+Yibtxb+MfFDh0t8GggeD3uXjd1/K0V9nweX0dPQwRr9j6URqWUPVz+Q==&lt;/SignatureValue&gt;&lt;KeyInfo&gt;&lt;X509Data&gt;&lt;X509SubjectName&gt;2.5.4.51=#0c474c4556454c203120424c4f434b20422053414c4152505552494120544f55434853544f4e45204d4152415448414c4c49205341524a41505552204f555445522052494e47205244,CN=DS UNIQUE IDENTIFICATION AUTHORITY OF INDIA (3),O=UIDAI,OU=TECHNOLOGY CENTRE,STREET=BANGALORE,ST=KARNATAKA,2.5.4.17=#0c06353630303932,C=IN&lt;/X509SubjectName&gt;&lt;X509Certificate&gt;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&lt;/X509Certificate&gt;&lt;/X509Data&gt;&lt;/KeyInfo&gt;&lt;/Signature&gt;&lt;/KycRes&gt;</KycResponse></AuthRes>";
+  
+			
+			System.out.println("responseXML=====:" + responseXML +"\n  The end");
+			
+			
+			/* added for get the kyc content */
+			//added and commented by govind 20-11-2017 end
+			 if(responseXML.contains("&lt;")) {					
+				 responseXML = responseXML.replace("&lt;",  "<");					
+			}
+			if(responseXML.contains("&gt;")) {					
+				 responseXML = responseXML.replace("&gt;",  ">");					
+			}
+			if(responseXML.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")) {					
+				 responseXML = responseXML.replace("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",  "");					
+			}
+			if(responseXML.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {					
+				 responseXML = responseXML.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>",  "");					
+			}
+			if(responseXML.contains("<AuthRes xmlns:ns2=\"http://www.uidai.gov.in/authentication/uid-bfd-response/1.0\"")) {					
+				 responseXML = responseXML.replace("<AuthRes xmlns:ns2=\"http://www.uidai.gov.in/authentication/uid-bfd-response/1.0\"",  "<AuthRes");					
+			}
+			//System.out.println("responseXML=====:" + responseXML +"\n  The end");
+			/*DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder =dbFactory.newDocumentBuilder();
+			InputSource is = new InputSource(new StringReader(responseXML));
+			Document doc =dBuilder.parse(is);
+			
+			NodeList kycResponseList= doc.getElementsByTagName("KycResponse");
+			
+			if(null != kycResponseList && kycResponseList.getLength()>0){
+				
+				responseXML=kycResponseList.item(0).getNodeValue();
+			}
+			*/
+			String org[]=responseXML.split("<KycResponse>");
+		   	String first=org[1];
+		   	String org2[]=first.split("</KycResponse>");
+		    String second=org2[0];
+		    responseXML=second;
+		    //added and commented by govind 20-11-2017 end
+			System.out.println("kycresponseXML=====:" + responseXML +"\n  The end");
+
+			/*Resp resp1 = (Resp) XMLUtilities.parseXML(Resp.class, responseXML);
+			System.out.println("#############################"+resp1.getStatus());
+			System.out.println("-------------------------------------"+resp1.getKycRes());
+			System.out.println("-------------------------------------"+resp1.getClass());
+			
+			
+			if (resp1.getStatus().equalsIgnoreCase("-1")) {
+				if (resp1.getKycRes().length == 0) {
+					throw new Exception(
+					"KYC response xml retured a status of -1, no content found.");
+				}
+			}
+			byte[] kycRes = resp1.getKycRes();
+			String xml = "";
+			if (resp1.getStatus().equalsIgnoreCase("0")) {
+				xml = new String(dataDecryptor.decrypt(kycRes));
+			} else {
+				System.out.println("INSIDE");
+				xml = new String(kycRes);
+			}
+			System.out.println(xml);
+			if(StringUtils.isBlank(System.getenv("SKIP_RESP_SIG_VERIFY")))
+			{
+				
+				System.out.println("SKIP_RESP_SIG_VERIFY");
+				if (dataDecryptor.verify(xml)) {
+					System.out.println("kerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+					System.out.println(xml);
+					return xml;
+				} else {
+					throw new Exception(
+					"KYC response xml signature verification failed.");
+				}
+			}
+			else{
+				System.out.println("surrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+				System.out.println(xml);
+				return xml;	
+			}*/
+			//System.out.println("uytttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt");
+			//System.out.println(responseXML);
+			return responseXML;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Exception during KYC transaction "
+					+ e.getMessage(), e);
+		}
+	}
+
+
+	private String generateKycXML(Kyc kyc) throws JAXBException,
+	Exception {
+				
+		StringWriter kycXML = new StringWriter();
+		JAXBElement kycElement = new JAXBElement(new QName(
+				"http://www.uidai.gov.in/kyc/uid-kyc-request/1.0", "Kyc"), Kyc.class, kyc);
+//		JAXBElement authElement = new JAXBElement(new QName("Auth"), Auth.class, auth);
+		JAXBContext.newInstance(Kyc.class).createMarshaller().marshal(kycElement, kycXML);
+		
+
+		/*String authXmlStr = authXML.toString();
+		String xml1 = null;
+		String xml2 = null;
+		if(authXmlStr.contains("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request-data/1.0\"")){
+			xml1 = authXmlStr.substring(0, authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request-data/1.0\""));
+			xml2 = authXmlStr.substring(authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request-data/1.0\""), authXmlStr.length()+1);
+		}
+		if(authXmlStr.contains("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"")){
+			xml1 = authXmlStr.substring(0, authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"")-1);
+			xml2 = authXmlStr.substring(authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"")+"xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"".length(), authXmlStr.length());
+		}
+		System.out.println("generateSignedAuthXML  xml1====:"+xml1);
+		System.out.println("generateSignedAuthXML  xml2====:"+xml2);
+
+		String authXml = xml1+xml2; */
+    	return kycXML.toString();
+//		return kycXML;
+		
+		
+	}
+	
+	
+	
+	private String generateSignedKycXML(Kyc kyc) throws JAXBException,
+	Exception {
+		StringWriter kycXML = new StringWriter();
+
+		JAXBElement kycElement = new JAXBElement(new QName(
+				"http://www.uidai.gov.in/kyc/uid-kyc-request/1.0", "Kyc"),
+				Kyc.class, kyc);
+
+		JAXBContext.newInstance(Kyc.class).createMarshaller().marshal(
+				kycElement, kycXML);
+		boolean includeKeyInfo = true;
+		return this.digitalSignator.signXML(kycXML.toString(), includeKeyInfo);
+
+	}
+
+	private String generateSignedKycXML(String kycXML) throws JAXBException,
+	Exception {
+		boolean includeKeyInfo = true;
+		return this.digitalSignator.signXML(kycXML.toString(), includeKeyInfo);
+
+	}
+
+/*	private String generateSignedAuthXML(Auth auth) throws JAXBException,
+	Exception {
+		StringWriter authXML = new StringWriter();
+
+		JAXBElement authElement = new JAXBElement(new QName(
+				"http://www.uidai.gov.in/authentication/uid-auth-request/1.0",
+		"Auth"), Auth.class, auth);
+
+		JAXBContext.newInstance(Auth.class).createMarshaller().marshal(
+				authElement, authXML);
+		boolean includeKeyInfo = true;
+
+		if (System.getenv().get("SKIP_DIGITAL_SIGNATURE_AUTH_ONLY") != null) {
+			return authXML.toString();
+		} else {
+			return this.digitalSignator.signXML(authXML.toString(),
+					includeKeyInfo);
+		}
+	}*/
+
+
+	
+	private String generateSignedAuthXML(Auth auth) throws JAXBException, Exception {
+		StringWriter authXML = new StringWriter();
+		JAXBElement authElement = new JAXBElement(new QName(
+				"http://www.uidai.gov.in/authentication/uid-auth-request/1.0", "Auth"), Auth.class, auth);
+//		JAXBElement authElement = new JAXBElement(new QName("Auth"), Auth.class, auth);
+		JAXBContext.newInstance(Auth.class).createMarshaller().marshal(authElement, authXML);
+		boolean includeKeyInfo = true;
+
+		/*if(System.getenv().get("SKIP_DIGITAL_SIGNATURE") != null) {
+			return authXML.toString();
+		} else {
+			return this.digitalSignator.signXML(authXML.toString(), includeKeyInfo);
+		}*/
+		String authXmlStr = authXML.toString();
+		String xml1 = null;
+		String xml2 = null;
+		if(authXmlStr.contains("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request-data/1.0\"")){
+			xml1 = authXmlStr.substring(0, authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request-data/1.0\""));
+			xml2 = authXmlStr.substring(authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request-data/1.0\""), authXmlStr.length()+1);
+		}
+		if(authXmlStr.contains("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"")){
+			xml1 = authXmlStr.substring(0, authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"")-1);
+			xml2 = authXmlStr.substring(authXmlStr.indexOf("xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"")+"xmlns=\"http://www.uidai.gov.in/authentication/uid-auth-request/1.0\"".length(), authXmlStr.length());
+		}
+		System.out.println("generateSignedAuthXML  xml1====:"+xml1);
+		System.out.println("generateSignedAuthXML  xml2====:"+xml2);
+
+		String authXml = xml1+xml2;
+//		return authXML.toString();
+		return authXml;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Method to inject an instance of <code>DigitalSigner</code> class.
+	 * 
+	 * @param digitalSignator
+	 */
+	public void setDigitalSignator(DigitalSigner digitalSignator) {
+		this.digitalSignator = digitalSignator;
+	}
+
+	public void setAsaLicenseKey(String asaLicenseKey) {
+		this.asaLicenseKey = asaLicenseKey;
+	}
+
+	/**
+	 * @param dataDecryptor
+	 *            the dataDecryptor to set
+	 */
+	public void setDataDecryptor(DataDecryptor dataDecryptor) {
+		this.dataDecryptor = dataDecryptor;
+	}
+	//ADDED for mec and lr requirement
+	public void setMecLr(boolean isMecRecieved,boolean isLrRecieved){
+		mecType="N";
+		lrType="N";
+		if (isMecRecieved) {
+			mecType = "Y";
+		}
+		if (isLrRecieved) {
+			lrType = "Y";
+		}
+
+	}
+	public void setDe(boolean isDeRecieved){
+		deType="N";
+		if (isDeRecieved) {
+			deType = "Y";
+		}
+	}
+	public void setPrf(boolean isPfrRecieved){
+		pfrType="N";
+		if (isPfrRecieved) {
+			pfrType = "Y";
+		}
+	}
+
+
+
+
+}

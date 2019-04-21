@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="DutyNursingOfficersReport"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="864"
+		 pageHeight="612"
+		 columnWidth="804"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="toDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="deptId" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer('0')]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[".\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="department_name" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="hospitalId" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select  COALESCE(i.REMG,0) + COALESCE(ADM,0) - c.DIS - COALESCE(f.TOUT,0) + COALESCE(e.TIN,0)-COALESCE(b.Death,0) as REMG,ADM,b.Death,c.DIS- COALESCE(b.Death,0) as DIS,d.REMD,e.TIN,f.TOUT,g.SIL,h.DIL, (d.REMD + ADM - c.DIS - COALESCE(f.TOUT,0) + COALESCE(e.TIN,0)) as total ,
+(select concat(hospital_Name,'  ,',address)as hname from mas_hospital where hospital_id = (select  hospital_id from inpatient where inpatient.hospital_id=$P{hospitalId} limit 1 ))  as hname
+from
+(SELECT count(*) as ADM FROM inpatient inpatient  where inpatient.date_of_addmission = $P{toDate} and  inpatient.ad_ward_id = $P{deptId} and inpatient.hospital_id=$P{hospitalId}) a,
+(SELECT count(*) as Death FROM expiry_details expiry_details where expiry_details.expiry_date  = $P{toDate}  and  expiry_details.ward_id = $P{deptId} and expiry_details.hospital_id=$P{hospitalId} ) b,
+(SELECT count(*) as DIS FROM discharge discharge where discharge.date_of_discharge = $P{toDate} and  discharge.ward_id = $P{deptId} and discharge.hospital_id=$P{hospitalId}) c,
+(SELECT count(*) as REMD FROM inpatient inp2 where inp2.date_of_addmission <= $P{toDate} and inp2.ad_status = 'A' and inp2.department_id = $P{deptId} and inp2.hospital_id=$P{hospitalId}) d,
+(SELECT count(*) as TIN FROM transfer tri where tri.date_of_transfer = $P{toDate} and tri.to_ward_id = $P{deptId} and tri.hospital_id=$P{hospitalId}) e,
+(SELECT count(*) as TOUT FROM transfer tro where tro.date_of_transfer = $P{toDate} and tro.from_ward_id = $P{deptId} and tro.hospital_id=$P{hospitalId}) f,
+(SELECT count(distinct(sil.inpatient_id)) as SIL FROM sil_dil_status sil inner join inpatient inp7 ON sil.inpatient_id = inp7.inpatient_id inner join mas_hospital ON inp7.hospital_id = mas_hospital.hospital_id where  sil.last_chg_date = $P{toDate} and sil.department_id = $P{deptId} and sil.condition_status ='SIL' ) g,
+(SELECT count(distinct(dil.inpatient_id)) as DIL FROM sil_dil_status dil inner join  inpatient inp6 ON dil.inpatient_id = inp6.inpatient_id inner join mas_hospital ON inp6.hospital_id = mas_hospital.hospital_id where dil.last_chg_date = $P{toDate} and dil.department_id = $P{deptId} and dil.condition_status ='DIL' ) h,
+(SELECT count(*) as REMG FROM inpatient inp5 where inp5.date_of_addmission <= $P{toDate} and inp5.ad_status = 'A' and inp5.department_id = $P{deptId} and inp5.hospital_id=$P{hospitalId}) i]]></queryString>
+
+	<field name="REMG" class="java.lang.Long"/>
+	<field name="ADM" class="java.lang.Long"/>
+	<field name="Death" class="java.lang.Long"/>
+	<field name="DIS" class="java.lang.Long"/>
+	<field name="REMD" class="java.lang.Long"/>
+	<field name="TIN" class="java.lang.Long"/>
+	<field name="TOUT" class="java.lang.Long"/>
+	<field name="SIL" class="java.lang.Long"/>
+	<field name="DIL" class="java.lang.Long"/>
+	<field name="total" class="java.lang.Long"/>
+	<field name="hname" class="java.lang.String"/>
+
+	<variable name="SUMTIN" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{TIN}]]></variableExpression>
+	</variable>
+	<variable name="SUMOUT" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOUT}]]></variableExpression>
+	</variable>
+	<variable name="SUMSIL" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{SIL}]]></variableExpression>
+	</variable>
+	<variable name="SUMDIL" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{DIL}]]></variableExpression>
+	</variable>
+	<variable name="SUMDEATH" class="java.lang.Long" resetType="Report" calculation="Sum">
+	</variable>
+	<variable name="SUMREMD" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{REMD}]]></variableExpression>
+	</variable>
+	<variable name="SUMDIS" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{DIS}]]></variableExpression>
+	</variable>
+	<variable name="SUMADM" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{ADM}]]></variableExpression>
+	</variable>
+	<variable name="SUMREMG" class="java.lang.Long" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{REMG}]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="57"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="1"
+						y="23"
+						width="771"
+						height="17"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[DUTY NURSING OFFICERS REPORT]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="7"
+						y="40"
+						width="34"
+						height="17"
+						key="staticText-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Ward:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="564"
+						y="37"
+						width="34"
+						height="17"
+						key="staticText-16"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Date:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="598"
+						y="37"
+						width="100"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{toDate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="43"
+						y="39"
+						width="193"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{department_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="120"
+						y="2"
+						width="451"
+						height="21"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{hname}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="328"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="23"
+						y="32"
+						width="668"
+						height="2"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="113"
+						y="8"
+						width="42"
+						height="22"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ADM]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="340"
+						y="8"
+						width="68"
+						height="22"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[SIL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="157"
+						y="8"
+						width="42"
+						height="22"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DIS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="409"
+						y="8"
+						width="54"
+						height="22"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DIL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="199"
+						y="8"
+						width="68"
+						height="22"
+						key="staticText-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[T/IN]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="268"
+						y="8"
+						width="68"
+						height="22"
+						key="staticText-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[T/OUT]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="529"
+						y="8"
+						width="68"
+						height="22"
+						key="staticText-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DEATH]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="48"
+						y="8"
+						width="63"
+						height="22"
+						key="staticText-12"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[REMD]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="599"
+						y="7"
+						width="53"
+						height="22"
+						key="staticText-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[REMG]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="21"
+						y="55"
+						width="676"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="59"
+						width="690"
+						height="27"
+						key="subreport-1"
+						positionType="Float"/>
+					<subreportParameter  name="Date">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="Dept_ID">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//SubDutyNursingOfficersReport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="120"
+						width="690"
+						height="35"
+						key="subreport-2"
+						positionType="Float"/>
+					<subreportParameter  name="Date">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="Dept_ID">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//SubSILDILDutyNursingOfficersReport.jasper"]]></subreportExpression>
+				</subreport>
+				<line direction="TopDown">
+					<reportElement
+						x="22"
+						y="6"
+						width="671"
+						height="0"
+						key="line-3"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="156"
+						width="691"
+						height="33"
+						key="subreport-3"
+						positionType="Float"/>
+					<subreportParameter  name="Date">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="Dept_ID">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//SubDeathsDutyNursingOfficersReport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="190"
+						width="691"
+						height="37"
+						key="subreport-4"
+						positionType="Float"/>
+					<subreportParameter  name="toDate">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//sub_remarks.jasper"]]></subreportExpression>
+				</subreport>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="113"
+						y="34"
+						width="42"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{ADM}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="155"
+						y="34"
+						width="44"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{DIS}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="199"
+						y="34"
+						width="68"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{TIN}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="267"
+						y="34"
+						width="69"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{TOUT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="340"
+						y="35"
+						width="68"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{SIL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="408"
+						y="35"
+						width="55"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{DIL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="538"
+						y="35"
+						width="59"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{Death}]]></textFieldExpression>
+				</textField>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="227"
+						width="690"
+						height="30"
+						key="subreport-5"
+						positionType="Float"/>
+					<subreportParameter  name="Date">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="Dept_Id">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="wardName">
+						<subreportParameterExpression><![CDATA[$P{department_name}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//wardremarksForOfficers.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="87"
+						width="690"
+						height="31"
+						key="subreport-6"
+						positionType="Float"/>
+					<subreportParameter  name="Date">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="Dept_ID">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//patientTranserIn.jasper"]]></subreportExpression>
+				</subreport>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="52"
+						y="34"
+						width="59"
+						height="20"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{REMG}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="598"
+						y="35"
+						width="54"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{REMD}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

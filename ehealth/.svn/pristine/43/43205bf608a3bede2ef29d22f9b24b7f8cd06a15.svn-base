@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AntenatalCard_usg_2" pageWidth="660" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="660" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isFloatColumnFooter="true" uuid="703e2e10-6486-465e-949b-7f5c8a656472">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="hinId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select  opd_antenatal_usg_id ,    opd_antenatal_card_id ,    visit_id ,    hin_id ,    department_id ,    hospital_id ,    trimister ,        usg_parameter_value1 ,    usg_parameter_value2 ,    usg_parameter_value3 ,    usg_parameter_value4 ,    usg_parameter_value5 ,    usg_parameter_value6 ,    first_trim_weeks ,    usg_flag ,    visit_flag ,
+case when usg_parameter=usg_parameter1 then null else usg_parameter end as usg_parameter,usg_parameter_value1,usg_remarks
+from (
+select  oact.opd_antenatal_usg_id ,    oact.opd_antenatal_card_id ,    oact.visit_id ,    oact.hin_id ,    oact.department_id ,
+	oact.hospital_id ,    oact.trimister ,
+	oact.usg_parameter_value1 ,    oact.usg_parameter_value2 ,    oact.usg_parameter_value3 ,    oact.usg_parameter_value4 ,    oact.usg_parameter_value5 ,    oact.usg_parameter_value6 ,    oact.first_trim_weeks ,    oact.usg_flag ,    oact.visit_flag ,
+	oact.usg_parameter,lag(oact.usg_parameter) over (partition BY oact.visit_id ) as usg_parameter1
+,oac.usg_remarks
+from opd_antenatal_usg oact
+left outer join opd_antenatal_card oac   on oact.opd_antenatal_card_id = oac.opd_antenatal_card_id
+left outer join visit v on v.visit_id = oact.visit_id
+left outer join patient p on p.hin_id = oact.hin_id
+left outer join mas_hospital mh on mh.hospital_id = oac.hospital_id
+where
+case when $P{opdvid} != 0 then	oac.visit_id = $P{opdvid} else oac.hin_id = $P{hinId} end
+and oac.hospital_id = $P{hospitalId} and oact.trimister='Second'
+) as c;]]>
+	</queryString>
+	<field name="opd_antenatal_usg_id" class="java.lang.Integer"/>
+	<field name="opd_antenatal_card_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="hospital_id" class="java.lang.Integer"/>
+	<field name="trimister" class="java.lang.String"/>
+	<field name="usg_parameter_value1" class="java.lang.String"/>
+	<field name="usg_parameter_value2" class="java.lang.String"/>
+	<field name="usg_parameter_value3" class="java.lang.String"/>
+	<field name="usg_parameter_value4" class="java.lang.String"/>
+	<field name="usg_parameter_value5" class="java.lang.String"/>
+	<field name="usg_parameter_value6" class="java.lang.String"/>
+	<field name="first_trim_weeks" class="java.lang.String"/>
+	<field name="usg_flag" class="java.lang.String"/>
+	<field name="visit_flag" class="java.lang.String"/>
+	<field name="usg_parameter" class="java.lang.String"/>
+	<field name="usg_remarks" class="java.lang.String"/>
+	<variable name="slno" class="java.lang.Integer">
+		<variableExpression><![CDATA[new Integer($V{PAGE_COUNT}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-15" positionType="Float" x="6" y="4" width="122" height="16" uuid="7d6d87cf-8b5b-4784-bb67-e54c98f7f277">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[USG Second Report]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-1" positionType="Float" x="7" y="19" width="354" height="1" uuid="42b114e4-8a87-4c4d-bf4a-e80f0305c86c">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-2" positionType="Float" x="7" y="0" width="87" height="17" uuid="59b15faf-8f5c-4a49-a593-51d6974bc9c1">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-3" positionType="Float" x="98" y="0" width="87" height="17" uuid="e0c6a898-028b-4125-aa3c-a63b759a9fbb">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter_value1}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-2" positionType="Float" x="6" y="17" width="354" height="1" uuid="92594c59-f87d-485f-bd76-2a5234a26b5f">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-4" positionType="Float" x="276" y="0" width="85" height="17" uuid="0f1bcdb0-08b0-4429-89be-6f56663f9cb9">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter_value3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" x="186" y="0" width="87" height="17" uuid="f6310492-1b1a-4f2f-b4da-7e6b636cdbfc">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter_value2}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-5" positionType="Float" stretchType="RelativeToTallestObject" x="360" y="0" width="1" height="18" uuid="71487f7a-037c-4060-b016-535bf5a0e32f">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-7" positionType="Float" stretchType="RelativeToTallestObject" x="274" y="0" width="1" height="18" uuid="b34305d9-c036-49c0-a3ef-63023b5b2a71">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-8" positionType="Float" stretchType="RelativeToTallestObject" x="185" y="0" width="1" height="18" uuid="0e8b54f6-7114-42b1-9155-08e8e73acbf0">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-9" positionType="Float" stretchType="RelativeToTallestObject" x="94" y="0" width="1" height="18" uuid="3eaa9995-2a0c-4692-a113-70d139f5cf64">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-10" positionType="Float" stretchType="RelativeToTallestObject" x="6" y="0" width="1" height="18" uuid="cbf4e21c-35e9-4a6e-8330-afd5c27214ed">
+					<printWhenExpression><![CDATA[new Boolean($F{trimister}.equals("Second"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

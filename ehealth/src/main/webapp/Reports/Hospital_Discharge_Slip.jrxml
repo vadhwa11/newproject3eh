@@ -1,0 +1,819 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Hospital_Discharge_Slip" pageWidth="720" pageHeight="850" whenNoDataType="NoDataSection" columnWidth="660" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20" uuid="cdb2598a-4986-4000-94c3-5f080cbc04a2">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="1189"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="docInit" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="diagnosis" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="icdNos" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="inpatientId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hin_name" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ipd_name" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+     discharge.injury_report_initiated_on as discharge_injury_report_initiated_on,
+     discharge.injury_report_init_at as injury_report_init_at,
+     discharge.discharge_in_medical_category as discharge_discharge_in_medical_category,
+     discharge.board_held_on as discharge_board_held_on,
+     discharge.care_type_id as discharge_care_type_id,
+     discharge.care_summary as discharge_care_summary,
+     discharge.instructions_to_patient as discharge_instructions_to_patient,
+     discharge.date_of_discharge as discharge_date_of_discharge,
+     inpatient.age as inpatient_age,
+     inpatient.date_of_addmission as inpatient_date_of_addmission,
+     (case coalesce(discharge.other_hospital,'') when '1' then mas_disposed_to.disposed_to_name else discharge.other_hospital end) mas_disposed_to_disposed_to_name,
+     mas_diagnosis_conclusion.diagnosis_conclusion_name as mas_diagnosis_conclusion_diagnosis_conclusion_name,
+     mas_disposal.disposal_name as mas_disposal_disposal_name,
+     mas_disposed_to.disposed_to_name as mas_disposed_to_disposed_to_name,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     (patient.s_first_name||coalesce(patient.s_middle_name,'')||coalesce(patient.s_last_name,''))as servicepersonname,
+     patient.service_no as patient_service_no,
+     patient.station as patient_station,
+     patient.formation as patient_formation,
+     patient.service_years as patient_service_years,
+     mas_rank.rank_name as mas_rank_rank_name,
+     (mas_unit.unit_name||coalesce(mas_unit.unit_address,''))as mas_unit_unit_name,
+     mas_trade.trade_name as mas_trade_trade_name,
+     mas_relation.relation_name as mas_relation_relation_name,
+     mas_record_office_address.address as mas_record_office_address_address,
+     mas_administrative_sex.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+     mas_service_type.service_type_name as mas_service_type_service_type_name,
+     mas_marital_status.marital_status_name as mas_marital_status_marital_status_name,
+     mas_religion.religion_name as mas_religion_religion_name,
+     patient.hin_no as patient_hin_no,patient.age as age,
+     inpatient.ad_status as inpatient_ad_status,
+     inpatient.inpatient_id as inpatient_inpatient_id,
+     inpatient.ad_no as inpatient_ad_no,
+     inpatient.time_of_addmission as inpatient_time_of_addmission,
+     discharge.time_of_discharge as discharge_time_of_discharge,
+     patient.total_service_period as patient_total_service_period,
+     discharge.document_initiated as documentinitiated,
+     mas_department.department_name as department_name,
+     (mas_hospital.hospital_name)as hospial_name
+from
+     patient patient right outer join discharge discharge on patient.hin_id = discharge.hin_id
+     left outer join inpatient inpatient on patient.hin_id = inpatient.hin_id
+     left outer join mas_rank mas_rank on patient.rank_id = mas_rank.rank_id
+     left outer join mas_unit mas_unit on patient.unit_id = mas_unit.unit_id
+     left outer join mas_trade mas_trade on patient.trade_id = mas_trade.trade_id
+     left outer join mas_relation mas_relation on patient.relation_id = mas_relation.relation_id
+     left outer join mas_record_office_address mas_record_office_address on patient.record_office_address_id = mas_record_office_address.record_office_address_id
+     left outer join mas_administrative_sex mas_administrative_sex on patient.sex_id = mas_administrative_sex.administrative_sex_id
+     left outer join mas_service_type mas_service_type on patient.service_type_id = mas_service_type.service_type_id
+     left outer join mas_marital_status mas_marital_status on patient.marital_status_id = mas_marital_status.marital_status_id
+     left outer join mas_religion mas_religion on patient.religion_id = mas_religion.religion_id
+     left outer join mas_document mas_document on inpatient.document_id = mas_document.document_id
+     left outer join mas_diagnosis_conclusion mas_diagnosis_conclusion on inpatient.diagnosis_id = mas_diagnosis_conclusion.diagnosis_conclusion_id
+     left outer join mas_disposal mas_disposal on discharge.disposal_id = mas_disposal.disposal_id
+     left outer join mas_disposed_to mas_disposed_to on discharge.disposed_to_id = mas_disposed_to.disposed_to_id
+     left outer join mas_department mas_department on inpatient.department_id = mas_department.department_id
+     left outer join mas_hospital mas_hospital on inpatient.hospital_id = mas_hospital.hospital_id
+where
+    inpatient.ad_no= discharge.ad_no and inpatient.inpatient_id = $P{inpatientId}  and inpatient.ad_status in ('D','R') and inpatient.hospital_id=$P{hospitalId}]]>
+	</queryString>
+	<field name="discharge_injury_report_initiated_on" class="java.sql.Date"/>
+	<field name="injury_report_init_at" class="java.lang.String"/>
+	<field name="discharge_discharge_in_medical_category" class="java.lang.String"/>
+	<field name="discharge_board_held_on" class="java.sql.Date"/>
+	<field name="discharge_care_type_id" class="java.lang.Integer"/>
+	<field name="discharge_care_summary" class="java.lang.String"/>
+	<field name="discharge_instructions_to_patient" class="java.lang.String"/>
+	<field name="discharge_date_of_discharge" class="java.sql.Date"/>
+	<field name="inpatient_age" class="java.lang.String"/>
+	<field name="inpatient_date_of_addmission" class="java.sql.Date"/>
+	<field name="mas_disposed_to_disposed_to_name" class="java.lang.String"/>
+	<field name="mas_diagnosis_conclusion_diagnosis_conclusion_name" class="java.lang.String"/>
+	<field name="mas_disposal_disposal_name" class="java.lang.String"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="servicepersonname" class="java.lang.String"/>
+	<field name="patient_service_no" class="java.lang.String"/>
+	<field name="patient_station" class="java.lang.String"/>
+	<field name="patient_formation" class="java.lang.String"/>
+	<field name="patient_service_years" class="java.math.BigDecimal"/>
+	<field name="mas_rank_rank_name" class="java.lang.String"/>
+	<field name="mas_unit_unit_name" class="java.lang.String"/>
+	<field name="mas_trade_trade_name" class="java.lang.String"/>
+	<field name="mas_relation_relation_name" class="java.lang.String"/>
+	<field name="mas_record_office_address_address" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="mas_service_type_service_type_name" class="java.lang.String"/>
+	<field name="mas_marital_status_marital_status_name" class="java.lang.String"/>
+	<field name="mas_religion_religion_name" class="java.lang.String"/>
+	<field name="patient_hin_no" class="java.lang.String"/>
+	<field name="age" class="java.lang.String"/>
+	<field name="inpatient_ad_status" class="java.lang.String"/>
+	<field name="inpatient_inpatient_id" class="java.lang.Integer"/>
+	<field name="inpatient_ad_no" class="java.lang.String"/>
+	<field name="inpatient_time_of_addmission" class="java.lang.String"/>
+	<field name="discharge_time_of_discharge" class="java.lang.String"/>
+	<field name="patient_total_service_period" class="java.lang.String"/>
+	<field name="documentinitiated" class="java.lang.String"/>
+	<field name="department_name" class="java.lang.String"/>
+	<field name="hospial_name" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="33" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-4" positionType="Float" mode="Opaque" x="1" y="1" width="659" height="31" uuid="c5bc8f91-b2c5-4a4f-9ff5-ff07a06eb836"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None">
+					<font fontName="SansSerif" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[ HOSPITAL DISCHARGE SLIP]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="51" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-3" positionType="Float" x="-1" y="18" width="150" height="33" uuid="5905f4f2-e3e5-438a-a924-3f937e59c915"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Date & Time Of Admission]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-45" positionType="Float" x="-1" y="0" width="150" height="18" uuid="4d8c29ea-77ea-42b0-9cd1-7b06a621501a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Name Of The Hospital]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-51" positionType="Float" x="351" y="16" width="141" height="18" uuid="8c9cd9e7-111d-4286-bfb6-4fd833f65656"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Date & Time Of Discharge]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="149" y="18" width="65" height="33" uuid="13a16774-21b6-4376-8b41-201a5c886499"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inpatient_date_of_addmission}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="492" y="16" width="85" height="18" uuid="a07f3c50-2bcc-4e4d-8865-e8f3b3acd943"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_date_of_discharge}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="492" y="-1" width="168" height="17" uuid="80f69934-25a2-46df-b1e2-a00bd2611cfa"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inpatient_ad_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="214" y="18" width="137" height="33" uuid="d30517f6-feee-4c53-9588-bd1fb6700e63"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inpatient_time_of_addmission}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="577" y="16" width="83" height="18" uuid="0600a8f0-f6d1-4d10-8235-d781e250112f"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_time_of_discharge}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-61" positionType="Float" x="351" y="34" width="139" height="17" uuid="46294261-9e69-40ab-a06e-2519817b9faf"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Ward/Department]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-13" positionType="Float" x="490" y="34" width="170" height="17" uuid="8d8af01c-e599-4c36-9379-a07dd18a0a86"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{department_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="149" y="0" width="202" height="18" uuid="7e4088b7-d5fb-45a5-85c4-4e27f207c6ba"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hospial_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-63" positionType="Float" x="351" y="0" width="140" height="16" uuid="00e8fc51-aa52-4214-a320-113ca9d9ac00"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[IP No.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="589" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-14" positionType="Float" x="289" y="9" width="193" height="19" uuid="b3eeff8d-0727-41b2-b4b8-90bf1c60ef2d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Patient Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-15" positionType="Float" x="492" y="9" width="85" height="19" uuid="aca027cf-a6a1-4b93-a49a-b47034aee2c2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[  Age  ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" positionType="Float" x="577" y="9" width="80" height="19" uuid="e5e62f95-4f2c-41db-813f-510159add3b4"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[/Sex]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-19" positionType="Float" x="6" y="52" width="80" height="19" uuid="c181ac84-95a4-4ce3-a8c5-4b42ecd39263"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Religion]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-27" positionType="Float" x="4" y="168" width="154" height="19" uuid="ffdaa2b1-0fcf-44b1-a71c-7eada3c536da"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Disposal Discharge to ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-30" positionType="Float" x="7" y="118" width="415" height="16" uuid="0c08a18b-2f3f-4b3f-9633-ad22a5f11f4a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Discharge In Med. Category]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-2" positionType="Float" x="1" y="1" width="658" height="1" uuid="7716e96e-80f0-4a48-9e28-3c4ff269b923"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-3" x="1" y="587" width="659" height="1" uuid="453b7e0c-aae3-44bf-a04e-0326823ddb74"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-4" positionType="Float" x="659" y="0" width="1" height="587" uuid="c48a3960-22c4-4d67-af33-e97dde550c2d"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-7" positionType="Float" x="0" y="115" width="658" height="1" uuid="58e3d530-368c-4269-a8af-8d21f215fcea"/>
+			</line>
+			<line>
+				<reportElement key="line-9" positionType="Float" x="0" y="168" width="659" height="1" uuid="7ad7ba42-164c-406b-9025-d23dd86c3969"/>
+			</line>
+			<line>
+				<reportElement key="line-11" positionType="Float" x="0" y="47" width="658" height="1" uuid="db52c396-88b2-40bb-848c-d19da7861fea"/>
+			</line>
+			<line>
+				<reportElement key="line-14" positionType="Float" x="1" y="189" width="657" height="1" uuid="a8ddd4df-d78b-4d35-87fe-c6d77bc6ecef"/>
+			</line>
+			<line>
+				<reportElement key="line-17" positionType="Float" x="491" y="2" width="1" height="45" uuid="f7806cc9-bda3-4c1f-81df-505228f4636f"/>
+			</line>
+			<line>
+				<reportElement key="line-22" positionType="Float" x="427" y="116" width="1" height="52" uuid="66b4093c-20e0-4aed-acfa-0a003d782f08"/>
+			</line>
+			<staticText>
+				<reportElement key="staticText-32" positionType="Float" x="400" y="170" width="110" height="19" uuid="2bfcca91-9644-4db9-a776-e608e80b020a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Disposed As  ]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-33" positionType="Float" x="462" y="519" width="191" height="1" uuid="269251af-aa8d-4484-a267-7f911f269700"/>
+				<graphicElement>
+					<pen lineWidth="1.0" lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement key="staticText-35" positionType="Float" x="470" y="521" width="182" height="19" uuid="2381398c-6dc7-46f4-b142-59bdc7d51658"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Signature of Medical Officer]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-48" positionType="Float" x="218" y="549" width="122" height="19" uuid="e436f1a0-112e-455a-9119-594d7ef32062"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Counter Signature ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-53" positionType="Float" x="7" y="192" width="248" height="14" uuid="94c9277f-8350-4e49-9ca4-6df98b4dcc3a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Brief Case Summary  ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-54" positionType="Float" x="5" y="310" width="98" height="17" uuid="ebb05001-dbbe-4057-bb3f-5dc4ab7ce821"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Diagnosis  ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-55" positionType="Float" x="487" y="309" width="73" height="15" uuid="d3ccf6ff-4b67-4c15-a259-de37adbad177"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ICD Nos. ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-56" positionType="Float" x="4" y="420" width="147" height="33" uuid="0275a0bb-7ee0-4597-943b-291db0a30648"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Instruction To The Patient
+(Both Administrative & Md)  ]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-36" positionType="Float" x="8" y="543" width="638" height="1" uuid="8ef49339-606f-4e0a-967c-8a3b0fd6ada0"/>
+				<graphicElement>
+					<pen lineWidth="1.0" lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-38" positionType="Float" x="0" y="307" width="658" height="1" uuid="840f7906-13c9-4584-b5f8-7b66e70da2cd"/>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="8" y="134" width="414" height="33" uuid="a6931e5d-dbed-482c-bd89-8ab1de96c3e9"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_discharge_in_medical_category}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="175" y="69" width="96" height="42" uuid="5be33e96-0bab-4965-bee5-b9d8bf058052"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_injury_report_initiated_on}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="583" y="28" width="72" height="19" uuid="cc97d041-0a60-44d4-82fb-7fb59ac7b595"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mas_administrative_sex_administrative_sex_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="290" y="28" width="192" height="17" uuid="cc97b0b1-66b4-4cb6-a974-8d701d88bec1"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{patientname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="9" y="206" width="641" height="95" uuid="c1d8d2d2-b443-4eaa-a3bb-18d8ec2337ef"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_care_summary}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="89" y="53" width="72" height="18" uuid="d8276d27-db58-4fe2-b6aa-f1fac6087f32"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mas_religion_religion_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="158" y="170" width="233" height="17" uuid="90ab1fce-f708-4568-9055-22cf2e9b1b55"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mas_disposed_to_disposed_to_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="510" y="170" width="136" height="19" uuid="f9e65f92-4907-46c1-ab4b-1e476e794fb1"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mas_disposal_disposal_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="153" y="419" width="497" height="77" uuid="b66a1d11-2704-44cb-aefd-fff640308e27"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_instructions_to_patient}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-39" positionType="Float" stretchType="RelativeToTallestObject" x="483" y="308" width="1" height="110" uuid="45639615-34d7-4358-9187-6628e4aac015"/>
+			</line>
+			<line>
+				<reportElement key="line-41" positionType="Float" x="391" y="168" width="1" height="21" uuid="562f659b-2fa1-408a-b8dc-4cb1e7c11739"/>
+			</line>
+			<line>
+				<reportElement key="line-42" positionType="Float" x="0" y="418" width="659" height="1" uuid="5c9bc5eb-5ff7-4134-8e16-a36f938ace6c"/>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="489" y="324" width="146" height="67" uuid="9a53f5f5-4ba7-47bb-b82d-42f498e04302"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{icdNos}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="104" y="311" width="374" height="22" uuid="fdc46e1e-3ad6-44fa-b520-41b32183a969"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{diagnosis}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-59" positionType="Float" x="31" y="526" width="39" height="18" uuid="9d16ac24-9a16-40d1-9587-eef8c5f8e8d0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="278" y="68" width="148" height="42" uuid="c60c2fc4-1a70-4417-961d-e3fe66d3eee3"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{injury_report_init_at}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement key="textField-16" positionType="Float" x="70" y="525" width="114" height="18" uuid="9c7f9e82-5445-4d06-b969-cc77dc1932f9"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discharge_date_of_discharge}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement key="textField" positionType="Float" x="4" y="28" width="273" height="18" uuid="1b75d7e6-09c8-4e11-8851-da47ba03d650"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{patient_hin_no}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-43" positionType="Float" x="277" y="2" width="1" height="45" uuid="117d2ccb-ff3f-4209-b7f4-73e862763b3d"/>
+			</line>
+			<line>
+				<reportElement key="line-44" positionType="Float" x="164" y="47" width="1" height="68" uuid="3e686cee-51f6-4964-b25b-a4c237f16b49"/>
+			</line>
+			<staticText>
+				<reportElement key="staticText-62" positionType="Float" x="173" y="49" width="154" height="19" uuid="f228b50e-b599-4cd2-82cb-aa816c5fdf02"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Injury Report Initiated On]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-64" positionType="Float" x="3" y="9" width="274" height="19" uuid="531ab629-f4bf-48cf-85ec-93e22c970182"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[UHID]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="492" y="28" width="84" height="18" uuid="1da10444-8c84-4156-949d-4cd068139f9d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{age}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-4" positionType="Float" x="0" y="0" width="1" height="589" uuid="e33f4f70-001c-46e7-9ac4-23301c18d406"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="12" splitType="Prevent"/>
+	</summary>
+	<noData>
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-58" x="172" y="-1" width="260" height="37" uuid="a0bdb75f-ece4-4023-bea8-ad38d5dfeead"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="20" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[No Data Found]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-40" x="220" y="21" width="163" height="1" uuid="f1b91dcb-1970-40be-8b93-7b699f26906f"/>
+			</line>
+		</band>
+	</noData>
+</jasperReport>

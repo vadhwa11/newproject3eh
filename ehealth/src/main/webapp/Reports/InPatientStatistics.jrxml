@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="InPatientStatistics"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="fromDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalName" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="HOSPITAL_ID" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 1 as sno ,'Registration Type Wise' as type ,'General' as subtype  , (select count(registration_type ) from inpatient as ip left join patient p on ip.hin_id=p.hin_id where ip.hospital_id=$P{HOSPITAL_ID} and registration_type ='G' and date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00')
+as total union
+select 1 as sno ,'Registration Type Wise' as type ,'Special' as subtype  , (select count(registration_type ) from inpatient as ip left join patient p on ip.hin_id=p.hin_id where ip.hospital_id=$P{HOSPITAL_ID} and registration_type ='S' and date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00')as total union
+
+select 2 as sno,'Patient Type Wise' as type ,
+(select patient_type_name from mas_patient_type mpt where mpt.patient_type_id = p.patient_type_id) as subtype ,
+count(p.patient_type_id) as total from inpatient as ip left join patient p on ip.hin_id=p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and p.patient_status ='in patient' and  p.patient_type_id in (select patient_type_id from mas_patient_type) group by p.patient_type_id
+union
+select 3 as sno,'Ward Wise' as type ,
+(select department_name  from mas_department m where m.department_id = ip.department_id ) as subtype ,
+count(ip.department_id) as total
+from  inpatient ip where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' group by ip.department_id
+union
+select 4 as sno,'Case Type Wise' as type ,
+(select case_type_name  from mas_case_type m where m.case_type_id = ip.case_type_id ) as subtype ,
+count(ip.case_type_id) as total
+from  inpatient ip where ip.hospital_id=$P{HOSPITAL_ID} and ip.case_type_id is not null and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' group by ip.case_type_id
+union
+select 5 as sno,'State Wise' as type ,
+(select state_name  from mas_state m where m.state_id = p.state_id) as subtype ,
+count(p.state_id) as total
+from inpatient ip left outer join patient p on ip.hin_id = p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00'
+group by p.state_id
+union
+select 6 as sno,'District Wise' as type ,
+(select district_name  from mas_district m where m.district_id = p.district_id) as subtype ,
+count(p.district_id) as total
+from inpatient ip left outer join patient p on ip.hin_id = p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00'
+group by p.district_id
+union
+select 7 as sno,'Block Wise' as type ,
+(select block_name  from mas_block m where m.block_id = pa.block ) as subtype ,
+count(pa.block) as total
+from inpatient ip left outer join patient p on ip.hin_id = p.hin_id
+left outer join patient_address pa on pa.hin_id = p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and pa.block is not null
+group by pa.block
+union
+select 8 as sno,'Village Wise' as type,
+(select village_name  from mas_village m where m.village_id = pa.village ) as subtype ,
+count(pa.village) as total
+from inpatient ip left outer join patient p on ip.hin_id = p.hin_id
+left outer join patient_address pa on pa.hin_id = p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and pa.village is not null
+group by pa.village
+union
+select 9 as sno,'Religion Wise' as type ,
+(select religion_name  from mas_religion m where m.religion_id = p.religion_id ) as subtype ,
+count(p.religion_id) as total
+from inpatient ip left outer join patient p on ip.hin_id = p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and p.religion_id is not null
+group by p.religion_id
+union
+select 10 as sno,'Occupation Wise' as type ,
+(select occupation_name  from mas_occupation m where m.occupation_id = p.occupation_id
+and m.status ='y') as subtype ,
+count(p.religion_id) as total
+from inpatient ip left outer join patient p on ip.hin_id = p.hin_id
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and p.occupation_id is not null
+group by p.occupation_id
+union
+select 11 as sno,'Admission Type Wise' as type ,
+(select admission_type_name  from mas_admission_type m where m.admission_type_id = ip.admission_type_id
+and (m.status ='y' or m.status ='Y')) as subtype ,
+count(ip.admission_type_id) as total
+from inpatient ip
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and ip.admission_type_id is not null
+group by ip.admission_type_id 
+union
+select 12 as sno,'Outside Treatment Wise' as type ,
+(select outside_treatment_name  from mas_outside_treatment m where m.outside_treatment_id = ip.outside_treatment_id
+and (m.outside_treatment_status ='y' or m.outside_treatment_status ='Y')) as subtype ,
+count(ip.outside_treatment_id) as total
+from inpatient ip
+where ip.hospital_id=$P{HOSPITAL_ID} and ip.date_of_addmission between $P{fromDate} and $P{toDate} and ip.time_of_addmission <='12:00:00' and ip.outside_treatment_id is not null
+
+group by ip.outside_treatment_id order by sno]]></queryString>
+
+	<field name="sno" class="java.lang.Integer"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="subtype" class="java.lang.String"/>
+	<field name="total" class="java.lang.Integer"/>
+
+
+		<group  name="GroupType" >
+			<groupExpression><![CDATA[$F{sno}]]></groupExpression>
+			<groupHeader>
+			<band height="19"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="-1"
+						width="56"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="11" isBold="true" isItalic="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{sno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="58"
+						y="-1"
+						width="241"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-BoldOblique" size="11" isBold="true" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{type}]]></textFieldExpression>
+				</textField>
+				<line direction="BottomUp">
+					<reportElement
+						x="0"
+						y="18"
+						width="535"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch" pen="Thin"/>
+				</line>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="1"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="45"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="2"
+						width="535"
+						height="19"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="13" isBold="true"/>
+					</textElement>
+				<text><![CDATA[InPatient Statistics  ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="136"
+						y="23"
+						width="60"
+						height="17"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[From Date : ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="278"
+						y="23"
+						width="60"
+						height="17"
+						key="staticText-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[To Date : ]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="196"
+						y="23"
+						width="81"
+						height="17"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{fromDate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="23"
+						width="100"
+						height="17"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{toDate}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="23"  isSplitAllowed="true" >
+				<rectangle>
+					<reportElement
+						x="0"
+						y="0"
+						width="535"
+						height="22"
+						backcolor="#FFFFFF"
+						key="rectangle-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</rectangle>
+				<staticText>
+					<reportElement
+						x="0"
+						y="3"
+						width="56"
+						height="17"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[S.No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="58"
+						y="3"
+						width="280"
+						height="17"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Category]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="338"
+						y="3"
+						width="141"
+						height="17"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Total]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="26"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="65"
+						y="0"
+						width="273"
+						height="24"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" size="11"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{subtype}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="0"
+						width="141"
+						height="24"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" size="11"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{total}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

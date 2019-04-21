@@ -1,0 +1,662 @@
+<%--
+ * Copyright 2008 JK Technosoft Ltd. All rights reserved.
+ * Use is subject to license terms.
+ * budgetEstimateEntryJsp.jsp
+ * Purpose of the JSP -  This is for Budget Estimate Entry.
+ * @author  Ujjwal
+ * Create Date: 09th Feb,2011
+ * Revision Date:
+ * Revision By:
+ * @version 1.15
+--%>
+<%@ page import="static jkt.hms.util.RequestConstants.*"%>
+<%@ page import="java.util.*"%>
+<%@ page import="jkt.hms.masters.business.BudEstimateEntry" %>
+<%@ page import="jkt.hrms.masters.business.HrMasFinancialYear" %>
+<%@ page import="jkt.hms.masters.business.BudMajorHead" %>
+<%@ page import="jkt.hms.masters.business.BudSubMajorHead" %>
+<%@ page import="jkt.hms.masters.business.BudMinorHead" %>
+<%@ page import="jkt.hms.masters.business.BudMinorSubHead" %>
+<%@ page import="jkt.hms.masters.business.BudObjectHead" %>
+<%@ page import="jkt.hrms.masters.business.*" %>
+<%@page import="jkt.hms.util.HMSUtil"%>
+<%@page import="jkt.hms.util.Box"%>
+<%@page import="jkt.hrms.masters.business.HrMasFinancialYear"%>
+<script type="text/javascript" src="../jsp/js/calendar.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/autocomplete.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/hms.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/stores.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/pops_global.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/actb.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/common1.js"></script>
+<script type="text/javascript" src="/hms/jsp/js/pops_menu.js"></script>
+<script type="text/javascript" language="javascript" src="/hms/jsp/js/IPDGrid.js"></script>
+<script type="text/javascript" language="javascript" src="/hms/jsp/js/proto.js"></script>
+<%--For AutoComplete Through Ajax--%>
+<script src="/hms/jsp/js/ajax.js" type="text/javascript"></script>
+<script src="/hms/jsp/js/prototype.js" type="text/javascript"></script>
+<script src="/hms/jsp/js/scriptaculous.js" type="text/javascript"></script>
+<script src="/hms/jsp/js/unittest.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var SESSIONURL = "s=cccfbaab0a70ed43fad9de8e3733112d&";
+var IMGDIR_MISC = "images/misc";
+var vb_disable_ajax = parseInt("0", 10);
+</script>
+<%
+  Map map = new HashMap();
+  if(request.getAttribute("map") != null){
+    map = (Map) request.getAttribute("map");
+  }
+  Box box = HMSUtil.getBox(request);
+  Map<String, Object>utilmap= new HashMap<String,Object>();
+  utilmap=(Map)HMSUtil.getCurrentDateAndTime();
+  String date = (String)utilmap.get("currentDate");
+  String time = (String)utilmap.get("currentTime");
+  List <BudEstimateEntry> searchEstimateEntryList =new ArrayList();
+  List <HrMasFinancialYear> searchFinancialYearList= new ArrayList();
+  List<BudMajorHead>searchmajorheadList=new ArrayList();
+  List<BudSubMajorHead> searchsubmajorheadList=new ArrayList();
+  List<BudMinorSubHead> searchminorsubheadList=new ArrayList();
+  List <BudObjectHead> searchobjectheadList=new ArrayList();
+  List <BudMajorHead> gridmajorheadList = new ArrayList<BudMajorHead>();
+  List <BudSubMajorHead> gridsubmajorheadList = new ArrayList<BudSubMajorHead>();
+  List <BudMinorSubHead> gridminorsubheadList = new ArrayList<BudMinorSubHead>();
+  List <BudObjectHead> gridobjectheadList = new ArrayList<BudObjectHead>();
+  List <BudMinorHead> searchminorheadList = new ArrayList<BudMinorHead>();
+  searchEstimateEntryList = (List <BudEstimateEntry>)map.get("searchEstimateEntryList");
+  
+  searchminorheadList=(List <BudMinorHead>)map.get("searchminorheadList");
+  searchFinancialYearList=(List<HrMasFinancialYear>)map.get("searchFinancialYearList");
+  searchmajorheadList=(List<BudMajorHead>)map.get("searchmajorheadList");
+  searchsubmajorheadList=(List<BudSubMajorHead>)map.get("searchsubmajorheadList");
+  searchminorsubheadList=(List<BudMinorSubHead>)map.get("searchminorsubheadList");
+  searchobjectheadList=(List<BudObjectHead>)map.get("searchobjectheadList");
+  gridmajorheadList = (List <BudMajorHead>)map.get("gridmajorheadList");
+  gridsubmajorheadList=(List <BudSubMajorHead>)map.get("gridsubmajorheadList");
+  gridminorsubheadList=(List<BudMinorSubHead>)map.get("gridminorsubheadList");
+	
+	
+	String num=(String) map.get("num");
+	
+  	String userName = "";
+  if(session.getAttribute("userName") != null){
+    userName = (String)session.getAttribute("userName");
+  }
+  if(map.get("message") != null){
+       String message = (String)map.get("message");
+       %>
+ <h4><span><%=message %></span></h4>
+<%} %>
+<script>
+<%
+    Calendar calendar=Calendar.getInstance();
+    String month=String.valueOf((calendar.get(Calendar.MONTH))+1);
+    String curDate=String.valueOf(calendar.get(Calendar.DATE));
+    int year=calendar.get(calendar.YEAR);
+    if(month.length()<2){
+      month="0"+month;
+    }
+    if(curDate.length()<2){
+      curDate="0"+curDate;
+    }
+  %>
+ serverdate = '<%=curDate+"/"+month+"/"+year%>'
+</script>
+<%
+int count = 0;
+for (BudMinorSubHead minorSubHead : searchminorsubheadList)
+{
+for (BudObjectHead objectHead  : searchobjectheadList)
+{
+if(objectHead.getMinorSubHeadId()!= null){
+if(minorSubHead.getId().equals(minorSubHead.getMinorSubHeadName())){
+%>
+blockArray[<%=count%>] = new Array();
+blockArray[<%=count%>][0] = <%=minorSubHead.getId()%>;
+blockArray[<%=count%>][1] = <%=objectHead.getId()%>;
+blockArray[<%=count%>][2] = "<%=objectHead.getObjectHeadName()%>";
+
+<%
+count++;
+}
+}
+}
+}
+%>
+<div class="titleBg">
+<h2>Budget Estimate Entry</h2>
+</div>
+<div class="clear"></div>
+<div class="search" id="threadsearch"><a href=""></a> <script
+	type="text/javascript"> vbmenu_register("threadsearch"); </script></div>
+<div class="clear"></div>
+
+<!-- <input type="button" name="Add" type="submit"  value="Add" class="button">
+	<input type="button" name="Modify" type="submit" value="Modify" class="button"  onClick="submitForm('poMain','purchaseOrder?method=poModifyJsp');">
+	<input type="button" name="Reset" type="submit" value="Reset" class="button" >
+
+	<input type="button" name="Delete" type="submit"  value="Delete" class="button"  onClick="openDeletePopupForIssueciv();">
+	-->
+
+
+<%--------------- End of Tool Panel ---------------------------%>
+<!-- thread search menu -->
+
+<form name="s" method="post">
+<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+<div class="searchBlock" id="threadsearch_menu" style="display: none;">
+<div class="clear"></div>
+<div class="paddingTop15"></div>
+<div class="clear"></div>
+<%--------------- Start of Search Panel ---------------------------%>
+<label><span>*</span>Demand No:</label>
+<select name="<%= CODE%>"
+	validate="Demand NO No,string,yes">
+	<option value="">Select</option>
+	<%for (BudEstimateEntry estimate :searchEstimateEntryList ) {
+		String toDeptName="";
+		if(estimate.getDemandNo()!=null){
+			toDeptName=" [ "+estimate.getDemandNo()+" ]";
+		}
+
+	%>
+	<option value=<%=estimate.getId()%>><%=estimate.getDemandNo()%></option>
+	<%}%>
+</select> <input type="image" name="button" class="button" onClick="submitForm('s','budget?method=searchBudgetEstimateEntry');" />
+<div class="clear"></div>
+<div id="ac2update" style="display: none;" class="autocomplete"></div>
+<script type="text/javascript" language="javascript" charset="utf-8">
+		  new Ajax.Autocompleter('issueIdPrint','ac2update','budget?method=getIssueNoListForAutoComplete',{parameters:'requiredField=issueIdPrint'});
+		</script>
+
+<script type="text/javascript" language="javascript">
+function submitprint(formName){
+	var issueId=document.getElementById('issueIdPrint').value;
+	if(issueId!=""){
+		obj = eval('document.'+formName)
+		obj.action = "/hms/hms/budget?method=printDepartmentIssue";
+		obj.submit();
+	}else{
+		alert("Please Insert Issue No. for Print");
+		return false;
+	}
+  }
+</script>
+</div>
+
+
+</form>
+
+<div class="paddingTop15"></div>
+<!--<jsp:include page="searchResultBlock.jsp" />
+<div class="clear"></div>
+<div id="searchresults" tabindex=1>
+<div id="searchtable" tabindex=1></div>
+
+<div class="clear"></div>
+<div class="clear"></div></div>
+--><script type="text/javascript">
+formFields = [
+			[0, "<%= COMMON_ID%>", "id"], [1,"<%= CODE%>"], [2,"<%=SEARCH_NAME%>"], [3,"<%=MAJOR_HEAD_ID%>"],[4,"<%=MAJOR_SUB_HEAD_ID%>"],[5,"<%=MINOR_SUB_HEAD_ID%>"],[6,"<%=OBJECT_HEAD_ID%>"],[7,"<%=SECTOR_TYPE%>"], [8,"<%=FINANCIAL_YEAR%>"] , [9,"<%=STATUS%>"]];
+	 statusTd = 8;
+	</script>
+<div class="clear"></div>
+<form name="estimateentry" method="post">
+<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+<input type="hidden" name="<%= POJO_NAME %>" value="BudEstimateEntry">
+<input type="hidden" name="<%=POJO_PROPERTY_NAME %>" value="Amount">
+<input	type="hidden" name="title" value="Country">
+<input type="hidden" name="pojoPropertyCode" value="DemandNo">
+<div class="paddingTop15"></div>
+<div class="clear"></div>
+<div class="Block">
+<label><span>*</span> Estimation Date</label>
+<input type="text" name="<%=ENCASH_DATE %>" class="date" id="date" tabindex="1" readonly="readonly" value="<%=date %>" onblur="checkDate1(this.value);" />
+<img src="/hms/jsp/images/cal.gif" id="startdate" onClick="javascript:setdate('',document.estimateentry.<%=ENCASH_DATE%>,event)"width="16" height="16" border="0" validate="Pick a date" class="calender" />
+<label><span>*</span> Demand No.</label>
+<input type="text" name="<%=CODE %>"  value="<%=num %>" validate="Demand No,string,yes" tabindex=1 onkeypress="return submitenter(this,event,'generalMaster?method=addCountry')" onkeypress="return isNumberKey(event)" readonly="readonly" />
+<label>Major Head Name</label>
+<select	name="<%= MAJOR_HEAD_ID %>" class="Large" validate="MajorHead,string,yes" tabindex=1 onchange="populatemajorHead(this.value,'estimateentry');">
+<option value="0">Select</option>
+<%
+for (BudMajorHead majorHead: searchmajorheadList){
+%>
+<option value="<%=majorHead.getId()%>">
+<%=majorHead.getMajorHeadName()%></option>
+<%}%>
+</select>
+<div class="clear"></div>
+<label>Major Sub Head Name</label>
+<select	name="<%=MAJOR_SUB_HEAD_ID %>" id="subMajorHeadId" class="Large" tabindex=1  onchange="populatesubmajorHead(this.value,'estimateentry');">
+<option value="0">Select</option>
+<%
+			for(BudSubMajorHead subMajorHead : searchsubmajorheadList){
+			%>
+	<option value="<%=subMajorHead.getId() %>"
+		<%=HMSUtil.isSelected(subMajorHead.getId(),Integer.valueOf(box.getInt(SUB_MAJOR_HEAD_ID)))%>><%=subMajorHead.getSubMajorHeadName() %></option>
+	<%}%>
+	</select>
+<script type="text/javascript">
+
+<%
+
+	int counter = 0;
+
+	for (BudMajorHead majorhead : searchmajorheadList){
+	for (BudSubMajorHead subMajorHead : searchsubmajorheadList) {
+	if(subMajorHead.getMajorHeadId() != null){
+	if(majorhead.getId().equals(subMajorHead.getMajorHeadId().getId() )){
+%>
+majorHeadCodeArray1[<%=counter%>] = new Array();
+majorHeadCodeArray1[<%=counter%>][0]=<%=majorhead.getId()%>;
+majorHeadCodeArray1[<%=counter%>][1] = <%=subMajorHead.getId()%>;
+majorHeadCodeArray1[<%=counter%>][2] = "<%=subMajorHead.getSubMajorHeadName()%>";
+	<%
+	counter++;
+	} } } }
+
+%>
+</script> 
+<label>Minor Head Name</label>
+<select	name="minorHeadId1" id="minorHead1" validate="SubMajorHead,string,yes" tabindex=1 class="Large" onchange="populateminorHead(this.value,'estimateentry');"  >
+<option value="0">Select</option>
+<%
+			for(BudMinorHead minorHead : searchminorheadList){
+			%>
+	<option value="<%=minorHead.getId() %>">
+	<%=HMSUtil.isSelected(minorHead.getId(),Integer.valueOf(box.getInt("minorHead1")))%><%=minorHead.getMinorHeadName() %></option>
+	<%}%>
+	
+	</select>
+<script type="text/javascript">
+
+<%
+
+	int counter2 = 0;
+
+	for (BudSubMajorHead submajorhead : searchsubmajorheadList){
+	for (BudMinorHead minorHead : searchminorheadList) {
+		if(minorHead.getSubMajorHeadId() != null){
+	if(submajorhead.getId().equals(minorHead.getSubMajorHeadId().getId() )){
+		
+		
+%>
+majorHeadCodeArray2[<%=counter2%>] = new Array();
+majorHeadCodeArray2[<%=counter2%>][0]=<%=submajorhead.getId()%>;
+majorHeadCodeArray2[<%=counter2%>][1] = <%=minorHead.getId()%>;
+
+majorHeadCodeArray2[<%=counter2%>][2] = "<%=minorHead.getMinorHeadName().trim()%>";
+	<%
+	counter2++;
+	} } } }
+
+%>
+</script> 
+<label>Minor Sub Head</label>
+<select	name="<%= MINOR_SUB_HEAD_ID %>" id="minorHeadId" validate="SubMajorHead,string,yes" tabindex=1 class="Large" onchange="populateminorsubHead(this.value,'estimateentry');" >
+<option value="0">Select</option>
+<%
+for (BudMinorSubHead majorHead: searchminorsubheadList){
+%>
+<option value="<%=majorHead.getId()%>">
+
+<%=HMSUtil.isSelected(majorHead.getId(),Integer.valueOf(box.getInt(MINOR_SUB_HEAD_ID)))%><%=majorHead.getMinorSubHeadName() %></option>
+<%}%>
+	</select>
+	<script type="text/javascript">
+
+<%
+
+	int counts = 0;
+
+	for (BudMinorHead minorHead : searchminorheadList){
+	for (BudMinorSubHead majorHead: searchminorsubheadList) {
+		if(majorHead.getMinorHeadId() != null){
+	if(minorHead.getId().equals(majorHead.getMinorHeadId().getId() )){
+%>
+codeArray[<%=counts%>] = new Array();
+codeArray[<%=counts%>][0]=<%=minorHead.getId()%>;
+codeArray[<%=counts%>][1] = <%=majorHead.getId()%>;
+
+codeArray[<%=counts%>][2] = "<%=majorHead.getMinorSubHeadName().trim()%>";
+	<%
+	counts++;
+	} } } }
+
+%>
+</script>
+<div class="clear"></div>
+<label><span>*</span> Object Head Name</label>
+<select	name="<%= OBJECT_HEAD_ID %>" id="objectId" tabindex="1" onchange="getSequenceNo(this.value);"   >
+<option value="0">Select</option>
+<%
+			for(BudObjectHead objectHead : searchobjectheadList){
+			%>
+	<option value="<%=objectHead.getId() %>">
+		<%=HMSUtil.isSelected(objectHead.getId(),Integer.valueOf(box.getInt(OBJECT_HEAD_ID)))%><%=objectHead.getObjectHeadName() %></option>
+	<%}%>
+	</select>
+<script type="text/javascript">
+<%
+int counts1 = 0;
+for (BudMinorSubHead minorHead : searchminorsubheadList){
+	for (BudObjectHead objectHead : searchobjectheadList) {
+	if(objectHead.getMinorSubHeadId() != null){
+	if(minorHead.getId().equals(objectHead.getMinorSubHeadId().getId() )){
+		%>
+objectHeadCodeArray[<%=counts1%>] = new Array();
+objectHeadCodeArray[<%=counts1%>][0] = <%=minorHead.getId()%>;
+objectHeadCodeArray[<%=counts1%>][1] = <%=objectHead.getId()%>;
+objectHeadCodeArray[<%=counts1%>][2] = "<%=objectHead.getObjectHeadName()%>";
+<%
+counts1++;
+}
+}
+}
+}
+%>
+</script> 
+<label><span>*</span> Sector Type</label>
+<select name="<%=SECTOR_TYPE%>" id="sector" tabindex="1" validate="Sector Type,string,yeas"  >
+<option>Select</option>
+<option>Plan</option>
+<option>Non-Planned</option>
+</select>
+<%
+
+%>
+<label>Amount</label>
+<input type="text" name="<%=SEARCH_NAME %>" value="" validate="Amount,String,yes" onkeypress="return isNumberKey(event)" tabindex="1" />
+</div>
+<div class="clear" > </div>
+<div class="division" > </div>
+<div class="clear"> </div>
+<input type="button" class="button" value="Submit" onclick="submitForm('estimateentry','budget?method=addBudget');" />
+<input type="reset" name="Reset" id="reset" value="Reset" class="buttonHighlight" onclick="resetCheck();" accesskey="r" />
+<!-- <input type="button" class="button" value="Print" > -->
+<div class="clear" > </div>
+<div class="division" > </div>
+<div class="clear" > </div>
+<div class="bottom">
+<label>Changed By</label>
+<label class="value"><%=userName%></label>
+<label>Changed Date</label>
+<label class="value"><%=date%></label>
+<label>Changed Time</label> <label class="value"><%=time%></label>
+<input type="hidden" name="<%=CHANGED_BY%>" value="<%=userName%>" />
+<input type="hidden" name="<%=CHANGED_DATE %>" value="<%=date%>" />
+<input type="hidden" name="<%=CHANGED_TIME %>" value="<%=time%>" />
+</div>
+</form>
+<div class="clear"></div>
+<div class="paddingTop40"></div>
+<script type="text/javascript">
+data_header = new Array();
+
+data_header[0] = new Array;
+data_header[0][0] = "Demand No"
+data_header[0][1] = "data";
+data_header[0][2] = "25%";
+data_header[0][3] = "<%= CODE%>"
+
+data_header[1] = new Array;
+data_header[1][0] = "Amount"
+data_header[1][1] = "data";
+data_header[1][2] = "40%";
+data_header[1][3] = "<%=SEARCH_NAME%>";
+
+data_header[2] = new Array;
+data_header[2][0] = " Major Head Name"
+data_header[2][1] = "hide";
+data_header[2][2] = "40%";
+data_header[2][3] = "<%=MAJOR_HEAD_ID%>";
+
+data_header[3] = new Array;
+data_header[3][0] = "Major sub Head Name"
+data_header[3][1] = "hide";
+data_header[3][2] = "15%";
+data_header[3][3] = "<%=MAJOR_SUB_HEAD_ID %>";
+
+data_header[4] = new Array;
+data_header[4][0] = "Minor sub Head Name"
+data_header[4][1] = "hide";
+data_header[4][2] = "15%";
+data_header[4][3] = "<%=MINOR_SUB_HEAD_ID %>";
+
+data_header[5] = new Array;
+data_header[5][0] = "Object Head Name"
+data_header[5][1] = "data";
+data_header[5][2] = "15%";
+data_header[5][3] = "<%=OBJECT_HEAD_ID %>";
+
+data_header[6] = new Array;
+data_header[6][0] = "Sector Type"
+data_header[6][1] = "hide";
+data_header[6][2] = "15%";
+data_header[6][3] = "<%=SECTOR_TYPE %>";
+
+data_header[7] = new Array;
+data_header[7][0] = "FY"
+data_header[7][1] = "data";
+data_header[7][2] = "15%";
+data_header[7][3] = "<%=FINANCIAL_YEAR %>";
+
+data_header[8] = new Array;
+data_header[8][0] = "Status"
+data_header[8][1] = "data";
+data_header[8][2] = "15%";
+data_header[8][3] = "<%= STATUS%>";
+
+data_arr = new Array();
+<%
+Iterator itr=searchEstimateEntryList.iterator();
+int counter1=0;
+while(itr.hasNext())
+{
+BudEstimateEntry estimateentry = (BudEstimateEntry)itr.next();
+%>
+data_arr[<%= counter1%>] = new Array();
+data_arr[<%= counter1%>][0] = <%= estimateentry.getId()%>
+data_arr[<%= counter1%>][1] = "<%= estimateentry.getDemandNo()%>"
+data_arr[<%= counter1%>][2] = "<%= estimateentry.getAmount()%>"
+<%
+Iterator itrGridMajorHeadList=gridmajorheadList.iterator();
+	while(itrGridMajorHeadList.hasNext())
+{
+		try
+		{
+			BudMajorHead  majorheadGrid = (BudMajorHead)itrGridMajorHeadList.next();
+			if(estimateentry.getMajorHeadId().equals(majorheadGrid.getId()) && majorheadGrid.getStatus().equals("y"))
+			{
+%>
+			data_arr[<%= counter1%>][3] = "<%=majorheadGrid.getMajorHeadName()%>"
+<%
+		}
+			else if(estimateentry.getId().equals(majorheadGrid.getId()) && majorheadGrid.getStatus().equals("n"))
+			{
+%>
+			data_arr[<%= counter1%>][3] = "<font id='error'>*</font>Parent InActivated--<%=majorheadGrid.getMajorHeadName()%>"
+
+<%
+		}
+	}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+%>
+<%
+Iterator itrGridMajorSubHeadList=gridsubmajorheadList.iterator();
+	while(itrGridMajorSubHeadList.hasNext())
+{
+		try
+		{
+			BudSubMajorHead  majorsubheadGrid = (BudSubMajorHead)itrGridMajorSubHeadList.next();
+			if(estimateentry.getMajorHeadId().equals(majorsubheadGrid.getId()) && majorsubheadGrid.getStatus().equals("y"))
+			{
+%>
+			data_arr[<%= counter1%>][4] = "<%=majorsubheadGrid.getSubMajorHeadName()%>"
+<%
+		}
+			else if(estimateentry.getId().equals(majorsubheadGrid.getId()) && majorsubheadGrid.getStatus().equals("n"))
+			{
+%>
+			data_arr[<%= counter1%>][4] = "<font id='error'>*</font>Parent InActivated--<%=majorsubheadGrid.getSubMajorHeadName()%>"
+
+<%
+		}
+	}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+		}
+	}
+%>
+<%
+Iterator itrGridMinorSubHeadList=gridminorsubheadList.iterator();
+	while(itrGridMinorSubHeadList.hasNext())
+{
+		try
+		{
+
+			BudMinorSubHead  minorsubheadGrid = (BudMinorSubHead)itrGridMinorSubHeadList.next();
+
+			if(estimateentry.getMajorHeadId().equals(minorsubheadGrid.getId()) && minorsubheadGrid.getStatus().equals("y"))
+			{
+%>
+			data_arr[<%= counter1%>][5] = "<%=minorsubheadGrid.getMinorSubHeadName()%>"
+<%
+		}
+			else if(estimateentry.getId().equals(minorsubheadGrid.getId()) && minorsubheadGrid.getStatus().equals("n"))
+			{
+%>
+			data_arr[<%= counter%>][5] = "<font id='error'>*</font>Parent InActivated--<%=minorsubheadGrid.getMinorSubHeadName()%>"
+
+<%
+		}
+	}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+%>
+<%
+Iterator itrGridObjectHeadList=gridminorsubheadList.iterator();
+	while(itrGridObjectHeadList.hasNext())
+{
+		try
+		{
+			BudObjectHead  objectheadGrid = (BudObjectHead)itrGridObjectHeadList.next();
+			if(estimateentry.getMajorHeadId().equals(objectheadGrid.getId()) && objectheadGrid.getStatus().equals("y"))
+			{
+%>
+			data_arr[<%= counter1%>][6] = "<%=objectheadGrid.getObjectHeadName()%>"
+<%
+		}
+			else if(estimateentry.getId().equals(objectheadGrid.getId()) && objectheadGrid.getStatus().equals("n"))
+			{
+%>
+			data_arr[<%= counter1%>][6] = "<font id='error'>*</font>Parent InActivated--<%=objectheadGrid.getObjectHeadName()%>"
+
+<%
+		}
+	}
+		catch(Exception e)
+		{
+			
+		}
+	}
+%>
+data_arr[<%= counter1%>][7] = "<%= estimateentry.getSectorType()%>"
+	<%
+	Iterator itrGridFinancialList=gridminorsubheadList.iterator();
+		while(itrGridFinancialList.hasNext())
+	{
+			try
+			{
+				HrMasFinancialYear  financialGrid = (HrMasFinancialYear)itrGridFinancialList.next();
+				if(estimateentry.getObjectHeadId().equals(financialGrid.getId()) && financialGrid.getStatus().equals("y"))
+				{
+	%>
+				data_arr[<%= counter1%>][8] = "<%=financialGrid.getFinancialYear()%>"
+	<%
+			}
+				else if(estimateentry.getId().equals(financialGrid.getId()) && financialGrid.getStatus().equals("n"))
+				{
+	%>
+				data_arr[<%= counter1%>][8] = "<font id='error'>*</font>Parent InActivated--<%=financialGrid.getFinancialYear()%>"
+
+	<%
+			}
+		}
+			catch(Exception e)
+			{
+				
+			}
+		}
+	%>
+<%
+if(estimateentry.getStatus()!=null){
+	if(estimateentry.getStatus().equals("y"))
+	{
+	%>
+		data_arr[<%= counter1%>][9] = "Active"
+	<%				}
+	else
+	{
+	%>
+		data_arr[<%= counter1%>][9] = "InActive"
+	<%				}
+
+}
+
+	counter++;
+}
+%>
+formName = "estimateentry"
+nonEditable = ['<%= CODE%>'];
+start = 0
+if(data_arr.length < rowsPerPage)
+end = data_arr.length;
+else
+end = rowsPerPage;
+makeTable(start,end);
+
+intializeHover('searchresulttable', 'TR', ' tableover');
+
+</script>
+<script type="text/javascript">
+<!--
+	// Main vBulletin Javascript Initialization
+	vBulletin_init();
+//-->
+</script>
+<SCRIPT language=Javascript>//script for entering only integer
+      <!--
+      function isNumberKey(evt)
+      {
+         var charCode = (evt.which) ? evt.which : event.keyCode
+         if (charCode > 31 && (charCode < 46 || charCode > 57))
+            return false;
+
+         return true;
+      }
+      //-->
+</SCRIPT>  
+<script language="javascript">
+	function submitFinancial(){
+
+		submitProtoAjax('estimateentry','budget?method=getMaxEquipmentDate');
+
+		}
+	function checkDate1(val)
+	{
+		alert("value is"+val);
+		var dob_year = val.split('/')[val.split('/').length-1];
+	}
+
+</script>

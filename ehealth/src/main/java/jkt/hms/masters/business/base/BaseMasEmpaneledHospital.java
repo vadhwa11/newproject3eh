@@ -1,0 +1,156 @@
+package jkt.hms.masters.business.base;
+
+import java.io.Serializable;
+
+
+/**
+ * This is an object that contains data related to the mas_empaneled_hospital table.
+ * Do not modify this class because it will be overwritten if the configuration file
+ * related to this class is modified.
+ *
+ * @hibernate.class
+ *  table="mas_empaneled_hospital"
+ */
+
+public abstract class BaseMasEmpaneledHospital  implements Serializable {
+
+	public static String REF = "MasEmpaneledHospital";
+	public static String PROP_EMPANELED = "Empaneled";
+	public static String PROP_STATUS = "Status";
+	public static String PROP_HOSPITAL = "Hospital";
+	public static String PROP_ID = "Id";
+
+
+	// constructors
+	public BaseMasEmpaneledHospital () {
+		initialize();
+	}
+
+	/**
+	 * Constructor for primary key
+	 */
+	public BaseMasEmpaneledHospital (java.lang.Integer id) {
+		this.setId(id);
+		initialize();
+	}
+
+	protected void initialize () {}
+
+
+
+	private int hashCode = Integer.MIN_VALUE;
+
+	// primary key
+	private java.lang.Integer id;
+
+	// fields
+	private java.lang.String status;
+
+	// many to one
+	private jkt.hms.masters.business.MasHospital hospital;
+	private jkt.hms.masters.business.MasEmpaneled empaneled;
+
+
+
+	/**
+	 * Return the unique identifier of this class
+     * @hibernate.id
+     *  generator-class="sequence"
+     *  column="empaneled_hospital_id"
+     */
+	public java.lang.Integer getId () {
+		return id;
+	}
+
+	/**
+	 * Set the unique identifier of this class
+	 * @param id the new ID
+	 */
+	public void setId (java.lang.Integer id) {
+		this.id = id;
+		this.hashCode = Integer.MIN_VALUE;
+	}
+
+
+
+
+	/**
+	 * Return the value associated with the column: status
+	 */
+	public java.lang.String getStatus () {
+		return status;
+	}
+
+	/**
+	 * Set the value related to the column: status
+	 * @param status the status value
+	 */
+	public void setStatus (java.lang.String status) {
+		this.status = status;
+	}
+
+
+
+	/**
+	 * Return the value associated with the column: hospital_id
+	 */
+	public jkt.hms.masters.business.MasHospital getHospital () {
+		return hospital;
+	}
+
+	/**
+	 * Set the value related to the column: hospital_id
+	 * @param hospital the hospital_id value
+	 */
+	public void setHospital (jkt.hms.masters.business.MasHospital hospital) {
+		this.hospital = hospital;
+	}
+
+
+
+	/**
+	 * Return the value associated with the column: empaneled_id
+	 */
+	public jkt.hms.masters.business.MasEmpaneled getEmpaneled () {
+		return empaneled;
+	}
+
+	/**
+	 * Set the value related to the column: empaneled_id
+	 * @param empaneled the empaneled_id value
+	 */
+	public void setEmpaneled (jkt.hms.masters.business.MasEmpaneled empaneled) {
+		this.empaneled = empaneled;
+	}
+
+
+
+
+	public boolean equals (Object obj) {
+		if (null == obj) return false;
+		if (!(obj instanceof jkt.hms.masters.business.MasEmpaneledHospital)) return false;
+		else {
+			jkt.hms.masters.business.MasEmpaneledHospital masEmpaneledHospital = (jkt.hms.masters.business.MasEmpaneledHospital) obj;
+			if (null == this.getId() || null == masEmpaneledHospital.getId()) return false;
+			else return (this.getId().equals(masEmpaneledHospital.getId()));
+		}
+	}
+
+	public int hashCode () {
+		if (Integer.MIN_VALUE == this.hashCode) {
+			if (null == this.getId()) return super.hashCode();
+			else {
+				String hashStr = this.getClass().getName() + ":" + this.getId().hashCode();
+				this.hashCode = hashStr.hashCode();
+			}
+		}
+		return this.hashCode;
+	}
+
+
+	public String toString () {
+		return super.toString();
+	}
+
+
+}

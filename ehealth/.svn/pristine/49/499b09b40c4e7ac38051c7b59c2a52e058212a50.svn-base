@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OPD_management_sub7_1_4" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20" uuid="68f1a827-5c59-4a5b-9f52-c5aebb767751">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="templateName" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String">
+		<defaultValueExpression><![CDATA["D:\\mukesh back\\SMC WORK\\jsper report\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+a.*,
+     visit.visit_no as visit_no,
+     patient.age as patient_age,
+     visit.visit_date as visit_date,
+     hosp.hospital_name as mas_hospital_hospital_name,
+     patient.hin_no as hin_no,
+    patient.date_of_birth as dob,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     mas.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+coalesce(mv.village_name, '') || coalesce(md.district_name, '') || coalesce(ms.state_name, '') as address
+from
+     opd_pathologic_migration a
+    left outer join opd_case_record_periodontics_header oiph on oiph.case_record_periodontics_header_id = a.case_record_periodontics_header_id
+     left outer join visit visit on oiph.visit_id = visit.visit_id
+     left outer join patient patient  on visit.hin_id = patient.hin_id
+     left outer join mas_hospital hosp on oiph.hospital_id = hosp.hospital_id
+     left outer join mas_administrative_sex mas on patient.sex_id = mas.administrative_sex_id
+     left join patient_address pa on pa.hin_id = patient.hin_id and pa.address_type_id =
+CASE
+    WHEN (EXISTS(select address from patient_address where address_type_id = 2)) THEN 2
+    WHEN (EXISTS(select address from patient_address where address_type_id = 1)) THEN 1
+    ELSE 4
+END
+left join mas_village mv on mv.village_id = pa.village
+left join mas_district md on md.district_id = pa.district
+left join mas_state ms on ms.state_id = pa.state_id
+where
+
+ 	oiph.visit_id = $P{opdvid} and a.flag='Probing Depth Chart Maxillary Upper Tooth PALATAL FI']]>
+	</queryString>
+	<field name="pathologic_migration_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="case_record_periodontics_header_id" class="java.lang.Integer"/>
+	<field name="tooth" class="java.lang.String"/>
+	<field name="flag" class="java.lang.String"/>
+	<field name="teeth_1" class="java.lang.String"/>
+	<field name="teeth_2" class="java.lang.String"/>
+	<field name="teeth_3" class="java.lang.String"/>
+	<field name="teeth_4" class="java.lang.String"/>
+	<field name="teeth_5" class="java.lang.String"/>
+	<field name="teeth_6" class="java.lang.String"/>
+	<field name="teeth_7" class="java.lang.String"/>
+	<field name="teeth_8" class="java.lang.String"/>
+	<field name="teeth_9" class="java.lang.String"/>
+	<field name="teeth_10" class="java.lang.String"/>
+	<field name="teeth_11" class="java.lang.String"/>
+	<field name="teeth_12" class="java.lang.String"/>
+	<field name="teeth_13" class="java.lang.String"/>
+	<field name="teeth_14" class="java.lang.String"/>
+	<field name="teeth_15" class="java.lang.String"/>
+	<field name="teeth_16" class="java.lang.String"/>
+	<field name="visit_no" class="java.lang.Integer"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_date" class="java.sql.Date"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="0" y="1" width="74" height="18" uuid="9e332205-cd37-4070-90b7-f109049d6761"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{tooth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="85" y="1" width="28" height="18" uuid="65a2b39e-129a-4870-b6a4-22420d1df30c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="113" y="1" width="28" height="18" uuid="a1222c5b-89a8-4405-ac8c-97e25c69e303"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="141" y="1" width="28" height="18" uuid="30f3dc41-c9b8-40e2-b344-7f3d3c5aafb4"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="169" y="1" width="28" height="18" uuid="35e9f1f1-5977-4171-af2f-5131dbd90c83"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="197" y="1" width="28" height="18" uuid="ed7273a5-c24b-4785-a685-3b95f027bf4d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="225" y="1" width="28" height="18" uuid="d2fee382-de91-4180-96db-2ce4ea8b97ca"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="253" y="1" width="28" height="18" uuid="6fd24858-cb2d-4f93-a0f5-f9edaeccc95f"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="281" y="1" width="28" height="18" uuid="91da6d8b-6fd2-4071-a5c9-3fe0134d1fea"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="309" y="1" width="29" height="18" uuid="2651c654-d7c9-4048-8cc0-72bc49dc0fda"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="338" y="1" width="28" height="18" uuid="f17abeaf-ba69-4bfb-97cb-a82a981efa1a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="366" y="1" width="28" height="18" uuid="07581c21-4453-41cc-8ae8-89996a8ff406"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="394" y="1" width="28" height="18" uuid="a52d4a4a-590b-43a0-b6ba-775ca50e0941"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="422" y="1" width="28" height="18" uuid="b8e699d2-a1c4-4fa2-add2-5350501f9736"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="450" y="1" width="28" height="18" uuid="6f1ba211-a44a-4215-afd7-5685b5c142a0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="478" y="1" width="28" height="18" uuid="6e138d9b-5b29-44b5-8371-17c207f2993c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="506" y="1" width="28" height="18" uuid="ee088cd4-c177-4c6f-83f4-86a7dba53d2b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{teeth_16}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

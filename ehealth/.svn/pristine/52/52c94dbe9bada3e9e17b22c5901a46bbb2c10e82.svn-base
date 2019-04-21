@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="print_barcode2" pageWidth="145" pageHeight="70" orientation="Landscape" columnWidth="145" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="ffd4fb49-1db0-49a1-b24e-fd610c448a96">
+	<property name="ireport.zoom" value="3.536921536500002"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="order_id" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="currentYear" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="orderNo" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="departName" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="subChargeCodeName" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="year" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="barcodeDisplayText" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DiagNo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="shortName" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sampleCollectionAndContainer" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select scd.diag_no,msch.sub_chargecode_name, investigation_name,COALESCE (cast(sch.hospital_id  as character varying) || cast(msamp.sample_id  as character varying) || substring(cast(current_date as character varying),3,2) || msch.sub_chargecode_name) as texts,
+case when msamp.sample_description='' then '-'
+when msamp.sample_description is null then '-'
+else msamp.sample_description end as sample_description,
+case when dmsc.collection_name='' then '-' when dmsc.collection_name is null then '-' else dmsc.collection_name end as collection_name,
+msch.sub_chargecode_code,me.first_name, scd.sample_coll_datetime,scd.last_chg_time,
+case when msamp.sample_code='' then '-' when msamp.sample_code is null then '-' else msamp.sample_code end as sample_code,
+hd.visit_id,hd.inpatient_id,
+hd.routine_urgent_status,hd.order_no,
+case when dmsc.collection_code='' then '-' when dmsc.collection_code is null then '-' else dmsc.collection_code end as collection_code,
+scd.sample_collection_details_id ,pt.full_name,pt.hin_no,
+(CASE WHEN EXTRACT(YEAR FROM (age(reg_date,pt.date_of_birth))) != 0 THEN CONCAT(EXTRACT(YEAR FROM (age(reg_date,pt.date_of_birth))),' Y')
+WHEN EXTRACT(MONTH FROM (age(reg_date,pt.date_of_birth))) != 0 THEN CONCAT(EXTRACT(MONTH FROM (age(reg_date,pt.date_of_birth))),' M')
+WHEN EXTRACT(DAY FROM (age(reg_date,pt.date_of_birth))) != 0 THEN CONCAT(EXTRACT(DAY FROM (age(reg_date,pt.date_of_birth))),' D') END) AS age,
+left(administrative_sex_name,1) as gender,
+case when hd.visit_id is not null then 'OP' when hd.inpatient_id is not null then 'IP' else '' end as patient_status,
+case when sch.sample_bar_code_pending='P' then substr(sch.sample_bar_code,6,9) else substr(sch.sample_bar_code,6,9)||sch.sample_bar_code_pending end as sample_bar_code,hd.patient_type as t,
+investigation_short_code as short_name
+from dg_sample_collection_details scd
+left outer join  dg_sample_collection_header sch on scd.sample_collection_header_id=sch.sample_collection_header_id
+left outer join  dg_orderhd hd on sch.order_id=hd.orderhd_id
+left outer join dg_mas_investigation inv on scd.investigation_id=inv.investigation_id
+left outer join mas_sub_chargecode msch on scd.subcharge=msch.sub_chargecode_id
+left outer join mas_sample msamp on scd.sample_id=msamp.sample_id
+left outer join dg_mas_collection dmsc on dmsc.collection_id=inv.collection_id
+left outer join mas_employee me on me.employee_id=scd.collected_by
+left outer join patient pt on pt.hin_id=sch.hin_id
+left outer join mas_administrative_sex mas  on mas.administrative_sex_id=pt.sex_id
+where sch.order_id= $P!{order_id}]]>
+	</queryString>
+	<field name="diag_no" class="java.lang.String"/>
+	<field name="sub_chargecode_name" class="java.lang.String"/>
+	<field name="investigation_name" class="java.lang.String"/>
+	<field name="texts" class="java.lang.String"/>
+	<field name="sample_description" class="java.lang.String"/>
+	<field name="collection_name" class="java.lang.String"/>
+	<field name="sub_chargecode_code" class="java.lang.String"/>
+	<field name="first_name" class="java.lang.String"/>
+	<field name="sample_coll_datetime" class="java.sql.Date"/>
+	<field name="last_chg_time" class="java.lang.String"/>
+	<field name="sample_code" class="java.lang.String"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="inpatient_id" class="java.lang.Integer"/>
+	<field name="routine_urgent_status" class="java.lang.String"/>
+	<field name="order_no" class="java.lang.String"/>
+	<field name="collection_code" class="java.lang.String"/>
+	<field name="sample_collection_details_id" class="java.lang.Integer"/>
+	<field name="full_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="age" class="java.lang.String"/>
+	<field name="gender" class="java.lang.String"/>
+	<field name="patient_status" class="java.lang.String"/>
+	<field name="sample_bar_code" class="java.lang.String"/>
+	<field name="t" class="java.lang.String"/>
+	<field name="short_name" class="java.lang.String"/>
+	<group name="subChargeGr" isStartNewPage="true">
+		<groupExpression><![CDATA[$P{subChargeCodeName}]]></groupExpression>
+		<groupHeader>
+			<band height="70" splitType="Prevent">
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="4" y="2" width="95" height="7" uuid="5bb6adbd-a41b-455b-8e78-5ce002d695cb"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="5" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{full_name}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="99" y="2" width="45" height="7" uuid="657f99b7-cd11-4e24-9b17-23b5327e8a18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="5" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{age}+" / "+$F{gender}+" ("+$F{t}+")"]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+					<reportElement key="textField" x="4" y="61" width="65" height="7" uuid="f91e45a9-e9a7-4efd-8066-3cfefb83f8e4"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement>
+						<font fontName="SansSerif" size="5" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sample_coll_datetime}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="69" y="61" width="75" height="7" uuid="e63ec5b2-de16-4b61-9f09-47872a2f4ff6"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" size="5" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{sampleCollectionAndContainer}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="4" y="17" width="140" height="8" uuid="b5665953-c0ee-4e38-976d-2a701a7bd0b1"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left">
+						<font fontName="SansSerif" size="6" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{barcodeDisplayText}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="4" y="9" width="140" height="8" uuid="b1824370-e047-417d-9aa3-765a4169ef3d"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left">
+						<font fontName="SansSerif" size="6" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{DiagNo}]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="5" y="25" width="135" height="15" uuid="e93ddb6b-5839-4f68-8447-f0ae17cf5755">
+						<propertyExpression name="$F{sample_bar_code}"><![CDATA[$F{sample_bar_code}]]></propertyExpression>
+					</reportElement>
+					<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128B" drawText="false" checksumRequired="false" barWidth="4" barHeight="58">
+						<jr:codeExpression><![CDATA[$F{sample_bar_code}]]></jr:codeExpression>
+					</jr:barbecue>
+				</componentElement>
+				<textField isBlankWhenNull="true">
+					<reportElement x="4" y="51" width="140" height="10" uuid="f3bb5b2b-a72a-4cd3-b59b-4e2c2f2f4bc8"/>
+					<textElement>
+						<font fontName="SansSerif" size="7" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{shortName}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="4" y="41" width="140" height="9" uuid="471cd622-d79e-46fb-89e7-0ed022b30562"/>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" size="7" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sample_bar_code}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

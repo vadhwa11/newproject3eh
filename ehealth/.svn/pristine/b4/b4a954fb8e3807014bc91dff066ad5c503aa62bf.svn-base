@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ORTHODONTICS_sub7" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5b328973-55c2-47e5-9732-b046e40d5e2f">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="templateName" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+a.*,
+     visit.visit_no as visit_no,
+     patient.age as patient_age,
+     visit.visit_date as visit_date,
+     hosp.hospital_name as mas_hospital_hospital_name,
+     patient.hin_no as hin_no,
+    patient.date_of_birth as dob,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     mas.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+coalesce(mv.village_name, '') || coalesce(md.district_name, '') || coalesce(ms.state_name, '') as address
+from
+
+    opd_ps_case_record_orthodotics_details a
+     left outer join opd_ps_case_record_orthodotics oiph on a.opd_ps_case_record_orthodotics_id = oiph.opd_ps_case_record_orthodotics_id
+     left outer join visit visit on oiph.visit_id = visit.visit_id
+     left outer join patient patient  on visit.hin_id = patient.hin_id
+     left outer join mas_hospital hosp on oiph.hospital_id = hosp.hospital_id
+     left outer join mas_administrative_sex mas on patient.sex_id = mas.administrative_sex_id
+     left join patient_address pa on pa.hin_id = patient.hin_id and pa.address_type_id =
+CASE
+    WHEN (EXISTS(select address from patient_address where address_type_id = 2)) THEN 2
+    WHEN (EXISTS(select address from patient_address where address_type_id = 1)) THEN 1
+    ELSE 4
+END
+left join mas_village mv on mv.village_id = pa.village
+left join mas_district md on md.district_id = pa.district
+left join mas_state ms on ms.state_id = pa.state_id
+where
+
+  oiph.visit_id = $P{opdvid} and flag='Maxilla']]>
+	</queryString>
+	<field name="opd_ps_case_record_orthodotics_details_id" class="java.lang.Integer"/>
+	<field name="opd_ps_case_record_orthodotics_id" class="java.lang.Integer"/>
+	<field name="measurement" class="java.lang.String"/>
+	<field name="steiner_ref_norm" class="java.lang.String"/>
+	<field name="kearal_norm" class="java.lang.String"/>
+	<field name="pre_trt" class="java.lang.String"/>
+	<field name="post_trt" class="java.lang.String"/>
+	<field name="diff" class="java.lang.String"/>
+	<field name="particulars" class="java.lang.String"/>
+	<field name="mean_value" class="java.lang.String"/>
+	<field name="value_text" class="java.lang.String"/>
+	<field name="no_one" class="java.lang.String"/>
+	<field name="no_one_text" class="java.lang.String"/>
+	<field name="no_two" class="java.lang.String"/>
+	<field name="no_two_text" class="java.lang.String"/>
+	<field name="no_three" class="java.lang.String"/>
+	<field name="no_three_text" class="java.lang.String"/>
+	<field name="no_four" class="java.lang.String"/>
+	<field name="no_four_text" class="java.lang.String"/>
+	<field name="flag" class="java.lang.String"/>
+	<field name="visit_no" class="java.lang.Integer"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_date" class="java.sql.Date"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="35" splitType="Stretch">
+			<line>
+				<reportElement key="line-1" x="0" y="16" width="535" height="1" uuid="e813ae4f-b6bc-4d60-b097-67988a730ec4"/>
+			</line>
+			<line>
+				<reportElement key="line-2" x="0" y="34" width="535" height="1" uuid="b062eea4-3897-4257-8e54-02e8be918f97"/>
+			</line>
+			<line>
+				<reportElement key="line-3" x="0" y="16" width="1" height="19" uuid="0ee3d898-e255-401f-a8e2-e0bcba1a34f9"/>
+			</line>
+			<line>
+				<reportElement key="line-4" x="534" y="16" width="1" height="19" uuid="19ec07ba-0163-4a1a-8641-4d627aaa152a"/>
+			</line>
+			<staticText>
+				<reportElement key="staticText-2" x="2" y="17" width="118" height="18" uuid="7e2c4daa-38e7-4e55-911a-f2ffc3b292ce"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Measurement ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="169" y="16" width="163" height="18" uuid="61c8a4d8-1be0-4d5e-8071-b8e4966a029c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Norms (Kerlala) Mean Value (F_MO)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="372" y="16" width="163" height="18" uuid="30d55cb2-8c64-4615-b90c-39c260dc7a28"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-5" x="0" y="2" width="534" height="12" uuid="6085d9f4-2eac-4cdd-8be7-da8e12450000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Maxilla, Mandible]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" x="0" y="0" width="120" height="15" uuid="21342e80-343c-4565-85b7-7f0207fed7ce"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{measurement}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" x="169" y="0" width="203" height="15" uuid="b660b5a6-a46e-4baa-913e-f5a7932b65e2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{mean_value}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" x="424" y="0" width="110" height="14" uuid="d80936fe-9183-46c2-beea-5e1764e00413"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{value_text}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

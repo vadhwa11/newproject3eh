@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="Sub_Acoount_Details_of_billing"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="535"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="fromDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()
+]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromTime" isForPrompting="true" class="java.sql.Time">
+		<defaultValueExpression ><![CDATA[java.sql.Time.valueOf("00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toTime" isForPrompting="true" class="java.sql.Time">
+		<defaultValueExpression ><![CDATA[java.sql.Time.valueOf("00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospital_name" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sr_no1" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="op_amt" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="ip_amt" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="net_amt" isForPrompting="true" class="java.math.BigDecimal"/>
+	<queryString><![CDATA[select "Cash Account" as Acoount_type, ifnull(main.op_amt,0) as op_amt,ifnull(main.ip_amt,0) as ip_amt ,(ifnull(op_amt,0)+ifnull(ip_Amt,0)) as Total from
+(select (ifnull(sum(if(receipt_type = 'opb',ifnull(brh.amount,0.0),0)),0)+
+ifnull(sum(if(receipt_type = 'bld',if(brh.inpatient_id is  null,ifnull(brh.amount,0),0.0),0)),0)) as op_amt,
+(sum(if(receipt_type = 'chs',ifnull(brh.amount,0),0))+
+ifnull(sum(if(receipt_type = 'bld',if(brh.inpatient_id is not null,ifnull(brh.amount,0),0.0),0)),0)) as ip_amt
+FROM bl_receipt_header as brh
+left outer join bl_receipt_details as brd on brh.receipt_header_id = brd.receipt_header_id
+where brd.payment_mode = 'C'
+and brh.receipt_date between $P{fromDate} and $P{toDate} and brh.receipt_time between $P{fromTime} and $P{toTime}
+) as main
+union
+select "Bank Account" as Acoount_type, ifnull(main.op_amt,0) as op_amt,ifnull(main.ip_amt,0) as ip_amt ,(ifnull(op_amt,0)+ifnull(ip_Amt,0)) as Total from
+(select (ifnull(sum(if(receipt_type = 'opb',ifnull(brh.amount,0.0),0)),0)+
+ifnull(sum(if(receipt_type = 'bld',if(brh.inpatient_id is  null,ifnull(brh.amount,0),0.0),0)),0)) as op_amt,
+(sum(if(receipt_type = 'chs',ifnull(brh.amount,0),0))+
+ifnull(sum(if(receipt_type = 'bld',if(brh.inpatient_id is not null,ifnull(brh.amount,0),0.0),0)),0)) as ip_amt
+FROM bl_receipt_header as brh
+left outer join bl_receipt_details as brd on brh.receipt_header_id = brd.receipt_header_id
+where brd.payment_mode IN ('R','Q')
+and brh.receipt_date between $P{fromDate} and $P{toDate} and brh.receipt_time between $P{fromTime} and $P{toTime}
+ ) as main
+union
+select "Charity Account" as Account_Type,op.op_amt,ip.ip_amt,(op.op_amt+ip.ip_amt) as total
+from (select (select ifnull(sum(ifnull(discount_amt,0.0)),0.0) as op_amt from bl_op_bill_header as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code NOT IN('STF','DEP')
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select  ifnull(sum(ifnull(discount_amt,0.0)),0) as op_amt
+from bl_dispensing_header as obh left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code Not IN('STF','DEP') and inpatient_id is null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) as op_amt ) as op,
+(select (select ifnull(sum(ifnull(discount_amt,0.0)),0) as ip_amt
+from bl_dispensing_header as  obh left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code Not IN('STF','DEP') and  inpatient_id is not null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select ifnull(sum(ifnull(discount_amt,0.0)),0) as ip_amt
+from bl_charge_slip_main obh left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code Not IN('STF','DEP') and  chg_slp_date between $P{fromDate} and $P{toDate} and chg_slp_time between $P{fromTime} and $P{toTime}
+) as ip_amt) as ip
+union
+select "Company Account" as Account_Type,op.op_amt,ip.ip_amt,(op.op_amt+ip.ip_amt) as total
+from (select (select ifnull(sum(ifnull(net_amt,0.0)),0.0) as op_amt from bl_op_bill_header as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN ('COM')
+and obh.company_id is not null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+)+
+(select  ifnull(sum(ifnull(net_amt,0.0)),0) as op_amt
+from bl_dispensing_header as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN ('COM') and obh.company_id is not null
+and inpatient_id is null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) as op_amt ) as op,
+(select  (select ifnull(sum(ifnull(net_amt,0.0)),0) as ip_amt
+from bl_dispensing_header as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN ('COM') and obh.company_id is not null
+and inpatient_id is not null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select ifnull(sum(ifnull(net_amt,0.0)),0) as ip_amt
+from bl_charge_slip_main as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code  IN ('COM') and obh.company_id is not null 
+and chg_slp_date between $P{fromDate} and $P{toDate} and chg_slp_time between $P{fromTime} and $P{toTime}
+) as ip_amt) as ip
+union
+select "On Account" as Account_Type,op.op_amt,ip.ip_amt,(op.op_amt+ip.ip_amt) as total
+from (select  (select ifnull(sum(ifnull(outstanding,0.0)),0.0) as op_amt from bl_op_bill_header
+where company_id is  null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select  ifnull(sum(ifnull(outstanding,0.0)),0) as op_amt
+from bl_dispensing_header where company_id is  null
+and inpatient_id is null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) as op_amt) as op,
+(select  (select ifnull(sum(ifnull(outstanding,0.0)),0) as ip_amt
+from bl_dispensing_header where company_id is  null
+and inpatient_id is not null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select ifnull(sum(ifnull(os_amt,0.0)),0) as ip_amt
+from bl_charge_slip_main where company_id is  null
+and chg_slp_date between $P{fromDate} and $P{toDate} and chg_slp_time between $P{fromTime} and $P{toTime}
+) as ip_amt ) as ip
+union
+select "Project Account" as Account_Type,op.op_amt,ip.ip_amt,(op.op_amt+ip.ip_amt) as total
+from (select  (select ifnull(sum(ifnull(bill_amt,0.0)),0.0) as op_amt from bl_op_bill_header as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code ='PRJ'
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select  ifnull(sum(ifnull(bill_amt,0.0)),0) as op_amt
+from bl_dispensing_header obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code ='PRJ' and inpatient_id is null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) as op_amt) as op,
+(select (select ifnull(sum(ifnull(bill_amt,0.0)),0) as ip_amt
+from bl_dispensing_header obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code ='PRJ' and inpatient_id is not null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) +
+(select ifnull(sum(ifnull(chg_slp_amt,0.0)),0) as ip_amt
+from bl_charge_slip_main obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code ='PRJ' and  chg_slp_date between $P{fromDate} and $P{toDate} and chg_slp_time between $P{fromTime} and $P{toTime}
+and inpatient_id is not null
+group by obh.last_chg_by,obh.chg_slp_date,obh.chg_slp_time
+) as ip_amt) as ip
+union
+select "Staff Health Scheme" as Account_Type,op.op_amt,ip.ip_amt,(op.op_amt+ip.ip_amt) as total
+from (select (select ifnull(sum(ifnull(bill_amt,0.0)),0.0) as op_amt from bl_op_bill_header as obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN('STF','DEP')
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+group by obh.changed_by,bill_date,bill_time
+) +
+(select  ifnull(sum(ifnull(bill_amt,0.0)),0) as op_amt
+from bl_dispensing_header obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN('STF','DEP') and inpatient_id is null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+) as op_amt) as op,
+(select (select ifnull(sum(ifnull(bill_amt,0.0)),0) as ip_amt
+from bl_dispensing_header obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN('STF','DEP') and inpatient_id is not null
+and bill_date between $P{fromDate} and $P{toDate} and bill_time between $P{fromTime} and $P{toTime}
+group by obh.changed_by,obh.bill_date,obh.bill_time
+
+) +
+(select ifnull(sum(ifnull(chg_slp_amt,0.0)),0) as ip_amt
+from bl_charge_slip_main obh
+left outer join patient as pat on obh.hin_id = pat.hin_id
+left outer join mas_patient_type as mpt on pat.patient_type_id = mpt.patient_type_id
+where patient_type_code IN('STF','DEP')  and  chg_slp_date between $P{fromDate} and $P{toDate} and chg_slp_time between $P{fromTime} and $P{toTime}
+and inpatient_id is not null
+group by obh.last_chg_by,obh.chg_slp_date,obh.chg_slp_time
+)as ip_amt) as ip]]></queryString>
+
+	<field name="Acoount_type" class="java.lang.String"/>
+	<field name="op_amt" class="java.math.BigDecimal"/>
+	<field name="ip_amt" class="java.math.BigDecimal"/>
+	<field name="Total" class="java.math.BigDecimal"/>
+
+	<variable name="SUM_op_amt_1" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{op_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_ip_amt_1" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{ip_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_Total_1" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{Total}]]></variableExpression>
+	</variable>
+	<variable name="SUM_op_amt_2" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{op_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_ip_amt_2" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{ip_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_Total_2" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{Total}]]></variableExpression>
+	</variable>
+	<variable name="sr_no" class="java.lang.Integer" resetType="Report" incrementType="Report" calculation="Count">
+		<variableExpression><![CDATA[$P{sr_no1}]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="19"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="7"
+						y="1"
+						width="376"
+						height="16"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Account Details Of The Billing ]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="7"
+						y="17"
+						width="137"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="33"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{Acoount_type}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="173"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{op_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="285"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{ip_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="426"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{Total}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="42"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="34"
+						y="2"
+						width="100"
+						height="15"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Total >>]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="535"
+						height="0"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="173"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_op_amt_2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="285"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_ip_amt_2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="426"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_Total_2}]]></textFieldExpression>
+				</textField>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="18"
+						width="535"
+						height="24"
+						key="subreport-1"/>
+					<subreportParameter  name="fromDate">
+						<subreportParameterExpression><![CDATA[$P{fromDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="toDate">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="fromTime">
+						<subreportParameterExpression><![CDATA[$P{fromTime}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="toTime">
+						<subreportParameterExpression><![CDATA[$P{toTime}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospital_name">
+						<subreportParameterExpression><![CDATA[$P{hospital_name}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="sr_no1">
+						<subreportParameterExpression><![CDATA[$P{sr_no1}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="op_amt">
+						<subreportParameterExpression><![CDATA[$P{op_amt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="ip_amt">
+						<subreportParameterExpression><![CDATA[$P{ip_amt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="net_amt">
+						<subreportParameterExpression><![CDATA[$P{net_amt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//Receipt_details.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,1519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ORTHODONTICS_sub_1" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="ffda02a3-6f42-416a-8c78-dafbadd1de60">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+oiph.*,
+     visit.visit_no as visit_no,
+     patient.age as patient_age,
+     visit.visit_date as visit_date,
+     hosp.hospital_name as mas_hospital_hospital_name,
+     patient.hin_no as hin_no,
+    patient.date_of_birth as dob,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     mas.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+coalesce(mv.village_name, '') || coalesce(md.district_name, '') || coalesce(ms.state_name, '') as address
+from
+
+    opd_ps_case_record_orthodotics oiph
+     left outer join visit visit on oiph.visit_id = visit.visit_id
+     left outer join patient patient  on visit.hin_id = patient.hin_id
+     left outer join mas_hospital hosp on oiph.hospital_id = hosp.hospital_id
+     left outer join mas_administrative_sex mas on patient.sex_id = mas.administrative_sex_id
+     left join patient_address pa on pa.hin_id = patient.hin_id and pa.address_type_id =
+CASE
+    WHEN (EXISTS(select address from patient_address where address_type_id = 2)) THEN 2
+    WHEN (EXISTS(select address from patient_address where address_type_id = 1)) THEN 1
+    ELSE 4
+END
+left join mas_village mv on mv.village_id = pa.village
+left join mas_district md on md.district_id = pa.district
+left join mas_state ms on ms.state_id = pa.state_id
+where
+
+  oiph.visit_id = $P{opdvid}]]>
+	</queryString>
+	<field name="opd_ps_case_record_orthodotics_id" class="java.lang.Integer"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="hospital_id" class="java.lang.Integer"/>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="presenting_complaints" class="java.lang.String"/>
+	<field name="informar" class="java.lang.String"/>
+	<field name="any_other" class="java.lang.String"/>
+	<field name="father" class="java.lang.String"/>
+	<field name="mother" class="java.lang.String"/>
+	<field name="con" class="java.lang.String"/>
+	<field name="male" class="java.lang.String"/>
+	<field name="female" class="java.lang.String"/>
+	<field name="parents_general" class="java.lang.String"/>
+	<field name="type_of_malocclusion" class="java.lang.String"/>
+	<field name="siblings_general" class="java.lang.String"/>
+	<field name="type_of_malocclusion_1" class="java.lang.String"/>
+	<field name="familial_diseases" class="java.lang.String"/>
+	<field name="orthodontic_treatment" class="java.lang.String"/>
+	<field name="parents_concern" class="java.lang.String"/>
+	<field name="patient_to_treatment" class="java.lang.String"/>
+	<field name="mother_during_pregnancy" class="java.lang.String"/>
+	<field name="bacterial" class="java.lang.String"/>
+	<field name="bacterial_value" class="java.lang.String"/>
+	<field name="viral" class="java.lang.String"/>
+	<field name="viral_value" class="java.lang.String"/>
+	<field name="parasitic" class="java.lang.String"/>
+	<field name="parasitic_value" class="java.lang.String"/>
+	<field name="history_of_trauma" class="java.lang.String"/>
+	<field name="drugs_taken" class="java.lang.String"/>
+	<field name="any_other_releveant_history" class="java.lang.String"/>
+	<field name="maternal_nutritional_status" class="java.lang.String"/>
+	<field name="vitamins_minerals" class="java.lang.String"/>
+	<field name="delivery" class="java.lang.String"/>
+	<field name="type_val" class="java.lang.String"/>
+	<field name="natal_history" class="java.lang.String"/>
+	<field name="natal_history_value" class="java.lang.String"/>
+	<field name="feeding" class="java.lang.String"/>
+	<field name="for_how_long" class="java.lang.String"/>
+	<field name="how_many_times_daily" class="java.lang.String"/>
+	<field name="weaned_at_yrs" class="java.lang.String"/>
+	<field name="for_how_long_1" class="java.lang.String"/>
+	<field name="how_many_times_daily_1" class="java.lang.String"/>
+	<field name="weaned_at_yrs_1" class="java.lang.String"/>
+	<field name="bottle_nipple" class="java.lang.String"/>
+	<field name="any_infection_rampant_caries" class="java.lang.String"/>
+	<field name="bacterial_1" class="java.lang.String"/>
+	<field name="viral_1" class="java.lang.String"/>
+	<field name="systemic" class="java.lang.String"/>
+	<field name="non_systemic" class="java.lang.String"/>
+	<field name="other" class="java.lang.String"/>
+	<field name="past" class="java.lang.String"/>
+	<field name="present" class="java.lang.String"/>
+	<field name="sitting_normal_6_mnts" class="java.lang.String"/>
+	<field name="crawling_normal_9_mnts" class="java.lang.String"/>
+	<field name="standing_normal_12_mnts" class="java.lang.String"/>
+	<field name="walking_normal_15_mnts" class="java.lang.String"/>
+	<field name="running_normal_18_mnts" class="java.lang.String"/>
+	<field name="speech_at_yrs" class="java.lang.String"/>
+	<field name="speech_at_yrs_normal" class="java.lang.String"/>
+	<field name="speech_value" class="java.lang.String"/>
+	<field name="finger_thumb_sucking" class="java.lang.String"/>
+	<field name="dummy_sucking" class="java.lang.String"/>
+	<field name="nail_biting_lip_biting" class="java.lang.String"/>
+	<field name="tongue_thrusting" class="java.lang.String"/>
+	<field name="bruxism" class="java.lang.String"/>
+	<field name="mouth_breathing" class="java.lang.String"/>
+	<field name="if_any_habit_present" class="java.lang.String"/>
+	<field name="duration" class="java.lang.String"/>
+	<field name="intensity" class="java.lang.String"/>
+	<field name="frequency" class="java.lang.String"/>
+	<field name="respiration" class="java.lang.String"/>
+	<field name="deglutition" class="java.lang.String"/>
+	<field name="mention_nature" class="java.lang.String"/>
+	<field name="fracture_of_teeth" class="java.lang.String"/>
+	<field name="fracture_of_jaws" class="java.lang.String"/>
+	<field name="any_other_1" class="java.lang.String"/>
+	<field name="treatment_done" class="java.lang.String"/>
+	<field name="build" class="java.lang.String"/>
+	<field name="gait" class="java.lang.String"/>
+	<field name="posture" class="java.lang.String"/>
+	<field name="body_type" class="java.lang.String"/>
+	<field name="body_proportion" class="java.lang.String"/>
+	<field name="pubis_to_head" class="java.lang.String"/>
+	<field name="ratio" class="java.lang.String"/>
+	<field name="biauricular_width" class="java.lang.String"/>
+	<field name="length_of_head" class="java.lang.String"/>
+	<field name="percentage" class="java.lang.String"/>
+	<field name="facial_form" class="java.lang.String"/>
+	<field name="facial_symmetry" class="java.lang.String"/>
+	<field name="facial_profile" class="java.lang.String"/>
+	<field name="facial_divergence" class="java.lang.String"/>
+	<field name="relative_size_of_nose" class="java.lang.String"/>
+	<field name="chin" class="java.lang.String"/>
+	<field name="lower_lip" class="java.lang.String"/>
+	<field name="upper_lip" class="java.lang.String"/>
+	<field name="lip_posture" class="java.lang.String"/>
+	<field name="anatomic" class="java.lang.String"/>
+	<field name="physiologic" class="java.lang.String"/>
+	<field name="dental" class="java.lang.String"/>
+	<field name="lip_size" class="java.lang.String"/>
+	<field name="lip_size_upper" class="java.lang.String"/>
+	<field name="mento_labial_sulcus" class="java.lang.String"/>
+	<field name="inter_labial_gap" class="java.lang.String"/>
+	<field name="facial_height" class="java.lang.String"/>
+	<field name="facial_height_ufh" class="java.lang.String"/>
+	<field name="facial_height_lfh" class="java.lang.String"/>
+	<field name="facial_height_ratio" class="java.lang.String"/>
+	<field name="circum_oral_muscle_tone" class="java.lang.String"/>
+	<field name="skeletal_class" class="java.lang.String"/>
+	<field name="max" class="java.lang.String"/>
+	<field name="mand" class="java.lang.String"/>
+	<field name="respiration_history" class="java.lang.String"/>
+	<field name="mastication" class="java.lang.String"/>
+	<field name="deglutition_1" class="java.lang.String"/>
+	<field name="speech" class="java.lang.String"/>
+	<field name="path_of_closure" class="java.lang.String"/>
+	<field name="inter_incisal_opening_maximum" class="java.lang.String"/>
+	<field name="smile_line" class="java.lang.String"/>
+	<field name="gingival_exposure" class="java.lang.String"/>
+	<field name="during_speech" class="java.lang.String"/>
+	<field name="during_smile" class="java.lang.String"/>
+	<field name="any_other2" class="java.lang.String"/>
+	<field name="frenum_attachment" class="java.lang.String"/>
+	<field name="frenum_attachment_upper" class="java.lang.String"/>
+	<field name="frenum_attachment_lower" class="java.lang.String"/>
+	<field name="gingival" class="java.lang.String"/>
+	<field name="pockets" class="java.lang.String"/>
+	<field name="attached_gingiva" class="java.lang.String"/>
+	<field name="tongue" class="java.lang.String"/>
+	<field name="size_1" class="java.lang.String"/>
+	<field name="shape" class="java.lang.String"/>
+	<field name="posture_1" class="java.lang.String"/>
+	<field name="mobility" class="java.lang.String"/>
+	<field name="habit" class="java.lang.String"/>
+	<field name="tonsils_and_adenoids" class="java.lang.String"/>
+	<field name="tmj" class="java.lang.String"/>
+	<field name="path_of_closure_1" class="java.lang.String"/>
+	<field name="occlusal_prematurities" class="java.lang.String"/>
+	<field name="maximum_opening_between_incisors" class="java.lang.String"/>
+	<field name="key_ridge" class="java.lang.String"/>
+	<field name="eruption_status" class="java.lang.String"/>
+	<field name="caries" class="java.lang.String"/>
+	<field name="restorations" class="java.lang.String"/>
+	<field name="defective_restorations" class="java.lang.String"/>
+	<field name="unerupted_teeth" class="java.lang.String"/>
+	<field name="impactions" class="java.lang.String"/>
+	<field name="endodontically_trt" class="java.lang.String"/>
+	<field name="rotations" class="java.lang.String"/>
+	<field name="teeth_in_eruption" class="java.lang.String"/>
+	<field name="enamel" class="java.lang.String"/>
+	<field name="texture" class="java.lang.String"/>
+	<field name="white_spots" class="java.lang.String"/>
+	<field name="visible_cracks" class="java.lang.String"/>
+	<field name="shape_1" class="java.lang.String"/>
+	<field name="size_2" class="java.lang.String"/>
+	<field name="number_value" class="java.lang.String"/>
+	<field name="retained" class="java.lang.String"/>
+	<field name="premature_loss" class="java.lang.String"/>
+	<field name="early_eruption" class="java.lang.String"/>
+	<field name="late_eruption" class="java.lang.String"/>
+	<field name="occlusal_wear" class="java.lang.String"/>
+	<field name="base_relationship" class="java.lang.String"/>
+	<field name="oral_hygiene" class="java.lang.String"/>
+	<field name="type_of_home_care" class="java.lang.String"/>
+	<field name="maxillary_arch" class="java.lang.String"/>
+	<field name="mandibular_arch" class="java.lang.String"/>
+	<field name="arch_shape" class="java.lang.String"/>
+	<field name="arch_symmetry" class="java.lang.String"/>
+	<field name="arch_alignment" class="java.lang.String"/>
+	<field name="midline" class="java.lang.String"/>
+	<field name="molar" class="java.lang.String"/>
+	<field name="canine" class="java.lang.String"/>
+	<field name="over_jet" class="java.lang.String"/>
+	<field name="overbite" class="java.lang.String"/>
+	<field name="crossbite" class="java.lang.String"/>
+	<field name="midline_1" class="java.lang.String"/>
+	<field name="teeth_present" class="java.lang.String"/>
+	<field name="teeth_absent" class="java.lang.String"/>
+	<field name="root_formation" class="java.lang.String"/>
+	<field name="permanent_teeth" class="java.lang.String"/>
+	<field name="deciduous_teeth" class="java.lang.String"/>
+	<field name="permanent_teeth_1" class="java.lang.String"/>
+	<field name="deciduous_teeth_1" class="java.lang.String"/>
+	<field name="character_of_restoration" class="java.lang.String"/>
+	<field name="lamina_dura" class="java.lang.String"/>
+	<field name="trabecular_pattern" class="java.lang.String"/>
+	<field name="supermumerary_teeth" class="java.lang.String"/>
+	<field name="third_molar_status" class="java.lang.String"/>
+	<field name="pathological_conditions" class="java.lang.String"/>
+	<field name="any_other_3" class="java.lang.String"/>
+	<field name="sum_of_incisors" class="java.lang.String"/>
+	<field name="actual_1" class="java.lang.String"/>
+	<field name="ideal_1" class="java.lang.String"/>
+	<field name="difference" class="java.lang.String"/>
+	<field name="actual_2" class="java.lang.String"/>
+	<field name="ideal_2" class="java.lang.String"/>
+	<field name="difference_1" class="java.lang.String"/>
+	<field name="permolar_area" class="java.lang.String"/>
+	<field name="molar_area" class="java.lang.String"/>
+	<field name="actual_length" class="java.lang.String"/>
+	<field name="ideal" class="java.lang.String"/>
+	<field name="difference_2" class="java.lang.String"/>
+	<field name="indicates_anterior" class="java.lang.String"/>
+	<field name="total_maxillary_tooth_material" class="java.lang.String"/>
+	<field name="inter_premolar_arch_width" class="java.lang.String"/>
+	<field name="inter_canine_fossa_width" class="java.lang.String"/>
+	<field name="maxillary_12" class="java.lang.String"/>
+	<field name="mandibular_12" class="java.lang.String"/>
+	<field name="maxillary_6" class="java.lang.String"/>
+	<field name="mandibular_6" class="java.lang.String"/>
+	<field name="tooth_material_upper" class="java.lang.String"/>
+	<field name="tooth_material_lower" class="java.lang.String"/>
+	<field name="arch_perimeter_upper" class="java.lang.String"/>
+	<field name="arch_perimeter_lower" class="java.lang.String"/>
+	<field name="difference_upper" class="java.lang.String"/>
+	<field name="difference_lower" class="java.lang.String"/>
+	<field name="inference" class="java.lang.String"/>
+	<field name="angle_class" class="java.lang.String"/>
+	<field name="molar_1" class="java.lang.String"/>
+	<field name="canine_1" class="java.lang.String"/>
+	<field name="over_jet_1" class="java.lang.String"/>
+	<field name="overbite_1" class="java.lang.String"/>
+	<field name="anterior" class="java.lang.String"/>
+	<field name="posterior" class="java.lang.String"/>
+	<field name="midline_upper" class="java.lang.String"/>
+	<field name="midline_lower" class="java.lang.String"/>
+	<field name="incisors" class="java.lang.String"/>
+	<field name="canines" class="java.lang.String"/>
+	<field name="molars" class="java.lang.String"/>
+	<field name="carpal_index" class="java.lang.String"/>
+	<field name="endocrine_study" class="java.lang.String"/>
+	<field name="calcium_plot" class="java.lang.String"/>
+	<field name="keslings_set_up" class="java.lang.String"/>
+	<field name="probable_etiology" class="java.lang.String"/>
+	<field name="general_treatment_objectives" class="java.lang.String"/>
+	<field name="treatment_objectives" class="java.lang.String"/>
+	<field name="treatment_plan" class="java.lang.String"/>
+	<field name="mechanotherapy" class="java.lang.String"/>
+	<field name="prognesis" class="java.lang.String"/>
+	<field name="retention_plan" class="java.lang.String"/>
+	<field name="abnormal_muscle_attachments" class="java.lang.String"/>
+	<field name="m_b_r" class="java.lang.String"/>
+	<field name="visit_no" class="java.lang.Integer"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_date" class="java.sql.Date"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="256" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-92" positionType="Float" x="0" y="2" width="535" height="12" uuid="08678e8b-4d5b-43b5-95c8-0e6533bf32e6"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[INTRA ORAL EXAMINATION SOFT TISSUE APPRAISAL ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="0" y="14" width="106" height="14" uuid="452af9b9-dc89-44bf-a99c-1870a95926ec"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Frenum Attachment]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-94" positionType="Float" x="0" y="31" width="106" height="14" uuid="4bf92399-cd6c-4a35-81d0-32258b7c8167"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Gingival ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-95" positionType="Float" x="0" y="48" width="106" height="14" uuid="ceea723e-6725-41f9-817f-b7a695d0a74a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Abnormal Muscle]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-96" positionType="Float" x="288" y="14" width="80" height="14" uuid="56115109-5b54-4e0f-bcf3-021e43d4bed0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Upper]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-97" positionType="Float" x="406" y="14" width="67" height="14" uuid="d4844226-30d3-4a06-9e37-e10f6fa142c6"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Lower]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-102" positionType="Float" x="0" y="100" width="106" height="14" uuid="43ba5a7b-98a7-478d-9c19-1b088cb73bbf"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Mobility]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-103" positionType="Float" x="0" y="118" width="106" height="14" uuid="84f142e8-3786-4e89-9dd4-fc0895a36c68"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Tonsils and Adenoids]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-104" positionType="Float" x="288" y="100" width="80" height="14" uuid="ccfd37ec-bb3e-4151-83b6-9e48e4e0b027"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Habit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-105" positionType="Float" x="288" y="118" width="80" height="14" uuid="0665e690-8b70-433f-a380-6c75df176e86"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[TMJ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-106" positionType="Float" x="0" y="135" width="106" height="14" uuid="980b3659-d394-474c-8c10-1d3efb390498"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Path of Closure]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-107" positionType="Float" x="0" y="152" width="105" height="14" uuid="de91a73e-3b43-44b9-9fc8-c3d3145acce6"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Maximum opening between Inclsors]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-114" positionType="Float" x="0" y="167" width="535" height="12" uuid="6eda7647-e5ff-4889-bed1-d4b8aa3cc669"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DENTAL STATUS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-115" positionType="Float" x="0" y="179" width="105" height="13" uuid="fcbfc565-6097-4a2a-a95e-7b4a5e157160"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Eruption Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-116" positionType="Float" x="0" y="195" width="105" height="13" uuid="4cb9bfa5-b793-4b68-813a-21f9340c6260"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Restorations]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="289" y="179" width="83" height="13" uuid="a106d266-a8fc-4c33-8df4-d4f56446b6c9"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Caries]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-118" positionType="Float" x="289" y="195" width="83" height="13" uuid="b319cfc3-c6dc-4c89-a328-c100f53457e2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Defective Restorations]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-123" positionType="Float" x="0" y="211" width="105" height="13" uuid="af02f500-4883-4ea3-a3e0-31ad4d147388"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Unerupted Teeth]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-124" positionType="Float" x="289" y="211" width="83" height="13" uuid="80f751a2-f9d0-4963-aebf-4aa7f079f8e3"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Impactions]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-128" positionType="Float" x="0" y="227" width="105" height="13" uuid="366d52d4-f865-43c9-9bf3-eb5c509a93f5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Endodontically trt ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-129" positionType="Float" x="0" y="243" width="105" height="13" uuid="bfa1e4fe-5bd4-4c51-848f-9d9da63d79a8"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Number ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-131" positionType="Float" x="289" y="227" width="83" height="13" uuid="9228291a-25f4-4a7e-a994-071c7a86bc8d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[rotations]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-132" positionType="Float" x="289" y="243" width="83" height="13" uuid="d92ea895-0453-4fef-bdd1-c1dd84bc4972"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="288" y="31" width="80" height="14" uuid="31a87448-a95b-4183-8f83-b1fd80b3d222"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Pockets]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-162" positionType="Float" x="288" y="49" width="80" height="14" uuid="61881896-f41f-4be0-98c3-aa381fd493bf"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Attached gingiva]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-163" positionType="Float" x="0" y="66" width="106" height="14" uuid="49f8dd0f-821e-4e80-8b7e-1d7b5e415858"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Tongue]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-164" positionType="Float" x="0" y="83" width="106" height="14" uuid="9b3680ec-fefd-437d-bb96-5ac32f275a91"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Shape]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-165" positionType="Float" x="288" y="66" width="80" height="14" uuid="ef550435-753f-4f5a-873a-54ec552e1819"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-166" positionType="Float" x="288" y="83" width="80" height="14" uuid="66eec1fd-2542-4d1f-b3c9-760fb85190d9"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Posture]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-167" positionType="Float" x="288" y="135" width="80" height="14" uuid="a4bf813b-8a83-440f-aa7e-f7a4c28752f2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Occlusal Prematurities]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-168" positionType="Float" x="288" y="152" width="80" height="14" uuid="de6b4ced-7db5-461a-9326-b74ea1309695"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[key Ridge]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="14" width="166" height="14" isPrintWhenDetailOverflows="true" uuid="4dac7464-f2f5-4f37-a38b-300effa51393"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{frenum_attachment}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="31" width="166" height="14" isPrintWhenDetailOverflows="true" uuid="fddebe76-5ca6-438a-9645-d098f9ef8d0b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gingival}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="48" width="166" height="14" isPrintWhenDetailOverflows="true" uuid="4fa697e8-5d9c-401a-88b1-6c974066d445"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tongue}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="83" width="166" height="14" isPrintWhenDetailOverflows="true" uuid="0bd66c38-acce-4fcc-8d8e-4de4606819a0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{shape}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="101" width="166" height="12" isPrintWhenDetailOverflows="true" uuid="8fe8a172-b4f1-4656-b769-35d7af2d103d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mobility}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="118" width="166" height="13" isPrintWhenDetailOverflows="true" uuid="00e93b15-a1f5-4661-9249-69ae2436de13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tonsils_and_adenoids}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="135" width="166" height="14" isPrintWhenDetailOverflows="true" uuid="d313aa3e-8bb4-4be2-ae88-28c3849a4a63"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{path_of_closure_1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="179" width="166" height="13" isPrintWhenDetailOverflows="true" uuid="f9663036-3421-4a05-8d58-a26a8fce36ec"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eruption_status}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="195" width="166" height="13" isPrintWhenDetailOverflows="true" uuid="e73dcdec-0425-469f-bcb2-4d3304d7f5a0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{restorations}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="211" width="166" height="13" isPrintWhenDetailOverflows="true" uuid="d7e3c45a-7c7a-4fba-afa2-e928f68adbd6"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unerupted_teeth}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="227" width="166" height="13" isPrintWhenDetailOverflows="true" uuid="3f69f171-98cd-4054-b36e-17d1dbba1f2a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{endodontically_trt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="112" y="243" width="166" height="13" isPrintWhenDetailOverflows="true" uuid="8a25d36f-5da7-4823-987e-838b11f4b041"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{number_value}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="31" width="148" height="14" uuid="a4995dd7-3c9c-482d-9a0f-fc6da796b7bd"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pockets}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="83" width="148" height="14" uuid="817d238b-9aea-4282-937a-e6e7f6e90e60"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{posture}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="100" width="148" height="13" uuid="1d1ac567-16d3-47c9-a0b5-309c5bc3559b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{habit}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="117" width="148" height="14" uuid="09dc7cb9-8b45-498e-a7b8-77e06208a2ed"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tmj}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="135" width="148" height="14" uuid="d6be711c-89b0-4214-bb8b-d98f48b72654"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{occlusal_prematurities}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="152" width="148" height="15" uuid="14569bbc-5cce-418c-8417-32c85f8dfc83"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{key_ridge}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="382" y="179" width="139" height="13" uuid="9a5eb0d6-1a36-4252-b8c7-188d2c64332e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{caries}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="382" y="195" width="139" height="13" uuid="d43bfdf9-0c87-4bbe-b636-13ab27f441c2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{defective_restorations}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="382" y="211" width="139" height="13" uuid="3c25d0b0-8abd-46bd-be06-b032218b3d17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{impactions}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="382" y="227" width="139" height="13" uuid="279c69eb-33fa-4569-ac1c-4eeeec27ac50"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rotations}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="373" y="49" width="148" height="14" uuid="62cdd470-4e69-4fc3-ae90-7b262d12ba5e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{attached_gingiva}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="14" width="5" height="14" uuid="5ae25c44-0dd2-43bf-9911-59ba978ce6ac"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="28" width="535" height="3" uuid="bbedddee-415b-4620-80d3-f12a70e4b747"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="31" width="5" height="14" uuid="8a3bda58-87ae-43cc-ab44-9e20c8793075"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="45" width="535" height="3" uuid="01e4895f-eac0-4ddd-a4f9-e154d336cb9a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="48" width="5" height="14" uuid="5d5833d3-eec5-430b-a0d2-6f62f80bab27"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="63" width="535" height="3" uuid="04db7dfa-a878-47c7-82e0-65b8fc52b5b7"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="66" width="5" height="14" uuid="dcf85ee2-1644-426d-b322-88c31cfed6ea"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="80" width="535" height="3" uuid="ba41969c-a4b1-4e33-b969-260b0219dcdb"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="83" width="5" height="14" uuid="85d3034b-7045-428b-8ec6-7a18d8ce8daa"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="100" width="5" height="14" uuid="dbce1a01-e768-4425-8c51-1b55b4207189"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="118" width="5" height="13" uuid="ce984c35-35c0-45de-99b8-5f6fed73ef7a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-93" positionType="Float" x="106" y="135" width="5" height="14" uuid="24b1fb61-f042-44e8-a1f9-c90ddd1d83b5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="97" width="535" height="3" uuid="6060fb23-b34e-4c2f-a05f-9d2150bb88be"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="-1" y="114" width="535" height="3" uuid="3a0f23b8-bc85-47e4-9d52-f3d43db71f2b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="132" width="535" height="3" uuid="ae0c2d80-8872-4727-9153-64f6bbd8e620"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="149" width="535" height="3" uuid="8ab204ff-a8ef-4ad7-b4b9-93a59c72d564"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="31" width="5" height="14" uuid="1ed3cbd0-501a-4cb4-ad27-8dd6ecab3906"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="49" width="5" height="14" uuid="82049990-839b-423f-afa8-620a919878de"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="66" width="5" height="14" uuid="6d4e9be1-cf3f-4f68-9eb7-0f253d686a61"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="83" width="5" height="14" uuid="d811bf14-d7fe-4f8f-b891-052649f7f509"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="100" width="5" height="14" uuid="10c8c555-f223-4151-8dd7-21e016ded1eb"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="118" width="5" height="14" uuid="cc1bc589-8873-4e0e-b9e5-4fee1462670b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="135" width="5" height="14" uuid="f5f08752-6e64-4135-aa59-4af25a933723"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-161" positionType="Float" x="368" y="152" width="5" height="14" uuid="2f6ea910-ab9a-497f-919a-4c27caf9d8cd"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-115" positionType="Float" x="105" y="179" width="5" height="13" uuid="e27a02af-2f69-4b79-be7d-81a14152ca7b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-115" positionType="Float" x="105" y="195" width="5" height="13" uuid="0bcf2d76-a96c-4139-98d7-99e3b3fd7abf"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-115" positionType="Float" x="105" y="211" width="5" height="13" uuid="f5c42cb8-b3e1-4b4d-9d29-506eba624694"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-115" positionType="Float" x="105" y="227" width="5" height="13" uuid="2a4eba25-4b25-4cc8-a797-b195c0b1104c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-115" positionType="Float" x="105" y="243" width="5" height="13" uuid="32140263-6b9a-4a33-ad00-03b15b887cd3"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="373" y="179" width="9" height="13" uuid="e8d6e1b7-786a-48b4-85a7-5dbd18a5a76a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="373" y="195" width="9" height="13" uuid="ab19222c-bb46-4b78-8029-aed08fdea48f"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="373" y="211" width="9" height="13" uuid="97c2e7c5-56e4-43d9-b046-a9d8346d2063"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="373" y="227" width="9" height="13" uuid="48716c1b-34aa-44de-ac4e-3fa9a0740677"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="373" y="243" width="9" height="13" uuid="9babe0fe-f9a8-4548-ac37-0a79e97f5a5d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="192" width="535" height="3" uuid="edd775b5-0ca6-4612-8bf1-6d4cb3e18532"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="208" width="535" height="3" uuid="d50800ab-9793-413f-940a-168f39a1177e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="240" width="535" height="3" uuid="740c5c30-ed43-4611-a26a-924b884d141e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-147" positionType="Float" x="0" y="224" width="535" height="3" uuid="02502746-adad-42b4-b88c-9cad3d8787d7"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

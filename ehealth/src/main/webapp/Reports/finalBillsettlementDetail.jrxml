@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="finalBillsettlementDetail"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="195"
+		 pageHeight="612"
+		 columnWidth="195"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.zoom" value="1.5" />
+	<property name="ireport.x" value="0" />
+	<property name="ireport.y" value="44" />
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="inpatientId" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["F:\\new jkt 270310\\Report change\\050410\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select * from (select * from(
+select mainresult1.*, if(mainresult2.cashamount is null,0,mainresult2.cashamount) as cashamount,
+if(mainresult2.receiptamount is null,0,mainresult2.receiptamount) as receiptamount,
+if(mainresult2.paymentadvice is null,0,mainresult2.paymentadvice) as paymentadvice ,
+if (mainresult2.billonaccount is null ,0,mainresult2.billonaccount) as  billonaccount from
+(
+select * from
+(select main.hin_id,main.inpatient_id,main.maincategoryname as maincategoryname,
+main.amt as detailamt,
+
+main.subcategory
+ from
+(select hin_id,inpatient_id,bd.charge_slip_main_id,bd.amt as amt,bd.hospital_id,
+(select main_chargecode_name from mas_main_chargecode where main_chargecode_id =
+(select distinct main_chargecode_id from mas_charge_code
+where charge_code_id =bd.charge_code_id)) as maincategoryname,
+(select charge_code_name from mas_charge_code where charge_code_id =bd.charge_code_id) as subcategory
+from bl_charge_slip_main bh
+inner join bl_charge_slip_detail bd
+on bh.charge_slip_main_id = bd.charge_slip_main_id where bh.inpatient_id = $P{inpatientId})
+as main
+
+
+union all
+
+select hin_id,inpatient_id,'Medicine' as maincategoryname,sum(amount+sales_tax_amt) as detailamt,
+
+(select nomenclature from mas_store_item where item_id=
+b.item_id) as subcategoryname  from bl_dispensing_header h
+left outer join bl_dispensing_details b
+on h.dispensing_header_id = b.dispensing_header_id where inpatient_id =$P{inpatientId}
+group by hin_id,inpatient_id,hin_no,ad_no,item_id) as mainsql
+
+inner join
+
+(select (select concat(p_first_name,' ',p_middle_name,' ',p_last_name)
+from patient where hin_no = inp.hin_no) as patientname,inpatient_id as inp,date_of_addmission as admissiondate,
+(select hospital_name from mas_hospital where hospital_id =inp.hospital_id) as hospitalname
+,(select department_name from mas_department where department_id =
+inp.department_id) as departmentname,inp.ad_status,inp.hin_no,inp.ad_no,
+(select bed_no from mas_bed where bed_id=inp.bed_id) as bedno
+from inpatient inp
+ where inp.inpatient_id =$P{inpatientId}) as subsql
+on mainsql.inpatient_id = subsql.inp
+
+) as mainresult1
+
+
+left join
+
+(
+select finalsql1.*,finalsql2.paymentadvice,finalsql2.billonaccount from
+(select mainpayableamount.*, ifnull(mainreceiptamount.cashamount,0) as cashamount  from
+(
+select sum(ifnull(amt,0)) as receiptamount,inpatient_id from
+(
+select sum(payable_amt) as amt,inpatient_id from bl_dispensing_header b where inpatient_id =$P{inpatientId}
+union all
+select sum(receipt_amt) as amt,inpatient_id from bl_charge_slip_main b where inpatient_id =$P{inpatientId}
+
+)as mainpayableamount1 where inpatient_id is not null) as mainpayableamount
+left outer join
+(
+select sum(ifnull(amount,0)) as cashamount,inpatient_id as inp from bl_receipt_header
+ where inpatient_id= $P{inpatientId} and receipt_type='adv' ) as mainreceiptamount
+on mainpayableamount.inpatient_id = mainreceiptamount.inp ) as finalsql1
+
+left outer join
+
+(select if(paymentadvise.paymentadvice is null,0,paymentadvise.paymentadvice)
+ as paymentadvice,paymentadvise.inpatient_id,billamountsql.billonaccount from
+(select if(sum(total_refund_amt) is null,0,sum(total_refund_amt))*(-1)
+as paymentadvice,inpatient_id from
+bl_refund_header where inpatient_id=$P{inpatientId}) as paymentadvise
+
+
+inner join
+
+
+
+(
+select sum(mainbill.billonaccount) as billonaccount,mainbill.inpatient_id from
+(
+select if(sum(outstanding) is null,0,sum(outstanding) )
+as billonaccount,inpatient_id from bl_dispensing_header  where inpatient_id=$P{inpatientId}
+union all
+select if(sum(os_amt) is null,0,sum(os_amt)) as billonaccount ,inpatient_id from bl_charge_slip_main
+
+where inpatient_id=$P{inpatientId})
+as mainbill where inpatient_id is not null ) as billamountsql
+on paymentadvise.inpatient_id = billamountsql.inpatient_id) as finalsql2
+
+on finalsql1.inpatient_id = finalsql2.inpatient_id) as mainresult2
+on mainresult1.inpatient_id = mainresult2.inpatient_id
+) as finalset1
+left outer join
+(select sum(grossamount) as grossamount,sum(charityamount) as charityamount ,sum(netamount) as netamount,inpatient_id as inpid from
+(
+select sum(bill_amt) as grossamount,sum(discount_amt) as charityamount ,sum(net_amt) as netamount,inpatient_id
+ from bl_dispensing_header where inpatient_id =$P{inpatientId}
+union all
+select sum(chg_slp_amt) as grossamount,ifnull(sum(discount_amt),0) as charityamount,sum(net_amt) as netamount,inpatient_id from bl_charge_slip_main
+where inpatient_id =$P{inpatientId} ) as totalcalsql where inpatient_id is not null ) as finalsetsql2
+
+on finalset1.inpatient_id = finalsetsql2.inpid
+) as mainsqlquery
+
+order by mainsqlquery.maincategoryname,mainsqlquery.subcategory]]></queryString>
+
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="inpatient_id" class="java.lang.Integer"/>
+	<field name="maincategoryname" class="java.lang.String"/>
+	<field name="detailamt" class="java.math.BigDecimal"/>
+	<field name="subcategory" class="java.lang.String"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="inp" class="java.lang.Integer"/>
+	<field name="admissiondate" class="java.sql.Date"/>
+	<field name="hospitalname" class="java.lang.String"/>
+	<field name="departmentname" class="java.lang.String"/>
+	<field name="ad_status" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="ad_no" class="java.lang.String"/>
+	<field name="bedno" class="java.lang.String"/>
+	<field name="cashamount" class="java.math.BigDecimal"/>
+	<field name="receiptamount" class="java.math.BigDecimal"/>
+	<field name="paymentadvice" class="java.math.BigDecimal"/>
+	<field name="billonaccount" class="java.math.BigDecimal"/>
+	<field name="grossamount" class="java.math.BigDecimal"/>
+	<field name="charityamount" class="java.math.BigDecimal"/>
+	<field name="netamount" class="java.math.BigDecimal"/>
+	<field name="inpid" class="java.lang.Integer"/>
+
+	<variable name="SrNo" class="java.lang.Integer" resetType="Group" resetGroup="ChargerDetails" calculation="Count">
+		<variableExpression><![CDATA[new java.lang.Integer(($V{REPORT_COUNT}.intValue()) )]]></variableExpression>
+	</variable>
+	<variable name="GTotal" class="java.math.BigDecimal" resetType="Group" resetGroup="ChargerDetails" calculation="Sum">
+		<variableExpression><![CDATA[$F{detailamt}]]></variableExpression>
+	</variable>
+	<variable name="SumGroup" class="java.math.BigDecimal" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$F{cashamount}.add( $F{receiptamount} )]]></variableExpression>
+	</variable>
+	<variable name="NetPaymentAdviceAmount" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{netamount}.add( $F{paymentadvice} )]]></variableExpression>
+	</variable>
+	<variable name="FinalAmount" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$V{NetPaymentAdviceAmount}.subtract($V{SumGroup} )]]></variableExpression>
+	</variable>
+
+		<group  name="ChargerDetails" >
+			<groupExpression><![CDATA[$F{maincategoryname}]]></groupExpression>
+			<groupHeader>
+			<band height="16"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="2"
+						width="141"
+						height="12"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Oblique" size="6" isBold="false" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{maincategoryname}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="195"
+						height="1"
+						key="line-4"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="10"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern=" #,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="120"
+						y="0"
+						width="47"
+						height="8"
+						key="textField-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-BoldOblique" size="6" isBold="true" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{GTotal}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="16"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="169"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle" lineSpacing="Single">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{hospitalname}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="85"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="1"
+						width="167"
+						height="14"
+						key="staticText-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Courier" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Final Settlement Details]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="45"
+						width="65"
+						height="9"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Admission Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="55"
+						width="65"
+						height="9"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bed No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="15"
+						width="65"
+						height="9"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[HIN No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="25"
+						width="65"
+						height="9"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[IP No.]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="74"
+						width="195"
+						height="1"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="1"
+						y="75"
+						width="20"
+						height="10"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[S. No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="21"
+						y="75"
+						width="99"
+						height="10"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill Details ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="120"
+						y="74"
+						width="47"
+						height="10"
+						key="staticText-20"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="35"
+						width="65"
+						height="9"
+						key="staticText-21"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Patient Name
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="64"
+						width="65"
+						height="9"
+						key="staticText-22"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Ward Name]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="67"
+						y="15"
+						width="100"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{hin_no}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="67"
+						y="35"
+						width="100"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{patientname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="67"
+						y="45"
+						width="100"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{admissiondate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="67"
+						y="25"
+						width="100"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ad_no}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="67"
+						y="55"
+						width="100"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{bedno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="67"
+						y="64"
+						width="100"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{departmentname}]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="15"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="1"
+						width="20"
+						height="12"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" size="6" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{SrNo}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="21"
+						y="1"
+						width="99"
+						height="12"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" size="6" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{subcategory}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="120"
+						y="1"
+						width="47"
+						height="12"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" size="6" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{detailamt}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="177"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="35"
+						y="19"
+						width="60"
+						height="9"
+						key="staticText-16"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Net Amount:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="35"
+						y="10"
+						width="60"
+						height="9"
+						key="staticText-17"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Charity Amount :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="35"
+						y="1"
+						width="60"
+						height="9"
+						key="staticText-19"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Gross Total :]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="28"
+						width="195"
+						height="1"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="195"
+						height="1"
+						key="line-3"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="false" pattern=" #,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="99"
+						y="1"
+						width="70"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{grossamount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern=" #,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="99"
+						y="19"
+						width="70"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{netamount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern=" #,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="99"
+						y="10"
+						width="70"
+						height="9"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{charityamount}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="149"
+						width="195"
+						height="1"
+						key="line-5"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="162"
+						width="195"
+						height="1"
+						key="line-6"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="35"
+						y="129"
+						width="60"
+						height="9"
+						key="staticText-34"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Advance Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="35"
+						y="138"
+						width="60"
+						height="9"
+						key="staticText-35"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="6" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Net Receipt Amount]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern=" #,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="101"
+						y="129"
+						width="63"
+						height="9"
+						key="textField-12"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{cashamount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern=" #,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="101"
+						y="138"
+						width="63"
+						height="9"
+						key="textField-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SumGroup}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="1"
+						y="116"
+						width="77"
+						height="9"
+						key="staticText-36"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" pdfFontName="Courier" size="6" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Receipt Account Details]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="164"
+						width="193"
+						height="12"
+						key="staticText-37"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-BoldOblique" size="6" isBold="true" isItalic="true"/>
+					</textElement>
+				<text><![CDATA[* - indicate the Refund Amount to Patient ]]></text>
+				</staticText>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="31"
+						width="195"
+						height="36"
+						key="subreport-1"/>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="inpatientId">
+						<subreportParameterExpression><![CDATA[$F{inpatient_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="paymentAdvice">
+						<subreportParameterExpression><![CDATA[$F{paymentadvice}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="cash_amount">
+						<subreportParameterExpression><![CDATA[$F{receiptamount}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="advance_amount">
+						<subreportParameterExpression><![CDATA[$F{cashamount}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "\\onAccountFinalSettlement.jasper"]]></subreportExpression>
+				</subreport>
+				<staticText>
+					<reportElement
+						x="15"
+						y="151"
+						width="68"
+						height="11"
+						key="staticText-38"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Courier" size="7" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Balance ]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern=" #,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="102"
+						y="151"
+						width="62"
+						height="11"
+						key="textField-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans Mono" pdfFontName="Helvetica-Bold" size="6" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{FinalAmount}]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+		<noData>
+			<band height="24"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="194"
+						height="24"
+						forecolor="#FF0033"
+						key="staticText-23"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="18" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ No Report Data Found ]]></text>
+				</staticText>
+			</band>
+		</noData>
+</jasperReport>

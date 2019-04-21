@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="hospital_service_ul_sub"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="842"
+		 pageHeight="595"
+		 columnWidth="782"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoDataSection"
+		 isFloatColumnFooter="true"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="hospitalId" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="deptId" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select (select department_name from mas_department where visit_applicable = 'y' and department_id = $P{deptId}) as department,
+(select count(visit_no) from visit where visit_no=1 and department_id=$P{deptId} and visit_date between $P{fromDate} and $P{toDate}) as first_visit,
+(select count(visit_no) from visit where visit_no>1  and department_id=$P{deptId} and visit_date between $P{fromDate} and $P{toDate}) as re_visit,
+(select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id join mas_administrative_sex mas on mas.administrative_sex_id = p.sex_id
+ where mas.administrative_sex_name = 'Male' and department_id=$P{deptId} and visit_date between $P{fromDate} and $P{toDate}) as male,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id join mas_administrative_sex mas on mas.administrative_sex_id = p.sex_id
+ where mas.administrative_sex_name = 'Female' and department_id=$P{deptId} and visit_date between $P{fromDate} and $P{toDate}) as female,
+  (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id join mas_administrative_sex mas on mas.administrative_sex_id = p.sex_id
+ where mas.administrative_sex_name = 'Transgender' and department_id=$P{deptId} and visit_date between $P{fromDate} and $P{toDate}) as transgender,
+ (select count(visit_no) from visit where department_id=$P{deptId} and visit_date between $P{fromDate} and $P{toDate}) as total,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id where EXTRACT(YEAR FROM (age(now(),date_of_birth))) < 1 and v.department_id=$P{deptId} and v.visit_date between $P{fromDate} and $P{toDate}) as lessThanTweleve,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id where EXTRACT(YEAR FROM (age(now(),date_of_birth))) < 18 and v.department_id=$P{deptId} and v.visit_date between $P{fromDate} and $P{toDate}) as lessThanEighteen,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id where EXTRACT(YEAR FROM (age(now(),date_of_birth))) > 18 and v.department_id=$P{deptId} and v.visit_date between $P{fromDate} and $P{toDate}) as greaterThanEighteen,
+ (select count(distinct(opd_patient_detail_id)) from patient_wise_mlc pwm join opd_patient_details opd on pwm.opd_patient_detail_id = opd.id 
+  join visit v on v.visit_id = opd.visit_id where v.department_id=$P{deptId} and v.visit_date between $P{fromDate} and $P{toDate}) as mlc,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where referred_hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and v.department_id = $P{deptId}) as fromOtherInstitute,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where referred_hospital_id!=$P{hospitalId} and referred_hospital_id is not null and v.visit_date between $P{fromDate} and $P{toDate} and v.department_id = $P{deptId}) as toHighCenter,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where v.department_id=$P{deptId} and patient_death_status='Brought Dead' and v.visit_date between $P{fromDate} and $P{toDate}) as brought_dead,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where v.department_id=$P{deptId} and patient_death_status='Death In Opd' and v.visit_date between $P{fromDate} and $P{toDate}) as death_in_opd]]></queryString>
+
+	<field name="first_visit" class="java.lang.Long"/>
+	<field name="re_visit" class="java.lang.Long"/>
+	<field name="male" class="java.lang.Long"/>
+	<field name="female" class="java.lang.Long"/>
+	<field name="transgender" class="java.lang.Long"/>
+	<field name="total" class="java.lang.Long"/>
+	<field name="lessthantweleve" class="java.lang.Long"/>
+	<field name="lessthaneighteen" class="java.lang.Long"/>
+	<field name="greaterthaneighteen" class="java.lang.Long"/>
+	<field name="mlc" class="java.lang.Long"/>
+	<field name="fromotherinstitute" class="java.lang.Long"/>
+	<field name="tohighcenter" class="java.lang.Long"/>
+	<field name="brought_dead" class="java.lang.Long"/>
+	<field name="death_in_opd" class="java.lang.Long"/>
+	<field name="department" class="java.lang.String"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="40"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="0"
+						height="39"
+						key="line-15"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="543"
+						y="39"
+						width="121"
+						height="0"
+						key="line-30"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="471"
+						y="39"
+						width="73"
+						height="0"
+						key="line-31"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="782"
+						height="0"
+						key="line-20"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="298"
+						y="1"
+						width="0"
+						height="39"
+						key="line-90"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="231"
+						y="1"
+						width="0"
+						height="39"
+						key="line-91"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="409"
+						y="1"
+						width="0"
+						height="39"
+						key="line-97"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="39"
+						width="782"
+						height="0"
+						key="line-99"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="194"
+						y="1"
+						width="0"
+						height="39"
+						key="line-126"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="163"
+						y="1"
+						width="0"
+						height="39"
+						key="line-127"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="372"
+						y="0"
+						width="0"
+						height="40"
+						key="line-130"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="335"
+						y="1"
+						width="0"
+						height="39"
+						key="line-131"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="163"
+						y="1"
+						width="31"
+						height="39"
+						key="textField-23"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{male}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="1"
+						width="37"
+						height="39"
+						key="textField-24"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{female}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="251"
+						y="1"
+						width="36"
+						height="39"
+						key="textField-25"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{transgender}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="298"
+						y="1"
+						width="37"
+						height="39"
+						key="textField-27"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{lessthantweleve}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="335"
+						y="2"
+						width="37"
+						height="38"
+						key="textField-28"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{lessthaneighteen}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="372"
+						y="1"
+						width="37"
+						height="39"
+						key="textField-29"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{greaterthaneighteen}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="1"
+						width="163"
+						height="39"
+						key="textField-35"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{department}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="782"
+						height="0"
+						key="line-154"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+<hibernate-mapping package="jkt.hms.masters.business">
+	<class name="BlOpBillHeader" table="bl_op_bill_header">
+		<meta attribute="sync-DAO">false</meta>
+
+		<id name="Id" type="integer" column="op_bill_header_id">
+			<generator class="sequence">
+				<param name="sequence">bl_op_bill_header_op_bill_header_id_seq</param>
+			</generator>
+		</id>
+		
+		<property
+			name="PayStatus"
+			column="pay_status"
+			type="string"
+			not-null="false"
+			length="8"
+		/>
+		<property
+			name="CharityRcvd"
+			column="charity_rcvd"
+			type="big_decimal"
+			not-null="false"
+			length="13"
+		/>
+		<property name="PatientName" column="patient_name" type="string"
+			not-null="false" length="50" />
+		<property name="Age" column="age" type="string" not-null="false"
+			length="30" />
+		<property name="HinNo" column="hin_no" type="string"
+			not-null="false" length="50" />
+		<property name="ConsultantName" column="consultant_name"
+			type="string" not-null="false" length="50" />
+		<property name="BillNo" column="bill_no" type="string"
+			not-null="false" length="45" />
+		<property name="BillAmt" column="bill_amt" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="DiscountAmt" column="discount_amt" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="Outstanding" column="outstanding" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="RoundOff" column="round_off" type="big_decimal"
+			not-null="false" length="9" />
+		<property name="DiscountOnBill" column="discount_on_bill"
+			type="big_decimal" not-null="false" length="9" />
+		<property name="NetAmt" column="net_amt" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="BillDate" column="bill_date" type="date"
+			not-null="false" />
+		<property name="BillTime" column="bill_time" type="string"
+			not-null="false" length="10" />
+		<property name="PatientStatus" column="patient_status" type="string"
+			not-null="false" length="1" />
+		<property name="AdvanceAdjustment" column="advance_adjustment"
+			type="big_decimal" not-null="false" length="13" />
+		<property name="PayableAmt" column="payable_amt" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="Status" column="status" type="string"
+			not-null="false" length="1" />
+		<property name="ActualCollectedAmt" column="actual_collected_amt"
+			type="big_decimal" not-null="false" length="13" />
+		<property name="Discount" column="discount" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="Charity" column="charity" type="big_decimal"
+			not-null="false" length="13" />
+		<property name="TokenNo" column="token_no" type="integer"
+			not-null="false" length="10" />
+		<property name="RelativeName" column="relative_name" type="string"
+			not-null="false" length="50" />
+		<property name="RegType" column="reg_type" type="string"
+			not-null="false" length="1" />
+		<property name="remarks" column="Remarks" type="string"
+			not-null="false" length="100" />
+		<property name="Documents" column="documents" type="string"
+			not-null="false" length="200" />
+		
+			
+		<many-to-one name="PatientType" column="patient_type_id"
+			class="MasPatientType" not-null="false">
+		</many-to-one>
+		<many-to-one name="Company" column="company_id" class="MasCompany"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="PackageBill" column="package_bill_id"
+			class="BlPackageBill" not-null="false">
+		</many-to-one>
+		<many-to-one
+			name="SchemeAuthorizer"
+			column="scheme_authorizer_id"
+			class="MasAuthorizer"
+			not-null="false"
+		>
+		</many-to-one>
+		
+		<many-to-one name="ChangedBy" column="changed_by" class="Users"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="Sex" column="sex_id" class="MasAdministrativeSex"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="Hospital" column="hospital_id" class="MasHospital"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="Consultant" column="consultant_id"
+			class="MasEmployee" not-null="false">
+		</many-to-one>
+		<many-to-one name="Visit" column="visit_id" class="Visit"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="Hin" column="hin_id" class="Patient"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="Authorizer" column="authorizer_id"
+			class="MasAuthorizer" not-null="false">
+		</many-to-one>
+		<many-to-one name="Scheme" column="scheme_id"
+			class="MasScheme" not-null="false">
+		</many-to-one>
+
+
+
+		<set inverse="true" name="BlReceiptHeaders">
+			<key column="op_bill_header_id" />
+			<one-to-many class="BlReceiptHeader" />
+		</set>
+
+		<set inverse="true" name="FaVoucherHeaders">
+			<key column="op_bill_header_id" />
+			<one-to-many class="FaVoucherHeader" />
+		</set>
+
+		<set inverse="true" name="DgOrderdts">
+			<key column="op_bill_header_id" />
+			<one-to-many class="DgOrderdt" />
+		</set>
+
+		<set inverse="true" name="BlOpBillDetails">
+			<key column="op_bill_header_id" />
+			<one-to-many class="BlOpBillDetails" />
+		</set>
+
+		<set inverse="true" name="BlPaymentAdviceHeaders">
+			<key column="bill_id" />
+			<one-to-many class="BlPaymentAdviceHeader" />
+		</set>
+
+
+
+	</class>
+</hibernate-mapping>

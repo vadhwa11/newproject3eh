@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="opdOphthalmologySubEha"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="595"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="Visit_No" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Gonioscopy-RE" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="Gonioscopy-LE" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="LENSE-RE" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="LENSE-LE" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="FUNDUS-RE" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="FUNDUS-LE" isForPrompting="true" class="java.lang.String"/>
+	<queryString><![CDATA[select
+     visit_a.visit_no as visit_a_visit_no,
+     (patient.p_first_name+' '+ISNULL(patient.p_middle_name,'')+' '+ISNULL(patient.p_last_name,''))as patient_name,
+     patient.age as patient_age,
+     visit_a.visit_date as visit_a_visit_date,
+     patient.date_of_birth as patient_date_of_birth,
+     mas_hospital.hospital_name as mas_hospital_hospital_name,
+     opd_ophthalmology.decreased_vision as opd_ophthalmology_decreased_vision,
+     opd_ophthalmology.redness as opd_ophthalmology_redness,
+     opd_ophthalmology.pain as opd_ophthalmology_pain,
+     opd_ophthalmology.discharge as opd_ophthalmology_discharge,
+     (case opd_ophthalmology.reading when 'r'then 'yes' when ''then 'no' else opd_ophthalmology.reading end)as opd_ophthalmology_reading,
+     (case opd_ophthalmology.driving when 'd'then 'yes' when ''then 'no' else opd_ophthalmology.driving end)as opd_ophthalmology_driving,
+     (case opd_ophthalmology.cooking when 'c'then 'yes' when ''then 'no' else opd_ophthalmology.cooking end)as opd_ophthalmology_cooking,
+     (case opd_ophthalmology.personal_hygiene when 'p' then 'yes' when '' then 'no' else opd_ophthalmology.personal_hygiene end)as opd_ophthalmology_personal_hygiene,
+     (case opd_ophthalmology.ambulatry when 'a'then 'yes' when ''then 'no' else opd_ophthalmology.ambulatry end)as opd_ophthalmology_ambulatry,
+     opd_ophthalmology.floater_trauma_epiphora as opd_ophthalmology_floater_trauma_epiphora,
+     opd_ophthalmology.distance_re as opd_ophthalmology_distance_re,
+     opd_ophthalmology.distance_le as opd_ophthalmology_distance_le,
+     opd_ophthalmology.distance_ph as opd_ophthalmology_distance_ph,
+     opd_ophthalmology.near_re as opd_ophthalmology_near_re,
+     opd_ophthalmology.near_le as opd_ophthalmology_near_le,
+     opd_ophthalmology.near_ph as opd_ophthalmology_near_ph,
+     opd_ophthalmology.refraction_re as opd_ophthalmology_refraction_re,
+     opd_ophthalmology.refraction_le as opd_ophthalmology_refraction_le,
+     opd_ophthalmology.refraction_ph as opd_ophthalmology_refraction_ph,
+     opd_ophthalmology.acceptance_distance_re as opd_ophthalmology_acceptance_distance_re,
+     opd_ophthalmology.acceptance_distance_le as opd_ophthalmology_acceptance_distance_le,
+     opd_ophthalmology.acceptance_distance_ph as opd_ophthalmology_acceptance_distance_ph,
+     opd_ophthalmology.acceptance_near_re as opd_ophthalmology_acceptance_near_re,
+     opd_ophthalmology.acceptance_near_le as opd_ophthalmology_acceptance_near_le,
+     opd_ophthalmology.acceptance_near_ph as opd_ophthalmology_acceptance_near_ph,
+     opd_ophthalmology.convergence as opd_ophthalmology_convergence,
+     opd_ophthalmology.color_vision as opd_ophthalmology_color_vision,
+     opd_ophthalmology.ocular_movement as opd_ophthalmology_ocular_movement,
+     opd_ophthalmology.lids as opd_ophthalmology_lids,
+     opd_ophthalmology.conjunctiva as opd_ophthalmology_conjunctiva,
+     opd_ophthalmology.cornea_ac_re as opd_ophthalmology_cornea_ac_re,
+     opd_ophthalmology.cornea_ac_le as opd_ophthalmology_cornea_ac_le,
+     opd_ophthalmology.gonioscopy_re as opd_ophthalmology_gonioscopy_re,
+     opd_ophthalmology.gonioscopy_le as opd_ophthalmology_gonioscopy_le,
+     opd_ophthalmology.iop_re as opd_ophthalmology_iop_re,
+     opd_ophthalmology.iop_le as opd_ophthalmology_iop_le,
+     opd_ophthalmology.dilation_re as opd_ophthalmology_dilation_re,
+     opd_ophthalmology.dilation_le as opd_ophthalmology_dilation_le,
+     opd_ophthalmology.lens_re as opd_ophthalmology_lens_re,
+     opd_ophthalmology.lens_le as opd_ophthalmology_lens_le,
+     opd_ophthalmology.fundus_re as opd_ophthalmology_fundus_re,
+     opd_ophthalmology.fundus_le as opd_ophthalmology_fundus_le,
+     (case opd_ophthalmology.dm when 'd'then 'yes' when ''then 'no' else opd_ophthalmology.dm end)as opd_ophthalmology_dm,
+     (case opd_ophthalmology.htn when 'h'then 'yes' when ''then 'no' else opd_ophthalmology.htn end)as opd_ophthalmology_htn,
+     (case opd_ophthalmology.cad when 'c'then 'yes' when ''then 'no' else opd_ophthalmology.cad end)as opd_ophthalmology_cad,
+     (case opd_ophthalmology.ba when 'b'then 'yes' when ''then 'no' else opd_ophthalmology.ba end)as opd_ophthalmology_ba,
+     (case opd_ophthalmology.autoimmune when 'a'then 'yes' when '' then 'no' else opd_ophthalmology.autoimmune end)as opd_ophthalmology_autoimmune,
+     (case opd_ophthalmology.others when 'o' then 'yes' when ''then 'no' else opd_ophthalmology.others end)as opd_ophthalmology_others,
+     opd_ophthalmology.ant_chamber_depth_re as opd_ophthalmology_ant_chamber_depth_re,
+     opd_ophthalmology.ant_chamber_depth_le as opd_ophthalmology_ant_chamber_depth_le,
+     opd_ophthalmology.cells_flare_re as opd_ophthalmology_cells_flare_re,
+     opd_ophthalmology.cells_flare_le as opd_ophthalmology_cells_flare_le,
+     opd_ophthalmology.pxf_nvi_re as opd_ophthalmology_pxf_nvi_re,
+     opd_ophthalmology.pxf_nvi_le as opd_ophthalmology_pxf_nvi_le,
+     (case opd_ophthalmology.pupil_reaction_direct when 'd' then 'yes' when '' then 'no' else opd_ophthalmology.pupil_reaction_direct end)as opd_ophthalmology_pupil_reaction_direct,
+     (case opd_ophthalmology.pupil_reaction_consensnal when 'c' then 'yes' when ''then 'no' else opd_ophthalmology.pupil_reaction_consensnal end)as opd_ophthalmology_pupil_reaction_consensnal,
+     (case opd_ophthalmology.pupil_reaction_rapd when 'p' then 'yes' when ''then 'no' else opd_ophthalmology.pupil_reaction_rapd end)as opd_ophthalmology_pupil_reaction_rapd,
+     patient.hin_no as patient_hin_no
+from
+     patient patient right outer join opd_ophthalmology opd_ophthalmology on patient.hin_id = opd_ophthalmology.hin_id
+     left outer join visit visit_a on opd_ophthalmology.visit_id = visit_a.visit_id
+     left outer join mas_hospital mas_hospital on opd_ophthalmology.hospital_id = mas_hospital.hospital_id
+where
+
+     visit_a.visit_no = $P{Visit_No}]]></queryString>
+
+	<field name="visit_a_visit_no" class="java.lang.Integer"/>
+	<field name="patient_name" class="java.lang.String"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_a_visit_date" class="java.sql.Timestamp"/>
+	<field name="patient_date_of_birth" class="java.sql.Timestamp"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="opd_ophthalmology_decreased_vision" class="java.lang.String"/>
+	<field name="opd_ophthalmology_redness" class="java.lang.String"/>
+	<field name="opd_ophthalmology_pain" class="java.lang.String"/>
+	<field name="opd_ophthalmology_discharge" class="java.lang.String"/>
+	<field name="opd_ophthalmology_reading" class="java.lang.String"/>
+	<field name="opd_ophthalmology_driving" class="java.lang.String"/>
+	<field name="opd_ophthalmology_cooking" class="java.lang.String"/>
+	<field name="opd_ophthalmology_personal_hygiene" class="java.lang.String"/>
+	<field name="opd_ophthalmology_ambulatry" class="java.lang.String"/>
+	<field name="opd_ophthalmology_floater_trauma_epiphora" class="java.lang.String"/>
+	<field name="opd_ophthalmology_distance_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_distance_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_distance_ph" class="java.lang.String"/>
+	<field name="opd_ophthalmology_near_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_near_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_near_ph" class="java.lang.String"/>
+	<field name="opd_ophthalmology_refraction_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_refraction_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_refraction_ph" class="java.lang.String"/>
+	<field name="opd_ophthalmology_acceptance_distance_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_acceptance_distance_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_acceptance_distance_ph" class="java.lang.String"/>
+	<field name="opd_ophthalmology_acceptance_near_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_acceptance_near_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_acceptance_near_ph" class="java.lang.String"/>
+	<field name="opd_ophthalmology_convergence" class="java.lang.String"/>
+	<field name="opd_ophthalmology_color_vision" class="java.lang.String"/>
+	<field name="opd_ophthalmology_ocular_movement" class="java.lang.String"/>
+	<field name="opd_ophthalmology_lids" class="java.lang.String"/>
+	<field name="opd_ophthalmology_conjunctiva" class="java.lang.String"/>
+	<field name="opd_ophthalmology_cornea_ac_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_cornea_ac_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_gonioscopy_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_gonioscopy_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_iop_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_iop_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_dilation_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_dilation_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_lens_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_lens_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_fundus_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_fundus_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_dm" class="java.lang.String"/>
+	<field name="opd_ophthalmology_htn" class="java.lang.String"/>
+	<field name="opd_ophthalmology_cad" class="java.lang.String"/>
+	<field name="opd_ophthalmology_ba" class="java.lang.String"/>
+	<field name="opd_ophthalmology_autoimmune" class="java.lang.String"/>
+	<field name="opd_ophthalmology_others" class="java.lang.String"/>
+	<field name="opd_ophthalmology_ant_chamber_depth_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_ant_chamber_depth_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_cells_flare_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_cells_flare_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_pxf_nvi_re" class="java.lang.String"/>
+	<field name="opd_ophthalmology_pxf_nvi_le" class="java.lang.String"/>
+	<field name="opd_ophthalmology_pupil_reaction_direct" class="java.lang.String"/>
+	<field name="opd_ophthalmology_pupil_reaction_consensnal" class="java.lang.String"/>
+	<field name="opd_ophthalmology_pupil_reaction_rapd" class="java.lang.String"/>
+	<field name="patient_hin_no" class="java.lang.String"/>
+
+		<background>
+			<band height="20"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="20"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="616"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="62"
+						y="29"
+						width="57"
+						height="15"
+						key="staticText-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" size="8" isBold="false" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Gonioscopy ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="62"
+						y="217"
+						width="57"
+						height="15"
+						key="staticText-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" size="8" isBold="false" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[IOP(months)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="62"
+						y="238"
+						width="82"
+						height="15"
+						key="staticText-15"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" size="8" isBold="false" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Papillary Dilatation ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="62"
+						y="262"
+						width="57"
+						height="15"
+						key="staticText-16"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" size="8" isBold="false" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Lens ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="62"
+						y="415"
+						width="57"
+						height="15"
+						key="staticText-17"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" size="8" isBold="false" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Fundus ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="205"
+						y="8"
+						width="38"
+						height="15"
+						key="staticText-18"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[RE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="340"
+						y="8"
+						width="38"
+						height="15"
+						key="staticText-19"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[LE]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="10"
+						y="24"
+						width="525"
+						height="0"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="10"
+						y="5"
+						width="525"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="29"
+						width="116"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_gonioscopy_re}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="29"
+						width="128"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_gonioscopy_le}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="195"
+						y="214"
+						width="122"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_iop_re}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="214"
+						width="138"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_iop_le}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="195"
+						y="239"
+						width="122"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_dilation_re}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="239"
+						width="138"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_dilation_le}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="195"
+						y="261"
+						width="122"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_lens_re}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="261"
+						width="138"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_lens_le}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="195"
+						y="415"
+						width="122"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_fundus_re}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="415"
+						width="138"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{opd_ophthalmology_fundus_le}]]></textFieldExpression>
+				</textField>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="62"
+						y="49"
+						width="239"
+						height="158"
+						key="image-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{Gonioscopy-RE}]]></imageExpression>
+				</image>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="274"
+						y="49"
+						width="236"
+						height="158"
+						key="image-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{Gonioscopy-LE}]]></imageExpression>
+				</image>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="134"
+						y="283"
+						width="191"
+						height="128"
+						key="image-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{LENSE-RE}]]></imageExpression>
+				</image>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="332"
+						y="283"
+						width="184"
+						height="129"
+						key="image-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{LENSE-LE}]]></imageExpression>
+				</image>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="181"
+						y="433"
+						width="144"
+						height="119"
+						key="image-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{FUNDUS-RE}]]></imageExpression>
+				</image>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="340"
+						y="433"
+						width="136"
+						height="119"
+						key="image-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{FUNDUS-LE}]]></imageExpression>
+				</image>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="30"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<lastPageFooter>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</lastPageFooter>
+		<summary>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

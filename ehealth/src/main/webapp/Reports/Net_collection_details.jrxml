@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="Net_collection_details"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="535"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="fromDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()
+]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromTime" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toTime" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospital_name" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 'Cash Amount' as account_type, coalesce(hhmain.op_amt,0) as op_amt,
+coalesce(ip_amt,0)as ip_amt,(coalesce(op_amt,0) + coalesce(ip_amt,0))as Total from 
+(select (coalesce(hmain.op_amt,0) + coalesce(hmain1.op_amt,0) - coalesce(hmain3.op_amt,0)) as op_amt,
+(coalesce(hmain.ip_amt,0) + coalesce(hmain1.ip_amt,0) - coalesce(hmain3.ip_amt,0)) as ip_amt
+from (select coalesce(main.op_amt,0) as op_amt,coalesce(main.ip_amt,0) as ip_amt ,
+(coalesce(op_amt,0) + coalesce(ip_Amt,0)) as Total from
+(select (coalesce(sum(CASE WHEN receipt_type = 'opb' then coalesce(brd.amount,0.0) ELSE 0 END ),0) +
+coalesce(SUM(CASE WHEN receipt_type  = 'bld'  THEN CASE WHEN 
+brh.inpatient_id  is null  THEN coalesce(brd.amount, 0) ELSE 0.0 END ELSE 0 END), 0)) as op_amt,
+(sum(CASE WHEN receipt_type = 'chs' THEN coalesce(brd.amount,0) ELSE 0 END )+
+coalesce(SUM(CASE WHEN receipt_type  = 'bld' THEN CASE WHEN
+brh.inpatient_id is not null THEN coalesce(brd.amount, 0) ELSE 0.0 END ELSE 0 
+END), 0)) as ip_amt
+FROM bl_receipt_header as brh left outer join
+bl_receipt_details as brd on brh.receipt_header_id = brd.receipt_header_id
+where brd.payment_mode = 'C'
+and brh.receipt_date between $P{fromDate} and $P{toDate} 
+and brh.receipt_time between $P{fromTime} and $P{toTime} 
+and brh.hospital_id= $P{hospitalId}
+) as main) as hmain,
+(select coalesce(op_amt,0) as op_amt, coalesce(ip_amt,0) as ip_amt,
+(coalesce(op_amt,0) + coalesce(ip_amt,0)) as tot
+from (select sum(CASE WHEN inpatient_id is null THEN coalesce(brd.amount ,0.0)ELSE 0 END ) as op_amt,
+sum(CASE WHEN inpatient_id is not null THEN coalesce(brd.amount ,0.0)ELSE 0 END) as ip_amt
+from  bl_receipt_header as brh left outer join bl_receipt_details as brd
+on brh.receipt_header_id = brd.receipt_header_id
+where brd.payment_mode= 'c'
+and brh.receipt_type in ('fs','adv')
+and brh.receipt_date between $P{fromDate} and $P{toDate} 
+and brh.receipt_time between $P{fromTime} and $P{toTime} 
+and brh.hospital_id= $P{hospitalId}
+) as main1) as hmain1,
+
+(select coalesce(op_Amt,0) as op_Amt, coalesce(ip_amt,0) as ip_amt ,
+(coalesce(op_amt,0) + coalesce(ip_amt,0)) as tot_amt
+from (select coalesce(sum(CASE WHEN inpatient_id is null THEN coalesce(d.refund_amount,0) ELSE 0 END ),0) as op_amt,
+coalesce(sum(CASE WHEN b.inpatient_id is not null THEN coalesce(d.refund_amount,0) ELSE 0 END ),0) as ip_amt
+from bl_refund_header b
+left outer join  bl_refund_details d on b.refund_header_id=d.refund_header_id
+where refund_date    between $P{fromDate} and $P{toDate}
+and refund_time  between $P{fromTime} and $P{toTime} 
+and b.hospital_id= $P{hospitalId}
+) as main3) as hmain3) as hhmain
+
+union
+
+select 'Bank Account' as Acoount_type, coalesce(main.op_amt,0) as op_amt,
+coalesce(main.ip_amt,0) as ip_amt ,(coalesce(op_amt,0) + coalesce(ip_Amt,0)) as Total
+from (select (SELECT sum(brd.amount) FROM bl_receipt_header brh
+left outer join bl_receipt_details brd on brh.receipt_header_id=brd.receipt_header_id
+where brd.payment_mode in ('R','Q') and inpatient_id is  null 
+and brh.receipt_date between $P{fromDate} and $P{toDate} and
+brh.receipt_time between $P{fromTime} and $P{toTime}
+and brh.hospital_id= $P{hospitalId}
+) as op_amt,
+(SELECT sum(brd.amount) FROM bl_receipt_header brh
+left outer join bl_receipt_details brd on brh.receipt_header_id=brd.receipt_header_id
+where brd.payment_mode in ('R','Q') and inpatient_id is not null
+and brh.receipt_date between $P{fromDate} and $P{toDate}
+and brh.receipt_time between $P{fromTime} and $P{toTime}
+and brh.hospital_id= $P{hospitalId}
+) as ip_amt
+) as main]]></queryString>
+
+	<field name="account_type" class="java.lang.String"/>
+	<field name="op_amt" class="java.math.BigDecimal"/>
+	<field name="ip_amt" class="java.math.BigDecimal"/>
+	<field name="Total" class="java.math.BigDecimal"/>
+
+	<variable name="SUM_op_amt_1" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{op_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_ip_amt_1" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{ip_amt}]]></variableExpression>
+	</variable>
+	<variable name="SUM_Total_1" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{Total}]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="24"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="15"
+						y="2"
+						width="124"
+						height="19"
+						key="staticText-1"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Dotted" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="11" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Net Collection Details]]></text>
+				</staticText>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="19"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="31"
+						y="4"
+						width="142"
+						height="15"
+						key="textField"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{account_type}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="173"
+						y="4"
+						width="100"
+						height="15"
+						key="textField"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{op_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="285"
+						y="4"
+						width="100"
+						height="15"
+						key="textField"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{ip_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="424"
+						y="4"
+						width="100"
+						height="15"
+						key="textField"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{Total}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="49"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="18"
+						y="6"
+						width="43"
+						height="15"
+						key="staticText-2"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="11" isBold="true" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Total :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="173"
+						y="6"
+						width="100"
+						height="15"
+						key="textField-1"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_op_amt_1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="285"
+						y="6"
+						width="100"
+						height="15"
+						key="textField-2"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_ip_amt_1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="424"
+						y="6"
+						width="100"
+						height="15"
+						key="textField"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_Total_1}]]></textFieldExpression>
+				</textField>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="25"
+						width="535"
+						height="21"
+						key="subreport-1"
+						positionType="Float"/>
+					<subreportParameter  name="fromDate">
+						<subreportParameterExpression><![CDATA[$P{fromDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="toDate">
+						<subreportParameterExpression><![CDATA[$P{toDate}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="fromTime">
+						<subreportParameterExpression><![CDATA[$P{fromTime}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="toTime">
+						<subreportParameterExpression><![CDATA[$P{toTime}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospital_name">
+						<subreportParameterExpression><![CDATA[$P{hospital_name}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//payment_refund_non_cash.jasper"]]></subreportExpression>
+				</subreport>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="3"
+						width="535"
+						height="0"
+						key="line-1"
+						positionType="Float"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+			</band>
+		</summary>
+</jasperReport>

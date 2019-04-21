@@ -1,0 +1,976 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="PEDODONTICS_sub1"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="opdvid" isForPrompting="true" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select
+oiph.*,
+     visit.visit_no as visit_no,
+     patient.age as patient_age,
+     visit.visit_date as visit_date,
+     hosp.hospital_name as mas_hospital_hospital_name,
+     patient.hin_no as hin_no,
+    patient.date_of_birth as dob,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     mas.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+coalesce(mv.village_name, '') || coalesce(md.district_name, '') || coalesce(ms.state_name, '') as address
+from
+     
+    opd_pedodontics_vital_statistics_header oiph
+     left outer join visit visit on oiph.visit_id = visit.visit_id
+     left outer join patient patient  on visit.hin_id = patient.hin_id
+     left outer join mas_hospital hosp on oiph.hospital_id = hosp.hospital_id
+     left outer join mas_administrative_sex mas on patient.sex_id = mas.administrative_sex_id
+     left join patient_address pa on pa.hin_id = patient.hin_id and pa.address_type_id = 
+CASE
+    WHEN (EXISTS(select address from patient_address where address_type_id = 2)) THEN 2
+    WHEN (EXISTS(select address from patient_address where address_type_id = 1)) THEN 1
+    ELSE 4
+END
+left join mas_village mv on mv.village_id = pa.village
+left join mas_district md on md.district_id = pa.district 
+left join mas_state ms on ms.state_id = pa.state_id
+where
+
+ 	oiph.visit_id = $P{opdvid}]]></queryString>
+
+	<field name="pedodontics_vital_statistics_header_id" class="java.lang.Integer"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="hospital_id" class="java.lang.Integer"/>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="presenting_complaints" class="java.lang.String"/>
+	<field name="informar" class="java.lang.String"/>
+	<field name="informar_value" class="java.lang.String"/>
+	<field name="chief_complaint" class="java.lang.String"/>
+	<field name="presenting_complaints_1" class="java.lang.String"/>
+	<field name="drug_therapy" class="java.lang.String"/>
+	<field name="if_yes_why" class="java.lang.String"/>
+	<field name="special_tests" class="java.lang.String"/>
+	<field name="immunization_status" class="java.lang.String"/>
+	<field name="frequent_illnesses" class="java.lang.String"/>
+	<field name="during_early_childhood" class="java.lang.String"/>
+	<field name="drug_allergy" class="java.lang.String"/>
+	<field name="if_yes_specify" class="java.lang.String"/>
+	<field name="developmental_abnormality" class="java.lang.String"/>
+	<field name="physical_disability" class="java.lang.String"/>
+	<field name="child_hopsitalized" class="java.lang.String"/>
+	<field name="blood_transfusion" class="java.lang.String"/>
+	<field name="bleeding_disorders" class="java.lang.String"/>
+	<field name="heart_disease" class="java.lang.String"/>
+	<field name="diabetes" class="java.lang.String"/>
+	<field name="tuberculosis" class="java.lang.String"/>
+	<field name="asthma" class="java.lang.String"/>
+	<field name="allergic_reactions" class="java.lang.String"/>
+	<field name="genetic_disorders" class="java.lang.String"/>
+	<field name="abnormalities_of_teeth" class="java.lang.String"/>
+	<field name="malocclusion" class="java.lang.String"/>
+	<field name="any_other" class="java.lang.String"/>
+	<field name="any_other_value" class="java.lang.String"/>
+	<field name="mother_during_pregnancy" class="java.lang.String"/>
+	<field name="incompatiblity_between_parents" class="java.lang.String"/>
+	<field name="therapy_during_pregnancy" class="java.lang.String"/>
+	<field name="name_of_the_drug" class="java.lang.String"/>
+	<field name="duration_of_adminstration" class="java.lang.String"/>
+	<field name="probable_diagnosis" class="java.lang.String"/>
+	<field name="source_of_drinking_water_yes" class="java.lang.String"/>
+	<field name="delivery" class="java.lang.String"/>
+	<field name="type_of_delivery" class="java.lang.String"/>
+	<field name="type_of_delivery_value" class="java.lang.String"/>
+	<field name="birth_cry" class="java.lang.String"/>
+	<field name="birth_weight" class="java.lang.String"/>
+	<field name="blood_group" class="java.lang.String"/>
+	<field name="health_at_birth" class="java.lang.String"/>
+	<field name="oxygen_supplementation" class="java.lang.String"/>
+	<field name="child_blue_baby" class="java.lang.String"/>
+	<field name="child_jaundiced_at_birth" class="java.lang.String"/>
+	<field name="abnormality_at_birth" class="java.lang.String"/>
+	<field name="breast_fed" class="java.lang.String"/>
+	<field name="breast_fed_value" class="java.lang.String"/>
+	<field name="bottle_fed" class="java.lang.String"/>
+	<field name="bottle_fed_value" class="java.lang.String"/>
+	<field name="combination" class="java.lang.String"/>
+	<field name="combination_value" class="java.lang.String"/>
+	<field name="childreast_fed" class="java.lang.String"/>
+	<field name="sleep_with_the_bottle" class="java.lang.String"/>
+	<field name="contents_of_the_bottle" class="java.lang.String"/>
+	<field name="within30_days_after_birth" class="java.lang.String"/>
+	<field name="first_tooth_erupt" class="java.lang.String"/>
+	<field name="any_associated_problem" class="java.lang.String"/>
+	<field name="following_developmental_milestones" class="java.lang.String"/>
+	<field name="head_holding" class="java.lang.String"/>
+	<field name="rolling_over" class="java.lang.String"/>
+	<field name="sitting" class="java.lang.String"/>
+	<field name="standing_without_support" class="java.lang.String"/>
+	<field name="walking" class="java.lang.String"/>
+	<field name="running" class="java.lang.String"/>
+	<field name="speaking_sentences" class="java.lang.String"/>
+	<field name="inference" class="java.lang.String"/>
+	<field name="along_with_other_children" class="java.lang.String"/>
+	<field name="difficulty_in_keeping" class="java.lang.String"/>
+	<field name="child_have_brothers_sisters" class="java.lang.String"/>
+	<field name="scholastic_performance" class="java.lang.String"/>
+	<field name="behaviour" class="java.lang.String"/>
+	<field name="behaviour_rating" class="java.lang.String"/>
+	<field name="child_brush_his_teeth" class="java.lang.String"/>
+	<field name="teeth_at_present" class="java.lang.String"/>
+	<field name="brushing_initiated" class="java.lang.String"/>
+	<field name="child_start_brushing" class="java.lang.String"/>
+	<field name="brushing_supervised" class="java.lang.String"/>
+	<field name="time_frequency" class="java.lang.String"/>
+	<field name="method_frequency" class="java.lang.String"/>
+	<field name="type_of_paste_used" class="java.lang.String"/>
+	<field name="sugary_medications" class="java.lang.String"/>
+	<field name="dietary_habit" class="java.lang.String"/>
+	<field name="frequent_snacking" class="java.lang.String"/>
+	<field name="favourite_foods" class="java.lang.String"/>
+	<field name="first_dental_visit" class="java.lang.String"/>
+	<field name="the_last_visit" class="java.lang.String"/>
+	<field name="unpleasant_dental_experience" class="java.lang.String"/>
+	<field name="if_yes_explain" class="java.lang.String"/>
+	<field name="fear_of_dentist" class="java.lang.String"/>
+	<field name="fluoride_treatmennt" class="java.lang.String"/>
+	<field name="child_complain_of_tooth_ache" class="java.lang.String"/>
+	<field name="food_habits_and_sleep" class="java.lang.String"/>
+	<field name="pain" class="java.lang.String"/>
+	<field name="aggravating_relieving_factors" class="java.lang.String"/>
+	<field name="tenderness" class="java.lang.String"/>
+	<field name="previous_treatment" class="java.lang.String"/>
+	<field name="injury_to_teeth" class="java.lang.String"/>
+	<field name="if_yes_brief_history" class="java.lang.String"/>
+	<field name="when_did_it_happen" class="java.lang.String"/>
+	<field name="how_did_it_happen" class="java.lang.String"/>
+	<field name="where_did_it_happen" class="java.lang.String"/>
+	<field name="mouth_breathing" class="java.lang.String"/>
+	<field name="mouth_breathing_value" class="java.lang.String"/>
+	<field name="tongue_thrusting" class="java.lang.String"/>
+	<field name="tongue_thrusting_value" class="java.lang.String"/>
+	<field name="lip_biting_sucking" class="java.lang.String"/>
+	<field name="lip_biting_duration" class="java.lang.String"/>
+	<field name="thumb_finger_sucking" class="java.lang.String"/>
+	<field name="thumb_duration" class="java.lang.String"/>
+	<field name="thumb_frequency" class="java.lang.String"/>
+	<field name="thumb_intensity" class="java.lang.String"/>
+	<field name="nail_biting" class="java.lang.String"/>
+	<field name="nail_biting_duration" class="java.lang.String"/>
+	<field name="other_habits" class="java.lang.String"/>
+	<field name="child_stop_the_habit" class="java.lang.String"/>
+	<field name="source_of_drinking_water" class="java.lang.String"/>
+	<field name="last_few_years" class="java.lang.String"/>
+	<field name="height" class="java.lang.String"/>
+	<field name="weight" class="java.lang.String"/>
+	<field name="somatotype" class="java.lang.String"/>
+	<field name="gait" class="java.lang.String"/>
+	<field name="posture" class="java.lang.String"/>
+	<field name="pulse_rate" class="java.lang.String"/>
+	<field name="respiratory_rat" class="java.lang.String"/>
+	<field name="temperature" class="java.lang.String"/>
+	<field name="hair" class="java.lang.String"/>
+	<field name="hair_value" class="java.lang.String"/>
+	<field name="hair_duration" class="java.lang.String"/>
+	<field name="skin" class="java.lang.String"/>
+	<field name="skin_value" class="java.lang.String"/>
+	<field name="skin_duration" class="java.lang.String"/>
+	<field name="nails" class="java.lang.String"/>
+	<field name="nails_value" class="java.lang.String"/>
+	<field name="nails_duration" class="java.lang.String"/>
+	<field name="eyes" class="java.lang.String"/>
+	<field name="eyes_value" class="java.lang.String"/>
+	<field name="eyes_duration" class="java.lang.String"/>
+	<field name="ears" class="java.lang.String"/>
+	<field name="ears_value" class="java.lang.String"/>
+	<field name="ears_duration" class="java.lang.String"/>
+	<field name="nose" class="java.lang.String"/>
+	<field name="nose_value" class="java.lang.String"/>
+	<field name="nose_duration" class="java.lang.String"/>
+	<field name="regional_lymphnodes" class="java.lang.String"/>
+	<field name="shape_of_the_head" class="java.lang.String"/>
+	<field name="facial_form" class="java.lang.String"/>
+	<field name="facial_symmetry" class="java.lang.String"/>
+	<field name="facial_profile" class="java.lang.String"/>
+	<field name="lower_facial_height" class="java.lang.String"/>
+	<field name="upper_lip" class="java.lang.String"/>
+	<field name="lower_lip" class="java.lang.String"/>
+	<field name="lips" class="java.lang.String"/>
+	<field name="lip_tonicity" class="java.lang.String"/>
+	<field name="lip_line" class="java.lang.String"/>
+	<field name="swallowing" class="java.lang.String"/>
+	<field name="speech" class="java.lang.String"/>
+	<field name="normal_movement" class="java.lang.String"/>
+	<field name="clicking" class="java.lang.String"/>
+	<field name="clicking_value" class="java.lang.String"/>
+	<field name="crepitus" class="java.lang.String"/>
+	<field name="crepitus_value" class="java.lang.String"/>
+	<field name="anterior_displacement" class="java.lang.String"/>
+	<field name="anterior_displacement_value" class="java.lang.String"/>
+	<field name="posterior_displacement" class="java.lang.String"/>
+	<field name="posterior_displacement_value" class="java.lang.String"/>
+	<field name="premature_contact_on" class="java.lang.String"/>
+	<field name="intraoral_examination" class="java.lang.String"/>
+	<field name="mucosa" class="java.lang.String"/>
+	<field name="mucosa_lesion" class="java.lang.String"/>
+	<field name="mucosa_site" class="java.lang.String"/>
+	<field name="mucosa_size" class="java.lang.String"/>
+	<field name="mucosa_duration" class="java.lang.String"/>
+	<field name="palate" class="java.lang.String"/>
+	<field name="palate_lesion" class="java.lang.String"/>
+	<field name="palate_size" class="java.lang.String"/>
+	<field name="palate_site" class="java.lang.String"/>
+	<field name="palate_duration" class="java.lang.String"/>
+	<field name="pharynx" class="java.lang.String"/>
+	<field name="pharynx_lesion" class="java.lang.String"/>
+	<field name="pharynx_site" class="java.lang.String"/>
+	<field name="pharynx_size" class="java.lang.String"/>
+	<field name="pharynx_duration" class="java.lang.String"/>
+	<field name="floor_of_the_mouth" class="java.lang.String"/>
+	<field name="floor_of_the_mouth_lesion" class="java.lang.String"/>
+	<field name="floor_of_the_mouth_site" class="java.lang.String"/>
+	<field name="floor_of_the_mouth_size" class="java.lang.String"/>
+	<field name="floor_of_the_mouth_duration" class="java.lang.String"/>
+	<field name="tongue" class="java.lang.String"/>
+	<field name="tongue_lesion" class="java.lang.String"/>
+	<field name="tongue_site" class="java.lang.String"/>
+	<field name="tongue_size" class="java.lang.String"/>
+	<field name="tongue_duration" class="java.lang.String"/>
+	<field name="frenal_attachments" class="java.lang.String"/>
+	<field name="frenal_attachments_lesion" class="java.lang.String"/>
+	<field name="frenal_attachments_site" class="java.lang.String"/>
+	<field name="frenal_attachments_size" class="java.lang.String"/>
+	<field name="frenal_attachments_duration" class="java.lang.String"/>
+	<field name="gingiva" class="java.lang.String"/>
+	<field name="gingiva_colour" class="java.lang.String"/>
+	<field name="gingiva_consistency" class="java.lang.String"/>
+	<field name="gingiva_texture" class="java.lang.String"/>
+	<field name="gingiva_bleeding" class="java.lang.String"/>
+	<field name="gingiva_any_other" class="java.lang.String"/>
+	<field name="gingival_index" class="java.lang.String"/>
+	<field name="score" class="java.lang.String"/>
+	<field name="gingivities" class="java.lang.String"/>
+	<field name="saliva" class="java.lang.String"/>
+	<field name="plaque_index" class="java.lang.String"/>
+	<field name="score_one" class="java.lang.String"/>
+	<field name="oral_hygiene" class="java.lang.String"/>
+	<field name="saliva_one" class="java.lang.String"/>
+	<field name="eruption_status" class="java.lang.String"/>
+	<field name="dental_stage" class="java.lang.String"/>
+	<field name="incipient_lession" class="java.lang.String"/>
+	<field name="enamel_caries" class="java.lang.String"/>
+	<field name="dentinal_caries" class="java.lang.String"/>
+	<field name="arrested_caries" class="java.lang.String"/>
+	<field name="pulp_exposure" class="java.lang.String"/>
+	<field name="periapical_pathology" class="java.lang.String"/>
+	<field name="root_stumps" class="java.lang.String"/>
+	<field name="retained_teeth" class="java.lang.String"/>
+	<field name="fractured_teeth" class="java.lang.String"/>
+	<field name="physiologic" class="java.lang.String"/>
+	<field name="pathologic" class="java.lang.String"/>
+	<field name="congenitally_missing_teeth" class="java.lang.String"/>
+	<field name="ectopic_eruption" class="java.lang.String"/>
+	<field name="discolouration_of_teeth" class="java.lang.String"/>
+	<field name="supernumerary_teeth" class="java.lang.String"/>
+	<field name="dental_anomalies" class="java.lang.String"/>
+	<field name="overjet" class="java.lang.String"/>
+	<field name="overbite" class="java.lang.String"/>
+	<field name="deep_bite" class="java.lang.String"/>
+	<field name="anterior_cross_bite" class="java.lang.String"/>
+	<field name="maxillary_incisor_angulation" class="java.lang.String"/>
+	<field name="mandibular_incisor_angulation" class="java.lang.String"/>
+	<field name="maxilla" class="java.lang.String"/>
+	<field name="mandible" class="java.lang.String"/>
+	<field name="diastema" class="java.lang.String"/>
+	<field name="diastema_midline" class="java.lang.String"/>
+	<field name="diastema_generalised" class="java.lang.String"/>
+	<field name="probable_cause" class="java.lang.String"/>
+	<field name="max" class="java.lang.String"/>
+	<field name="mand" class="java.lang.String"/>
+	<field name="class_i_r_t" class="java.lang.String"/>
+	<field name="class_i_i_r_t" class="java.lang.String"/>
+	<field name="class_i_i_i_r_t" class="java.lang.String"/>
+	<field name="right_class" class="java.lang.String"/>
+	<field name="left_class" class="java.lang.String"/>
+	<field name="terminal_plane_right" class="java.lang.String"/>
+	<field name="terminal_plane_left" class="java.lang.String"/>
+	<field name="cross_bite_right" class="java.lang.String"/>
+	<field name="cross_bite_left" class="java.lang.String"/>
+	<field name="openbite_posterior" class="java.lang.String"/>
+	<field name="arch_form_max" class="java.lang.String"/>
+	<field name="arch_form_mand" class="java.lang.String"/>
+	<field name="displaced_teeth" class="java.lang.String"/>
+	<field name="rotated_teeth" class="java.lang.String"/>
+	<field name="max_anterior" class="java.lang.String"/>
+	<field name="max_posterior" class="java.lang.String"/>
+	<field name="mand_anterior" class="java.lang.String"/>
+	<field name="mand_posterior" class="java.lang.String"/>
+	<field name="premature_loss_of_primary" class="java.lang.String"/>
+	<field name="space_closure" class="java.lang.String"/>
+	<field name="normal_movement_value" class="java.lang.String"/>
+	<field name="medico_legal_case" class="java.lang.String"/>
+	<field name="sugars_in_solution_d_m" class="java.lang.String"/>
+	<field name="sugars_in_solution_b_m" class="java.lang.String"/>
+	<field name="sugars_in_solution_a_b_t" class="java.lang.String"/>
+	<field name="sugars_in_solution_d_m_total_exposures" class="java.lang.String"/>
+	<field name="sugars_in_solution_b_m_total_exposures" class="java.lang.String"/>
+	<field name="sugars_in_solution_a_b_t_total_exposures" class="java.lang.String"/>
+	<field name="solid_retentive_d_m" class="java.lang.String"/>
+	<field name="solid_retentive_b_m" class="java.lang.String"/>
+	<field name="solid_retentive_a_b_t" class="java.lang.String"/>
+	<field name="solid_retentive_d_m_total_exposures" class="java.lang.String"/>
+	<field name="solid_retentive_b_m_total_exposures" class="java.lang.String"/>
+	<field name="solid_retentive_a_b_t_total_exposures" class="java.lang.String"/>
+	<field name="type_of_food" class="java.lang.String"/>
+	<field name="class_i_l_t" class="java.lang.String"/>
+	<field name="class_i_i_l_t" class="java.lang.String"/>
+	<field name="class_i_i_i_l_t" class="java.lang.String"/>
+	<field name="visit_no" class="java.lang.Integer"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_date" class="java.sql.Date"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="256"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="3"
+						width="535"
+						height="11"
+						key="staticText-26"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[SOCIAL HISTORY]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="14"
+						width="187"
+						height="12"
+						key="staticText-27"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Does the child failed to get along with other children?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="26"
+						width="225"
+						height="12"
+						key="staticText-28"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Does the child have dificulty in keeping up with his school work?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="38"
+						width="187"
+						height="12"
+						key="staticText-29"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Does the child have brothers/Sisters?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="110"
+						width="187"
+						height="12"
+						key="staticText-30"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[At what age was tooth brushing initiated?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="50"
+						width="187"
+						height="12"
+						key="staticText-31"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Sholastic Performance]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="122"
+						width="187"
+						height="12"
+						key="staticText-32"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[When did the child start brushing on his]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="62"
+						width="187"
+						height="14"
+						key="staticText-33"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Behaviour Rating "Text box" of frankl rating scale]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="134"
+						width="187"
+						height="12"
+						key="staticText-34"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Is the brushing supervised?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="86"
+						width="187"
+						height="12"
+						key="staticText-35"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[When does the child brush his teeth ?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="98"
+						width="187"
+						height="12"
+						key="staticText-36"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Method of cleaning teeth at present:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="158"
+						width="163"
+						height="12"
+						key="staticText-37"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Time]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="173"
+						width="163"
+						height="14"
+						key="staticText-38"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Type of paste used ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="190"
+						width="325"
+						height="12"
+						key="staticText-39"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Does the child rinse the mouth after taking any food / drinks/ surgery medications?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="214"
+						width="75"
+						height="14"
+						key="staticText-40"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Dietry Habit]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="228"
+						width="163"
+						height="14"
+						key="staticText-41"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Does the child have the habit of frequent snacking?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="242"
+						width="163"
+						height="14"
+						key="staticText-42"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Favourite Foods]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="260"
+						y="50"
+						width="66"
+						height="12"
+						key="staticText-43"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Behaviour]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="76"
+						width="535"
+						height="10"
+						key="staticText-44"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[PERSONAL HISTORY]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="146"
+						width="535"
+						height="12"
+						key="staticText-45"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[FREQUENCY OF BRUSHING ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="202"
+						width="529"
+						height="12"
+						key="staticText-46"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[DIET HISTORY]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="14"
+						width="343"
+						height="12"
+						key="textField-22"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{along_with_other_children}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="225"
+						y="26"
+						width="305"
+						height="12"
+						key="textField-23"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{difficulty_in_keeping}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="38"
+						width="343"
+						height="12"
+						key="textField-24"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{child_have_brothers_sisters}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="50"
+						width="73"
+						height="12"
+						key="textField-25"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{scholastic_performance}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="62"
+						width="343"
+						height="14"
+						key="textField-26"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{behaviour_rating}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="86"
+						width="348"
+						height="12"
+						key="textField-27"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{child_brush_his_teeth}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="98"
+						width="348"
+						height="11"
+						key="textField-28"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{teeth_at_present}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="110"
+						width="348"
+						height="12"
+						key="textField-29"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{brushing_initiated}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="122"
+						width="348"
+						height="14"
+						key="textField-30"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{child_start_brushing}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="187"
+						y="136"
+						width="348"
+						height="10"
+						key="textField-31"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{brushing_supervised}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="164"
+						y="158"
+						width="162"
+						height="12"
+						key="textField-32"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{time_frequency}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="164"
+						y="173"
+						width="160"
+						height="14"
+						key="textField-33"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{type_of_paste_used}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="325"
+						y="190"
+						width="205"
+						height="12"
+						key="textField-34"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{sugary_medications}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="75"
+						y="214"
+						width="455"
+						height="14"
+						key="textField-35"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{dietary_habit}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="165"
+						y="228"
+						width="365"
+						height="14"
+						key="textField-36"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{frequent_snacking}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="165"
+						y="242"
+						width="365"
+						height="14"
+						key="textField-37"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{first_dental_visit}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="405"
+						y="158"
+						width="47"
+						height="11"
+						key="staticText-47"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Method]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="326"
+						y="50"
+						width="204"
+						height="12"
+						key="textField-38"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{behaviour}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="452"
+						y="158"
+						width="83"
+						height="12"
+						key="textField-39"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{method_frequency}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="0"
+						y="170"
+						width="535"
+						height="3"
+						key="staticText-48"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="187"
+						width="535"
+						height="3"
+						key="staticText-49"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+			</band>
+		</summary>
+</jasperReport>

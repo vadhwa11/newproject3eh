@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="medicalCaseSheetImages" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="5" bottomMargin="5" uuid="d33e070b-24de-4787-95a1-825a4f7c9a35">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="hinNo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="IMAGE_DIR_LEFT" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="visitId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+p.hin_no,(p.p_first_name||' '||COALESCE(p.p_middle_name,'')||' '||COALESCE(p.p_last_name,''))as patient_name,p.age as patient_age,
+p1.patient_type_name,(COALESCE(d.district_name,'')||','
+||COALESCE(s.state_name,'')||','||COALESCE(c.country_name,'')) as address,p.hin_id,
+mas_hospital.hospital_name,mas_hospital.address as hosaddress,
+COALESCE(p.mobile_number,'') as mobile_no,
+COALESCE(p.email_id,o.occupation_name,'')as occupation,
+COALESCE(g.administrative_sex_name,'') as administrative_sex_name,
+p.date_of_birth as dob,
+p.hin_no,
+COALESCE(p.email_id,'')as email,
+     visit.hin_id AS visit_hin_id,
+     visit.visit_date AS visit_visit_date,
+     visit.visit_no as visitNo,
+     rank.rank_name AS mas_rank_rank_name,
+     trade.trade_name,
+     mas_hospital.hospital_name AS hospital_name,
+     mas_hospital.address AS hospital_address,
+     mas_hospital.contact_number,
+     p.service_no as serviceNo,
+     visit.visit_no as visitNo,
+visit.visit_id,
+    mas_marital_status.MARITAL_STATUS_NAME as marital_status,
+     mas_blood_group.blood_group_name as bloodgroup,
+     mas_service_type.service_type_name AS service_type_name,
+     mas_relation_A.relation_name AS A_relation_name,
+     mas_unit.unit_name AS mas_unit_unit_name,
+     opd_patient_history.present_complaint_history as opd_patient_history_present_complain,
+OPD_PATIENT_DETAILS.weight,
+OPD_PATIENT_DETAILS.opd_date,
+OPD_PATIENT_DETAILS.opd_time,
+mas_employee.emp_name,
+department.department_name,
+mas_scheme.scheme_name,
+rank.rank_name,
+OPD_PATIENT_DETAILS.opd_remarks,
+OPD_PATIENT_DETAILS.review_date
+
+from
+OPD_PATIENT_DETAILS OPD_PATIENT_DETAILS
+LEFT OUTER JOIN visit visit ON OPD_PATIENT_DETAILS.visit_id = visit.visit_id
+left join patient  p on p.hin_id = visit.hin_id
+left join mas_patient_type p1 on p.patient_type_id = p1.patient_type_id
+left join mas_district d on p.district_id = d.district_id
+left join mas_state s on p.state_id = s.state_id
+left join mas_country c on p.country_id = c.country_id
+left join mas_hospital mas_hospital on p.hospital_id=mas_hospital.hospital_id
+left join mas_occupation o on p.occupation_id=o.occupation_id
+left join mas_administrative_sex g on p.sex_id=g.administrative_sex_id
+left join mas_rank rank on rank.rank_id=p.rank_id
+left join mas_trade trade on trade.trade_id=p.trade_id
+     LEFT OUTER JOIN mas_relation mas_relation ON p.relation_id = mas_relation.relation_id
+     LEFT OUTER JOIN mas_service_type mas_service_type ON p.service_type_id = mas_service_type.service_type_id
+    left join mas_marital_status mas_marital_status on p.marital_status_id = mas_marital_status.marital_status_id
+    left join mas_blood_group mas_blood_group on p.BLOOD_GROUP_ID = mas_blood_group.BLOOD_GROUP_ID
+    LEFT OUTER JOIN mas_relation mas_relation_A ON p.relation_id = mas_relation_A.relation_id
+     LEFT OUTER JOIN mas_unit mas_unit ON p.unit_id = mas_unit.unit_id
+     LEFT OUTER JOIN opd_patient_history opd_patient_history ON opd_patient_details.id = opd_patient_history.opd_patient_details
+     LEFT OUTER JOIN mas_employee mas_employee ON opd_patient_details.employee_id = mas_employee.employee_id
+     LEFT OUTER JOIN mas_department department ON department.department_id = opd_patient_history.department_id
+     LEFT OUTER JOIN bl_op_bill_header bobh on bobh.visit_id=visit.visit_id
+     LEFT OUTER JOIN mas_scheme mas_scheme on mas_scheme.scheme_id=bobh.scheme_id
+WHERE
+     p.hin_no = $P{hinNo}
+     And visit.hospital_id=$P{hospitalId}
+     And visit.visit_id = $P{visitId}]]>
+	</queryString>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="patient_name" class="java.lang.String"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="patient_type_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="hospital_name" class="java.lang.String"/>
+	<field name="hosaddress" class="java.lang.String"/>
+	<field name="mobile_no" class="java.lang.String"/>
+	<field name="occupation" class="java.lang.String"/>
+	<field name="administrative_sex_name" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="visit_hin_id" class="java.lang.Integer"/>
+	<field name="visit_visit_date" class="java.sql.Date"/>
+	<field name="visitno" class="java.lang.Integer"/>
+	<field name="mas_rank_rank_name" class="java.lang.String"/>
+	<field name="trade_name" class="java.lang.String"/>
+	<field name="hospital_address" class="java.lang.String"/>
+	<field name="contact_number" class="java.lang.String"/>
+	<field name="serviceno" class="java.lang.String"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="marital_status" class="java.lang.String"/>
+	<field name="bloodgroup" class="java.lang.String"/>
+	<field name="service_type_name" class="java.lang.String"/>
+	<field name="a_relation_name" class="java.lang.String"/>
+	<field name="mas_unit_unit_name" class="java.lang.String"/>
+	<field name="opd_patient_history_present_complain" class="java.lang.String"/>
+	<field name="weight" class="java.lang.Integer"/>
+	<field name="opd_date" class="java.sql.Date"/>
+	<field name="opd_time" class="java.lang.String"/>
+	<field name="emp_name" class="java.lang.String"/>
+	<field name="department_name" class="java.lang.String"/>
+	<field name="scheme_name" class="java.lang.String"/>
+	<field name="rank_name" class="java.lang.String"/>
+	<field name="opd_remarks" class="java.lang.String"/>
+	<field name="review_date" class="java.sql.Date"/>
+	<variable name="srNo" class="java.lang.Integer">
+		<variableExpression><![CDATA[new java.lang.Integer($V{REPORT_COUNT}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<group name="investigation">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="206" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-2" positionType="Float" x="15" y="56" width="518" height="23" uuid="6bf3a200-92a8-4180-9224-9fb11af46321"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="11" isBold="false" isItalic="true" isUnderline="false" pdfFontName="Helvetica-Oblique"/>
+				</textElement>
+				<text><![CDATA[This document is electronically generated and does not require a physical signature.
+This is not a complete Electronic Medical record of the patient]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" positionType="Float" x="14" y="6" width="94" height="22" uuid="e8d85260-7cfc-4513-a2fe-bd2b17336ae2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Other Advices]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-2" positionType="Float" x="108" y="11" width="430" height="18" uuid="4cd2897b-e5b0-4163-88d8-2dbb331262ab"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{opd_remarks}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

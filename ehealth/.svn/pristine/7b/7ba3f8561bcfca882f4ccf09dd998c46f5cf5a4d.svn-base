@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PatientPrescriptionFormatIssueSubOut" pageWidth="560" pageHeight="396" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="560" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="25cbab7c-6367-4bce-8674-70d1d071c497">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="prescriptionId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hinNo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="timeImage" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="departmentId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+	distinct md.department_id,
+msi.disp_unit as display_unit,ppd.item_id,
+	(CASE WHEN msi.nomenclature is null THEN msi.common_name ELSE msi.nomenclature END) as nomenclature,
+	ppd.dosage, frequeancy_image as frequency_image, ppd.no_of_days,
+	(CASE WHEN ppd.cur_store_issued_qty is null THEN (CASE WHEN ppd.cur_store_issued_qty >=0 then ppd.cur_store_issued_qty ELSE 0 END)
+	ELSE ppd.cur_store_issued_qty END) as qty, spl_instruction, opd_remarks,
+	(CASE WHEN ppd.cur_store_issued_qty is null THEN 'n' ELSE 'y' END) as issued
+FROM
+	patient_prescription_header pph
+	LEFT OUTER JOIN patient_prescription_details ppd on pph.prescription_id = ppd.prescription_id
+	LEFT OUTER JOIN patient p on p.hin_id = pph.hin_id
+	LEFT OUTER JOIN opd_patient_details opd on pph.visit_id = opd.visit_id
+	LEFT OUTER JOIN mas_store_out_item msi on msi.item_id = ppd.item_out_id
+	LEFT OUTER JOIN mas_frequency mf on mf.frequency_id = ppd.frequency_id
+	LEFT OUTER JOIN mas_department md on md.department_id = pph.department_id
+WHERE
+
+	pph.prescription_date=current_date and
+	 hin_no = $P{hinNo}
+	and pph.hospital_id=$P{hospitalId} and pph.department_id = $P{departmentId} and ppd.item_id is null
+	order by md.department_id asc, issued desc]]>
+	</queryString>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="display_unit" class="java.lang.String"/>
+	<field name="item_id" class="java.lang.Integer"/>
+	<field name="nomenclature" class="java.lang.String"/>
+	<field name="dosage" class="java.math.BigDecimal"/>
+	<field name="frequency_image" class="java.io.InputStream"/>
+	<field name="no_of_days" class="java.lang.Integer"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="spl_instruction" class="java.lang.String"/>
+	<field name="opd_remarks" class="java.lang.String"/>
+	<field name="issued" class="java.lang.String"/>
+	<variable name="srNo" class="java.lang.Integer" calculation="Count">
+		<variableExpression><![CDATA[new java.lang.Integer(($V{REPORT_COUNT}.intValue()))]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(1)]]></initialValueExpression>
+	</variable>
+	<group name="deptId">
+		<groupExpression><![CDATA[$F{department_id}]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<group name="available">
+		<groupExpression><![CDATA[$F{issued}]]></groupExpression>
+		<groupHeader>
+			<band height="38" splitType="Stretch">
+				<line>
+					<reportElement key="line-10" positionType="Float" x="437" y="19" width="1" height="19" uuid="1687f8fd-2d9d-417d-aff8-fa540ad86279">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<staticText>
+					<reportElement key="staticText-53" positionType="Float" x="39" y="19" width="254" height="18" uuid="6bc487ae-2753-4439-ac34-2c4c4cdd3314">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Top">
+						<font fontName="Arial" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Item Name]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-16" positionType="Float" x="550" y="19" width="1" height="19" uuid="6d1ba01a-220f-4015-bad8-b998ffe09674">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<line>
+					<reportElement key="line-26" positionType="Float" x="0" y="36" width="550" height="2" uuid="b9af385e-cbd5-4d52-9453-81a60b0ae983">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<staticText>
+					<reportElement key="staticText-52" positionType="Float" x="2" y="19" width="33" height="18" uuid="0c3067b9-c77f-4a19-9d7f-eda4c59186d3">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Top">
+						<font fontName="Arial" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Sl No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-54" positionType="Float" x="295" y="19" width="60" height="18" uuid="837863c3-ef8b-4b2e-95d5-57eceabc220e">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Dosage]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-51" positionType="Float" x="478" y="19" width="71" height="18" uuid="04fc8a82-87a4-41f9-9d2d-ae9281ce06e6">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Qty Issued]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-55" positionType="Float" x="357" y="19" width="80" height="18" uuid="398f1484-d049-4c47-b393-56a33efc58ef">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Frequency]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-11" positionType="Float" x="356" y="19" width="1" height="19" uuid="adcba22f-135d-43ef-ba1f-3b5e1fb06b39">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<staticText>
+					<reportElement key="staticText-56" positionType="Float" x="438" y="19" width="39" height="18" uuid="219eaabd-3b0e-4c71-b202-8fa809509a0b">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Days]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-15" positionType="Float" x="1" y="19" width="1" height="19" uuid="d62a3bc3-4b25-49d3-9472-492e7c7a2f1b">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<line>
+					<reportElement key="line-12" positionType="Float" x="294" y="19" width="1" height="19" uuid="28358194-6ff6-41a9-91e4-f0cc4e8c3516">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<line>
+					<reportElement key="line-19" positionType="Float" x="477" y="19" width="1" height="19" uuid="c861315c-89c4-41ce-9245-d88c09790ba1">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<line>
+					<reportElement key="line-14" positionType="Float" x="37" y="19" width="1" height="19" uuid="07c31259-8a97-431b-a520-1307211459a4">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+				<staticText>
+					<reportElement key="staticText-57" positionType="Float" x="1" y="0" width="193" height="18" uuid="f1cc6402-cb04-420b-aafd-c99368d8be77">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement>
+						<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[ Other Not Issued  Medicine]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-2" positionType="Float" x="1" y="18" width="550" height="1" uuid="9be24706-8929-4906-b1f7-fd445b375c61">
+						<printWhenExpression><![CDATA[new Boolean($F{item_id}.equals(""))]]></printWhenExpression>
+					</reportElement>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="45" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="###0.0" isBlankWhenNull="true">
+				<reportElement key="textField-1" positionType="Float" x="296" y="0" width="60" height="20" uuid="9a558100-9ff9-4114-b7f6-517ee71e24f8"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dosage}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-2" positionType="Float" x="438" y="0" width="39" height="20" uuid="993d0ee7-0e94-471c-b386-f5f33b6743a5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{no_of_days}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-4" positionType="Float" x="3" y="1" width="33" height="20" uuid="d5a5a989-b610-4bad-be3e-e753c7ee7457"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" x="40" y="0" width="254" height="20" isRemoveLineWhenBlank="true" uuid="d96fe5be-9bfe-4d23-8e86-305cc8f99d08"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Arial" size="10" isBold="true" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomenclature}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-3" positionType="Float" x="1" y="24" width="550" height="1" uuid="ab4b6e63-7559-4882-8ef0-72a59e9bceac"/>
+			</line>
+			<line>
+				<reportElement key="line-7" positionType="Float" stretchType="RelativeToTallestObject" x="1" y="-1" width="1" height="25" uuid="c00ef1fc-d93d-4ffa-a561-ab8e6eb3ea5e"/>
+			</line>
+			<line>
+				<reportElement key="line-20" positionType="Float" stretchType="RelativeToTallestObject" x="294" y="-1" width="1" height="25" uuid="a1580fbd-e60d-4d0e-8189-2dc6d4ffdd56"/>
+			</line>
+			<line>
+				<reportElement key="line-21" positionType="Float" stretchType="RelativeToTallestObject" x="356" y="-1" width="1" height="25" uuid="c1c1ad6c-3325-4763-8363-3c5ec112d549"/>
+			</line>
+			<line>
+				<reportElement key="line-22" positionType="Float" stretchType="RelativeToTallestObject" x="437" y="-1" width="1" height="25" uuid="2960bafb-c363-48dd-9f6a-9b0c8cc3fa0d"/>
+			</line>
+			<textField pattern="###0" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="486" y="0" width="30" height="20" uuid="99522a77-e5c3-4aba-b0bc-f88182ca39a6"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top"/>
+				<textFieldExpression><![CDATA[$F{qty}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-7" positionType="Float" stretchType="RelativeToTallestObject" x="37" y="-1" width="1" height="25" uuid="19a8fa78-0a40-40c1-8d1b-e6d4cdb01164"/>
+			</line>
+			<image hAlign="Center">
+				<reportElement key="image-1" positionType="Float" x="357" y="0" width="80" height="20" uuid="8fa566fe-116f-4299-a817-99d702f7e211"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<imageExpression><![CDATA[$F{frequency_image}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" x="3" y="25" width="542" height="18" isRemoveLineWhenBlank="true" uuid="c42fef85-984d-4d22-a889-2f383969cfe5">
+					<printWhenExpression><![CDATA[new Boolean(!$F{spl_instruction}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Arial" size="10" isBold="true" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Special Instruction : " + $F{spl_instruction}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-3" positionType="Float" x="2" y="43" width="550" height="2" uuid="f7a71468-28a3-4ce1-b587-e65a26bef5bb">
+					<printWhenExpression><![CDATA[new Boolean(!$F{spl_instruction}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-7" positionType="Float" x="1" y="24" width="1" height="20" uuid="54554ace-b6c0-4d96-8ec4-6f5df4704b5a">
+					<printWhenExpression><![CDATA[new Boolean(!$F{spl_instruction}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-24" positionType="Float" x="550" y="24" width="1" height="20" uuid="6f81ffb3-6d56-450e-9ee3-ee95180cbc7d">
+					<printWhenExpression><![CDATA[new Boolean(!$F{spl_instruction}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-19" positionType="Float" stretchType="RelativeToTallestObject" x="477" y="0" width="1" height="24" uuid="df48220f-ff70-4357-8fdb-f4487be2329d"/>
+			</line>
+			<line>
+				<reportElement key="line-22" positionType="Float" stretchType="RelativeToTallestObject" x="550" y="0" width="1" height="25" uuid="6a728596-8d70-400b-8ed4-e7ff6064f87a"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

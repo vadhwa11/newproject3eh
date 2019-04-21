@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="medicalCaseSheetnewforstorageNew2"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoDataSection"
+		 isFloatColumnFooter="true"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["D:\\mukesh back\\SMC WORK\\jsper report\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="date" isForPrompting="false" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="IMAGE_DIR_LEFT" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hinNo" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="deptId" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="visitId" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hin_no" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="visitNo" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 
+p.hin_no,(p.p_first_name||' '||COALESCE(p.p_middle_name,'')||' '||COALESCE(p.p_last_name,''))as patient_name,p.age as patient_age,
+p1.patient_type_name,(COALESCE(d.district_name,'')||','
+||COALESCE(s.state_name,'')||','||COALESCE(c.country_name,'')) as address,p.hin_id,
+mas_hospital.hospital_name,mas_hospital.address as hosaddress,
+COALESCE(p.mobile_number,'') as mobile_no,
+COALESCE(p.email_id,o.occupation_name,'')as occupation,
+COALESCE(g.administrative_sex_name,'') as administrative_sex_name,
+p.date_of_birth as dob,
+p.hin_no,
+COALESCE(p.email_id,'')as email,
+     visit.hin_id AS visit_hin_id,
+     visit.visit_date AS visit_visit_date,
+     visit.visit_no as visitNo,
+     rank.rank_name AS mas_rank_rank_name,
+     trade.trade_name,
+     mas_hospital.hospital_name AS hospital_name,
+     mas_hospital.address AS hospital_address,
+     mas_hospital.contact_number,
+     p.service_no as serviceNo,
+     visit.visit_no as visitNo,
+visit.visit_id,
+    mas_marital_status.MARITAL_STATUS_NAME as marital_status,
+     mas_blood_group.blood_group_name as bloodgroup,
+     mas_service_type.service_type_name AS service_type_name,
+     mas_relation_A.relation_name AS A_relation_name,
+     mas_unit.unit_name AS mas_unit_unit_name,
+     opd_patient_history.present_complaint_history as opd_patient_history_present_complain,
+OPD_PATIENT_DETAILS.weight,
+OPD_PATIENT_DETAILS.opd_date,
+OPD_PATIENT_DETAILS.opd_time,
+mas_employee.emp_name,
+department.department_name,
+mas_scheme.scheme_name,
+rank.rank_name,
+OPD_PATIENT_DETAILS.opd_remarks,
+OPD_PATIENT_DETAILS.review_date
+
+from   
+OPD_PATIENT_DETAILS OPD_PATIENT_DETAILS 
+LEFT OUTER JOIN visit visit ON OPD_PATIENT_DETAILS.visit_id = visit.visit_id
+left join patient  p on p.hin_id = visit.hin_id 
+left join mas_patient_type p1 on p.patient_type_id = p1.patient_type_id 
+left join mas_district d on p.district_id = d.district_id
+left join mas_state s on p.state_id = s.state_id
+left join mas_country c on p.country_id = c.country_id
+left join mas_hospital mas_hospital on p.hospital_id=mas_hospital.hospital_id
+left join mas_occupation o on p.occupation_id=o.occupation_id
+left join mas_administrative_sex g on p.sex_id=g.administrative_sex_id
+left join mas_rank rank on rank.rank_id=p.rank_id
+left join mas_trade trade on trade.trade_id=p.trade_id
+     LEFT OUTER JOIN mas_relation mas_relation ON p.relation_id = mas_relation.relation_id
+     LEFT OUTER JOIN mas_service_type mas_service_type ON p.service_type_id = mas_service_type.service_type_id
+    left join mas_marital_status mas_marital_status on p.marital_status_id = mas_marital_status.marital_status_id
+    left join mas_blood_group mas_blood_group on p.BLOOD_GROUP_ID = mas_blood_group.BLOOD_GROUP_ID
+    LEFT OUTER JOIN mas_relation mas_relation_A ON p.relation_id = mas_relation_A.relation_id
+     LEFT OUTER JOIN mas_unit mas_unit ON p.unit_id = mas_unit.unit_id
+     LEFT OUTER JOIN opd_patient_history opd_patient_history ON opd_patient_details.id = opd_patient_history.opd_patient_details
+     LEFT OUTER JOIN mas_employee mas_employee ON opd_patient_details.employee_id = mas_employee.employee_id
+     LEFT OUTER JOIN mas_department department ON department.department_id = opd_patient_history.department_id
+     LEFT OUTER JOIN bl_op_bill_header bobh on bobh.visit_id=visit.visit_id
+     LEFT OUTER JOIN mas_scheme mas_scheme on mas_scheme.scheme_id=bobh.scheme_id
+WHERE
+     p.hin_no = $P{hinNo}
+     and visit.hospital_id=$P{hospitalId} and visit.visit_id = $P{visitId}]]></queryString>
+
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="patient_name" class="java.lang.String"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="patient_type_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="hospital_name" class="java.lang.String"/>
+	<field name="hosaddress" class="java.lang.String"/>
+	<field name="mobile_no" class="java.lang.String"/>
+	<field name="occupation" class="java.lang.String"/>
+	<field name="administrative_sex_name" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="visit_hin_id" class="java.lang.Integer"/>
+	<field name="visit_visit_date" class="java.sql.Date"/>
+	<field name="visitno" class="java.lang.Integer"/>
+	<field name="mas_rank_rank_name" class="java.lang.String"/>
+	<field name="trade_name" class="java.lang.String"/>
+	<field name="hospital_address" class="java.lang.String"/>
+	<field name="contact_number" class="java.lang.String"/>
+	<field name="serviceno" class="java.lang.String"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="marital_status" class="java.lang.String"/>
+	<field name="bloodgroup" class="java.lang.String"/>
+	<field name="service_type_name" class="java.lang.String"/>
+	<field name="a_relation_name" class="java.lang.String"/>
+	<field name="mas_unit_unit_name" class="java.lang.String"/>
+	<field name="opd_patient_history_present_complain" class="java.lang.String"/>
+	<field name="weight" class="java.lang.Integer"/>
+	<field name="opd_date" class="java.sql.Date"/>
+	<field name="opd_time" class="java.lang.String"/>
+	<field name="emp_name" class="java.lang.String"/>
+	<field name="department_name" class="java.lang.String"/>
+	<field name="scheme_name" class="java.lang.String"/>
+	<field name="rank_name" class="java.lang.String"/>
+	<field name="opd_remarks" class="java.lang.String"/>
+	<field name="review_date" class="java.sql.Date"/>
+
+	<variable name="date" class="java.util.Date" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new Date()]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="142"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="123"  isSplitAllowed="true" >
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="81"
+						width="534"
+						height="22"
+						key="subreport-11"
+						positionType="Float"
+						isPrintRepeatedValues="false"
+						isRemoveLineWhenBlank="true"/>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitId">
+						<subreportParameterExpression><![CDATA[$P{visitId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_no">
+						<subreportParameterExpression><![CDATA[$P{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="date">
+						<subreportParameterExpression><![CDATA[$P{date}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="IMAGE_DIR_LEFT">
+						<subreportParameterExpression><![CDATA[$P{IMAGE_DIR_LEFT}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hinNo">
+						<subreportParameterExpression><![CDATA[$P{hinNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitNo">
+						<subreportParameterExpression><![CDATA[$P{visitNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//medicalCaseSheetInvestigationResultNew.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="22"
+						width="533"
+						height="23"
+						key="subreport-15"
+						positionType="Float"
+						isRemoveLineWhenBlank="true"/>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitId">
+						<subreportParameterExpression><![CDATA[$P{visitId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_no">
+						<subreportParameterExpression><![CDATA[$P{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="date">
+						<subreportParameterExpression><![CDATA[$P{date}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="IMAGE_DIR_LEFT">
+						<subreportParameterExpression><![CDATA[$P{IMAGE_DIR_LEFT}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hinNo">
+						<subreportParameterExpression><![CDATA[$P{hinNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitNo">
+						<subreportParameterExpression><![CDATA[$P{visitNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//medicalCaseSheetdrugDetailSubRepEha.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="1"
+						width="532"
+						height="21"
+						key="subreport-16"
+						positionType="Float"
+						isRemoveLineWhenBlank="true"/>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="date">
+						<subreportParameterExpression><![CDATA[$P{date}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="IMAGE_DIR_LEFT">
+						<subreportParameterExpression><![CDATA[$P{IMAGE_DIR_LEFT}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hinNo">
+						<subreportParameterExpression><![CDATA[$P{hinNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitNo">
+						<subreportParameterExpression><![CDATA[$P{visitNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitId">
+						<subreportParameterExpression><![CDATA[$P{visitId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} +"//medicalCaseSheetExaminationDiagnosis.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="64"
+						width="528"
+						height="17"
+						key="subreport-17"
+						positionType="Float"
+						isPrintRepeatedValues="false"
+						isRemoveLineWhenBlank="true"/>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitId">
+						<subreportParameterExpression><![CDATA[$P{visitId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_no">
+						<subreportParameterExpression><![CDATA[$P{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="date">
+						<subreportParameterExpression><![CDATA[$P{date}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="IMAGE_DIR_LEFT">
+						<subreportParameterExpression><![CDATA[$P{IMAGE_DIR_LEFT}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hinNo">
+						<subreportParameterExpression><![CDATA[$P{hinNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitNo">
+						<subreportParameterExpression><![CDATA[$P{visitNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//medicalCaseSheetSurgeryProcedure.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="46"
+						width="528"
+						height="17"
+						key="subreport-18"
+						positionType="Float"
+						isPrintRepeatedValues="false"
+						isRemoveLineWhenBlank="true"/>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitId">
+						<subreportParameterExpression><![CDATA[$P{visitId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_no">
+						<subreportParameterExpression><![CDATA[$P{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="date">
+						<subreportParameterExpression><![CDATA[$P{date}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="IMAGE_DIR_LEFT">
+						<subreportParameterExpression><![CDATA[$P{IMAGE_DIR_LEFT}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hinNo">
+						<subreportParameterExpression><![CDATA[$P{hinNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitNo">
+						<subreportParameterExpression><![CDATA[$P{visitNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//medicalCaseSheetProcedure.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="1"
+						y="103"
+						width="534"
+						height="20"
+						key="subreport-19"
+						positionType="Float"
+						isPrintRepeatedValues="false"
+						isRemoveLineWhenBlank="true"/>
+					<subreportParameter  name="hospitalId">
+						<subreportParameterExpression><![CDATA[$P{hospitalId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitId">
+						<subreportParameterExpression><![CDATA[$P{visitId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hin_no">
+						<subreportParameterExpression><![CDATA[$P{hin_no}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="date">
+						<subreportParameterExpression><![CDATA[$P{date}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="IMAGE_DIR_LEFT">
+						<subreportParameterExpression><![CDATA[$P{IMAGE_DIR_LEFT}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="hinNo">
+						<subreportParameterExpression><![CDATA[$P{hinNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="deptId">
+						<subreportParameterExpression><![CDATA[$P{deptId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="visitNo">
+						<subreportParameterExpression><![CDATA[$P{visitNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "//medicalCaseSheetImages.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</summary>
+</jasperReport>

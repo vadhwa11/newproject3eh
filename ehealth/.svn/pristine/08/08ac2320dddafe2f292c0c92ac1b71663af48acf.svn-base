@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="LabWorkSheetReport" pageWidth="620" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="606" leftMargin="14" rightMargin="0" topMargin="14" bottomMargin="14" uuid="44e98be4-bde0-4c9b-a935-6b43d98de0be">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="toDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="query" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromTime" class="java.lang.String"/>
+	<parameter name="toTime" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+     sample_validation_time AS time,
+     sample_validation_date AS date,
+     hin_no AS uhid,
+     full_name AS p_name,
+     emp_name AS doctor_name,
+     hospital_name AS hospital_name,
+     case when routine_urgent_status='r'then 'Routine'when routine_urgent_status='u'then 'Urgent'else ''end AS priority,
+     sub_chargecode_code AS sample,
+     diag_no AS id,
+     case when validated is null then 'Pending'when validated='y'then 'Validated'else ''end AS status,
+     p."age" AS p_name,
+     dmi."investigation_name" AS investigation_name,
+     sm."sample_description" AS sm_sample_description,
+     msc."sub_chargecode_name" AS msc_sub_chargecode_name
+FROM
+     "dg_sample_collection_header" dsch LEFT OUTER JOIN "dg_sample_collection_details" dscd ON dsch."sample_collection_header_id" = dscd."sample_collection_header_id"
+     LEFT OUTER JOIN "dg_orderhd" doh ON dsch."order_id" = doh."orderhd_id"
+     LEFT OUTER JOIN "patient" p ON dsch."hin_id" = p."hin_id"
+     LEFT OUTER JOIN "mas_hospital" mh ON dsch."hospital_id" = mh."hospital_id"
+     LEFT OUTER JOIN "mas_employee" me ON dsch."validated_by" = me."employee_id"
+     LEFT OUTER JOIN "mas_sub_chargecode" msc ON dscd."subcharge" = msc."sub_chargecode_id"
+     LEFT OUTER JOIN "dg_mas_investigation" dmi ON dscd."investigation_id" = dmi."investigation_id"
+     FULL OUTER JOIN "mas_sample" sm ON dscd."sample_id" = sm."sample_id"
+WHERE
+     dsch.sample_validation_date BETWEEN $P{fromDate} and $P{toDate}
+     and mh.hospital_id = $P{hospitalId}
+     and dscd.order_status = 'A'
+$P!{query}]]>
+	</queryString>
+	<field name="time" class="java.lang.String"/>
+	<field name="date" class="java.sql.Date"/>
+	<field name="uhid" class="java.lang.String"/>
+	<field name="p_name" class="java.lang.String"/>
+	<field name="doctor_name" class="java.lang.String"/>
+	<field name="hospital_name" class="java.lang.String"/>
+	<field name="priority" class="java.lang.String"/>
+	<field name="sample" class="java.lang.String"/>
+	<field name="id" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="investigation_name" class="java.lang.String"/>
+	<field name="sm_sample_description" class="java.lang.String"/>
+	<field name="msc_sub_chargecode_name" class="java.lang.String"/>
+	<variable name="serial_no" class="java.lang.Integer">
+		<variableExpression><![CDATA[new java.lang.Integer(  ($V{REPORT_COUNT}.intValue()) )]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(1)]]></initialValueExpression>
+	</variable>
+	<group name="patient">
+		<groupExpression><![CDATA[$F{uhid}]]></groupExpression>
+		<groupHeader>
+			<band height="26" splitType="Stretch">
+				<line>
+					<reportElement key="line-1" x="0" y="1" width="592" height="1" uuid="cf354436-075d-4309-a396-98aed7c4c6a3"/>
+				</line>
+				<line>
+					<reportElement key="line-2" x="0" y="25" width="592" height="1" uuid="d114785b-fb3a-4142-a983-c3026695c55b"/>
+				</line>
+				<staticText>
+					<reportElement key="staticText-12" x="3" y="5" width="30" height="16" uuid="b30d86b8-d59e-4374-9f10-b0195e69b693"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="true" pdfFontName="Helvetica"/>
+					</textElement>
+					<text><![CDATA[Sl No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-10" x="33" y="5" width="56" height="16" uuid="f140c3d0-b072-4429-a300-c63bc4d2f503"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Top">
+						<font isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Sample Id]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-14" x="90" y="5" width="81" height="16" uuid="2ed4b35b-71da-4768-aca8-017bbdc383f2"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Top">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Patient Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-3" x="191" y="5" width="44" height="16" uuid="37bbad32-2f1c-44d6-a528-22d10a3ad989"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Top">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[UHID]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="270" y="5" width="87" height="16" uuid="efd96656-bd16-4923-896a-e86559c56581"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Sample Type]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="456" y="5" width="128" height="16" uuid="6a7133cc-cddf-4741-8eea-51562e5790d3"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Pending Investigations]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="360" y="5" width="85" height="16" uuid="d9e1a069-b464-4f4d-9be9-9898e4454840"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Modality]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<group name="sample">
+		<groupExpression><![CDATA[$F{sample}]]></groupExpression>
+		<groupHeader>
+			<band height="1" splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="68" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-1" x="0" y="25" width="591" height="23" uuid="0064041b-7fbb-44e5-bd42-22ec97e0edaa"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Lab WorkSheet Report]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="90" y="6" width="415" height="18" uuid="9b797381-e8d9-4720-86d4-c5f1e74804b0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hospital_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="56" y="48" width="42" height="20" uuid="fa23c1b6-ef30-4847-983e-4f2c1d730001"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{fromDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="145" y="48" width="39" height="20" uuid="2af5374f-c91b-4b70-bb07-9fbc09d1317f"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{fromTime}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="434" y="48" width="38" height="20" uuid="46fee036-2184-434c-b865-e9704241eb1e"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{toDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="503" y="48" width="87" height="20" uuid="97664ec5-1c3f-4558-bd10-181cd8508ec5"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{toTime}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="388" y="48" width="46" height="20" uuid="0044c805-ed9c-447a-af76-df8b4ff76beb"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[To Date:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="48" width="56" height="20" uuid="a846b4d3-18cf-420b-985c-5e4449a95093"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[From Date:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="48" width="47" height="20" uuid="8eeaf2e8-caae-437d-a3ce-39fd58e8a80f"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Time:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="474" y="48" width="29" height="20" uuid="e3f56ac5-0b12-40e0-ac69-383a1ed8013a"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Time:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-1" x="7" y="2" width="13" height="18" uuid="726131ea-b337-4882-bd53-48aedf0054e2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{serial_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="33" y="2" width="19" height="18" uuid="a7645c57-7e02-4a96-9a4d-3da2537e1540"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{sample}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-11" x="53" y="2" width="10" height="18" uuid="e6424972-c218-49d7-80ab-8d351a4c53ee"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="59" y="2" width="28" height="18" uuid="0a59c37d-d365-41a0-b0b1-80d50b296086"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="98" y="2" width="73" height="18" uuid="6e013a0d-735b-4ab4-ad9c-325fd2acf57e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{p_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="177" y="2" width="95" height="18" uuid="26008d84-63a1-430d-91cc-5649de8d12c0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top"/>
+				<textFieldExpression><![CDATA[$F{uhid}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="282" y="2" width="78" height="18" uuid="7cf6407a-b311-4cd9-8c13-b01622d7df95"/>
+				<textFieldExpression><![CDATA[$F{sm_sample_description}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="453" y="2" width="138" height="18" uuid="560ac076-6cb1-4666-9310-908f9d8286ab"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{investigation_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="353" y="2" width="107" height="18" uuid="cc6e0bb4-3d2b-4897-8bbd-bfaea34b8941"/>
+				<textFieldExpression><![CDATA[$F{msc_sub_chargecode_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+	<noData>
+		<band height="24">
+			<staticText>
+				<reportElement x="5" y="4" width="585" height="20" uuid="0be718f9-7097-419c-bbb1-552ab378f13c"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[No Data Found!!]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

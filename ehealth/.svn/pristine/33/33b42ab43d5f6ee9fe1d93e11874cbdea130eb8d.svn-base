@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpdStatistics" pageWidth="625" pageHeight="595" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="625" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isFloatColumnFooter="true" uuid="25ac5894-c25a-46dd-92bf-784c24a0ff0b">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="6"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromDate" class="java.util.Date"/>
+	<parameter name="toDate" class="java.util.Date"/>
+	<parameter name="deptId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromTime" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toTime" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+(select count(visit_no) from visit where visit_no=1 and hospital_id=$P{hospitalId} and visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END ) as first_visit,
+(select count(visit_no) from visit where visit_no>1 and hospital_id=$P{hospitalId} and visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END
+) as re_visit,
+(select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id join mas_administrative_sex mas on mas.administrative_sex_id = p.sex_id
+ where mas.administrative_sex_name = 'Male' and v.hospital_id=$P{hospitalId} and visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END
+) as male,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id join mas_administrative_sex mas on mas.administrative_sex_id = p.sex_id
+ where mas.administrative_sex_name = 'Female' and v.hospital_id=$P{hospitalId} and visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as female,
+  (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id join mas_administrative_sex mas on mas.administrative_sex_id = p.sex_id
+ where mas.administrative_sex_name = 'Transgender' and v.hospital_id=$P{hospitalId} and visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END
+) as transgender,
+ (select count(visit_no) from visit where hospital_id=$P{hospitalId} and visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END
+) as total,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id where EXTRACT(YEAR FROM (age(now(),date_of_birth))) between 0 and 12 and v.hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END
+) as lessThanTweleve,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id where EXTRACT(YEAR FROM (age(now(),date_of_birth))) between 13 and 18 and v.hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN department_id = $P{deptId}
+     ELSE 0=0
+END
+) as lessThanEighteen,
+ (select count(visit_id) from visit v join patient p on v.hin_id=p.hin_id where EXTRACT(YEAR FROM (age(now(),date_of_birth))) > 18 and v.hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as greaterThanEighteen,
+ (select count(distinct(opd_patient_detail_id)) from patient_wise_mlc pwm join opd_patient_details opd on pwm.opd_patient_detail_id = opd.id
+  join visit v on v.visit_id = opd.visit_id where pwm.hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as mlc,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where opd.hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+  referred_hospital_id=$P{hospitalId} and refered_department is not null and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as fromOtherInstitute,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where opd.hospital_id=$P{hospitalId} and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+  referred_hospital_id!=$P{hospitalId} and referred_hospital_id is not null and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as toHighCenter,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where opd.hospital_id=$P{hospitalId} and patient_death_status='Brought Dead' and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as brought_dead,
+ (select count(id) from opd_patient_details opd join visit v on v.visit_id = opd.visit_id where opd.hospital_id=$P{hospitalId} and patient_death_status='Death In Opd' and v.visit_date between $P{fromDate} and $P{toDate} and visit_time between $P{fromTime} and $P{toTime} and
+CASE
+     WHEN ($P{deptId}!=0) THEN v.department_id = $P{deptId}
+     ELSE 0=0
+END
+) as death_in_opd]]>
+	</queryString>
+	<field name="first_visit" class="java.lang.Long"/>
+	<field name="re_visit" class="java.lang.Long"/>
+	<field name="male" class="java.lang.Long"/>
+	<field name="female" class="java.lang.Long"/>
+	<field name="transgender" class="java.lang.Long"/>
+	<field name="total" class="java.lang.Long"/>
+	<field name="lessthantweleve" class="java.lang.Long"/>
+	<field name="lessthaneighteen" class="java.lang.Long"/>
+	<field name="greaterthaneighteen" class="java.lang.Long"/>
+	<field name="mlc" class="java.lang.Long"/>
+	<field name="fromotherinstitute" class="java.lang.Long"/>
+	<field name="tohighcenter" class="java.lang.Long"/>
+	<field name="brought_dead" class="java.lang.Long"/>
+	<field name="death_in_opd" class="java.lang.Long"/>
+	<columnHeader>
+		<band height="41" splitType="Stretch">
+			<line>
+				<reportElement key="line-15" x="0" y="1" width="1" height="39" uuid="8a579a30-2714-4a59-a532-653112d3e223"/>
+			</line>
+			<line>
+				<reportElement key="line-20" x="0" y="40" width="625" height="1" uuid="e4fe5de9-c992-4a6c-a2a7-f2d9d087896a"/>
+			</line>
+			<line>
+				<reportElement key="line-89" x="267" y="1" width="1" height="38" uuid="d86a16de-2304-413a-a440-58a9e91b26fa"/>
+			</line>
+			<line>
+				<reportElement key="line-90" x="298" y="1" width="1" height="39" uuid="bd294bf5-4bb0-4ab4-926c-523bce6117d4"/>
+			</line>
+			<line>
+				<reportElement key="line-91" x="231" y="1" width="1" height="39" uuid="1867343a-8b48-4a99-b32e-594861aba6ef"/>
+			</line>
+			<line>
+				<reportElement key="line-93" x="101" y="1" width="1" height="39" uuid="2d688669-fd9a-4cbe-b72e-0508e85683a9"/>
+			</line>
+			<line>
+				<reportElement key="line-97" x="409" y="1" width="1" height="39" uuid="402466b3-4694-4b56-b1c9-4dee04bea511"/>
+			</line>
+			<line>
+				<reportElement key="line-126" x="194" y="1" width="1" height="39" uuid="f7e53e0b-7a47-4047-976c-5338ce80a83f"/>
+			</line>
+			<line>
+				<reportElement key="line-127" x="163" y="1" width="1" height="38" uuid="303dbd77-07e4-4ec6-a77f-4848e1514493"/>
+			</line>
+			<line>
+				<reportElement key="line-128" x="132" y="1" width="1" height="39" uuid="e662e944-fc8a-446b-8b2e-965c5d7e11b4"/>
+			</line>
+			<line>
+				<reportElement key="line-129" x="478" y="1" width="1" height="39" uuid="d8224f31-2934-4ea5-99f9-739f0fddbb5a"/>
+			</line>
+			<line>
+				<reportElement key="line-130" x="372" y="0" width="1" height="41" uuid="78f732b6-a44d-4fc0-bf07-447a40f8783a"/>
+			</line>
+			<line>
+				<reportElement key="line-131" x="335" y="1" width="1" height="39" uuid="e7bb1946-67d3-4a51-b2d3-32ed5bee79d5"/>
+			</line>
+			<line>
+				<reportElement key="line-132" x="625" y="1" width="1" height="38" uuid="6f8dc624-42f9-45e1-b51a-6cc74bd1703c"/>
+			</line>
+			<line>
+				<reportElement key="line-133" x="552" y="1" width="1" height="39" uuid="23a14b9e-782a-4e03-84d7-5f799ad49575"/>
+			</line>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-21" positionType="Float" x="101" y="1" width="31" height="39" uuid="21a032b6-0664-4f87-a151-e9089988f201"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{first_visit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-22" positionType="Float" x="132" y="1" width="31" height="39" uuid="64b7833b-54a0-4747-b5f3-0dc8871e62e9"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{re_visit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-23" positionType="Float" x="163" y="1" width="31" height="39" uuid="6d52b72a-b1b5-4708-abbd-4f3091d90eb4"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{male}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-24" positionType="Float" x="194" y="1" width="37" height="39" uuid="84f77d8e-1806-4552-9782-0e9fb072d60e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{female}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-25" positionType="Float" x="231" y="1" width="36" height="39" uuid="8e5aa926-68ef-4f71-8ad5-a77381aa7ec2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transgender}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-26" positionType="Float" x="267" y="1" width="31" height="39" uuid="31c57a9f-bb83-4639-b714-e1c14ad71fb0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-27" positionType="Float" x="298" y="1" width="37" height="39" uuid="15c785be-a868-49ae-9abf-621469992cd8"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lessthantweleve}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-28" positionType="Float" x="335" y="2" width="37" height="39" uuid="c8947ab6-4509-4dfd-86ae-f018ea413fb9"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lessthaneighteen}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-29" positionType="Float" x="372" y="1" width="37" height="39" uuid="081580c8-362b-4a35-bffe-64ad0d666cd2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{greaterthaneighteen}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-30" positionType="Float" x="409" y="1" width="69" height="39" uuid="889053c1-c20f-4f11-bc46-3194b1d984b1"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mlc}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-31" positionType="Float" x="478" y="1" width="74" height="39" uuid="e85e1390-1a40-457a-aeb7-0272d6ede5ef"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fromotherinstitute}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-32" positionType="Float" x="552" y="1" width="73" height="39" uuid="d55c0900-0088-4dda-9aa9-26ca29f84047"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tohighcenter}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-154" x="0" y="0" width="625" height="1" uuid="d7474085-cc03-44c2-b670-ff7461c14807"/>
+			</line>
+			<staticText>
+				<reportElement key="staticText-1" x="0" y="0" width="101" height="39" uuid="0deed04d-72c1-42e8-89e4-3706072787c8"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>

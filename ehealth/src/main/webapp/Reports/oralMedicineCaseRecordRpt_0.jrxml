@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="oralMedicineCaseRecordRpt_1" pageWidth="595" pageHeight="842" columnWidth="561" leftMargin="17" rightMargin="17" topMargin="20" bottomMargin="20" uuid="378d1ef7-7330-4244-a032-66ef17d456d0">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="templateName" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+oiph.*,
+     visit.visit_no as visit_no,
+     patient.age as patient_age,
+     visit.visit_date as visit_date,
+     hosp.hospital_name as mas_hospital_hospital_name,
+     patient.hin_no as hin_no,
+    patient.date_of_birth as dob,
+     (patient.p_first_name||coalesce(patient.p_middle_name,'')||coalesce(patient.p_last_name,''))as patientname,
+     mas.administrative_sex_name as mas_administrative_sex_administrative_sex_name,
+coalesce(mv.village_name, '') || coalesce(md.district_name, '') || coalesce(ms.state_name, '') as address
+from
+
+     opd_oral_medicine_dental oiph
+     left outer join visit visit on oiph.visit_id = visit.visit_id
+     left outer join patient patient  on visit.hin_id = patient.hin_id
+     left outer join mas_hospital hosp on oiph.hospital_id = hosp.hospital_id
+     left outer join mas_administrative_sex mas on patient.sex_id = mas.administrative_sex_id
+     left join patient_address pa on pa.hin_id = patient.hin_id and pa.address_type_id =
+CASE
+    WHEN (EXISTS(select address from patient_address where address_type_id = 2)) THEN 2
+    WHEN (EXISTS(select address from patient_address where address_type_id = 1)) THEN 1
+    ELSE 4
+END
+left join mas_village mv on mv.village_id = pa.village
+left join mas_district md on md.district_id = pa.district
+left join mas_state ms on ms.state_id = pa.state_id
+where
+
+ 	oiph.visit_id = $P{opdvid}]]>
+	</queryString>
+	<field name="oral_medicine_id" class="java.lang.Integer"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="hospital_id" class="java.lang.Integer"/>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="presenting_complaints" class="java.lang.String"/>
+	<field name="history_presenting_complaint" class="java.lang.String"/>
+	<field name="past_medical_dental_history" class="java.lang.String"/>
+	<field name="family_history" class="java.lang.String"/>
+	<field name="personal_social_history" class="java.lang.String"/>
+	<field name="dietary_habbits" class="java.lang.String"/>
+	<field name="brushing_habbits" class="java.lang.String"/>
+	<field name="smoking_currently" class="java.lang.String"/>
+	<field name="smokeless_currently" class="java.lang.String"/>
+	<field name="alcohol_currently" class="java.lang.String"/>
+	<field name="smoking_daily_past" class="java.lang.String"/>
+	<field name="smokeless_daily_past" class="java.lang.String"/>
+	<field name="alcohol_daily_past" class="java.lang.String"/>
+	<field name="smoking_frequency_past" class="java.lang.String"/>
+	<field name="smokeless_frequency_past" class="java.lang.String"/>
+	<field name="alcohol_frequency_past" class="java.lang.String"/>
+	<field name="smoking_daily_start_age" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_age" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_age" class="java.lang.Integer"/>
+	<field name="smoking_daily_start_year" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_year" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_year" class="java.lang.Integer"/>
+	<field name="smoking_daily_product" class="java.lang.Integer"/>
+	<field name="smokeless_daily_product" class="java.lang.Integer"/>
+	<field name="alcohol_daily_product" class="java.lang.Integer"/>
+	<field name="smoking_after_wakeup" class="java.lang.Integer"/>
+	<field name="smokeless_after_wakeup" class="java.lang.Integer"/>
+	<field name="alcohol_after_wakeup" class="java.lang.Integer"/>
+	<field name="smoking_less_daily_start_age" class="java.lang.Integer"/>
+	<field name="smokeless_less_daily_start_age" class="java.lang.Integer"/>
+	<field name="alcohol_less_daily_start_age" class="java.lang.Integer"/>
+	<field name="smoking_less_daily_start_year" class="java.lang.Integer"/>
+	<field name="smokeless_less_daily_start_year" class="java.lang.Integer"/>
+	<field name="alcohol_less_daily_start_year" class="java.lang.Integer"/>
+	<field name="smoking_less_daily_product" class="java.lang.Integer"/>
+	<field name="smokeless_less_daily_product" class="java.lang.Integer"/>
+	<field name="alcohol_less_daily_product" class="java.lang.Integer"/>
+	<field name="smoking_daily_start_age_former" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_age_former" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_age_former" class="java.lang.Integer"/>
+	<field name="smoking_daily_start_year_former" class="java.lang.Integer"/>
+	<field name="smokeless_daily_start_year_former" class="java.lang.Integer"/>
+	<field name="alcohol_daily_start_year_former" class="java.lang.Integer"/>
+	<field name="smoking_stop_year_former" class="java.lang.Integer"/>
+	<field name="smokeless_stop_year_former" class="java.lang.Integer"/>
+	<field name="alcohol_stop_year_former" class="java.lang.Integer"/>
+	<field name="smoking_visited_doctor_fromer" class="java.lang.String"/>
+	<field name="smokeless_visited_doctor_fromer" class="java.lang.String"/>
+	<field name="alcohol_visited_doctor_fromer" class="java.lang.String"/>
+	<field name="smoking_no_visited_doctor_fromer" class="java.lang.Integer"/>
+	<field name="smokeless_no_visited_doctor_fromer" class="java.lang.Integer"/>
+	<field name="alcohol_no_visited_doctor_fromer" class="java.lang.Integer"/>
+	<field name="smoking_doctor_ask_fromer" class="java.lang.String"/>
+	<field name="smokeless_doctor_ask_fromer" class="java.lang.String"/>
+	<field name="alcohol_doctor_ask_fromer" class="java.lang.String"/>
+	<field name="smoking_quit_tobacoo_fromer" class="java.lang.String"/>
+	<field name="smokeless_quit_tobacoo_fromer" class="java.lang.String"/>
+	<field name="alcohol_quit_tobacoo_fromer" class="java.lang.String"/>
+	<field name="smoking_quit_any_fromer" class="java.lang.String"/>
+	<field name="smokeless_quit_any_fromer" class="java.lang.String"/>
+	<field name="alcohol_quit_any_fromer" class="java.lang.String"/>
+	<field name="smoking_try_stop" class="java.lang.String"/>
+	<field name="smokeless_try_stop" class="java.lang.String"/>
+	<field name="alcohol_try_stop" class="java.lang.String"/>
+	<field name="smoking_quit_period" class="java.lang.Integer"/>
+	<field name="smokeless_quit_period" class="java.lang.Integer"/>
+	<field name="alcohol_quit_period" class="java.lang.Integer"/>
+	<field name="smoking_try_stop_using" class="java.lang.String"/>
+	<field name="smokeless_try_stop_using" class="java.lang.String"/>
+	<field name="alcohol_try_stop_using" class="java.lang.String"/>
+	<field name="smoking_try_quitting" class="java.lang.String"/>
+	<field name="smokeless_try_quitting" class="java.lang.String"/>
+	<field name="alcohol_try_quitting" class="java.lang.String"/>
+	<field name="appetite" class="java.lang.String"/>
+	<field name="weight_loss_gain" class="java.lang.Integer"/>
+	<field name="indigestion" class="java.lang.String"/>
+	<field name="bowels" class="java.lang.String"/>
+	<field name="chest_pain" class="java.lang.String"/>
+	<field name="angina" class="java.lang.String"/>
+	<field name="dyspnoea" class="java.lang.String"/>
+	<field name="orthopnoea" class="java.lang.String"/>
+	<field name="oedema_feet" class="java.lang.String"/>
+	<field name="cough" class="java.lang.String"/>
+	<field name="haemoptysis" class="java.lang.String"/>
+	<field name="sputum" class="java.lang.String"/>
+	<field name="sputum_colour" class="java.lang.String"/>
+	<field name="sputum_quantity" class="java.lang.String"/>
+	<field name="sputum_smell" class="java.lang.String"/>
+	<field name="vision" class="java.lang.String"/>
+	<field name="hearing" class="java.lang.String"/>
+	<field name="micturition" class="java.lang.String"/>
+	<field name="micturition_frequency" class="java.lang.Integer"/>
+	<field name="dysuria" class="java.lang.String"/>
+	<field name="haematuria" class="java.lang.String"/>
+	<field name="nocturia" class="java.lang.String"/>
+	<field name="period" class="java.lang.Integer"/>
+	<field name="menarche" class="java.lang.Integer"/>
+	<field name="flow_days" class="java.lang.Integer"/>
+	<field name="menopause" class="java.lang.Integer"/>
+	<field name="hoarseness" class="java.lang.String"/>
+	<field name="sore_throat" class="java.lang.String"/>
+	<field name="epistaxis" class="java.lang.String"/>
+	<field name="frequent_colds" class="java.lang.String"/>
+	<field name="headache" class="java.lang.String"/>
+	<field name="vomiting" class="java.lang.String"/>
+	<field name="fits" class="java.lang.String"/>
+	<field name="gen_developmental" class="java.lang.String"/>
+	<field name="gen_nutritional" class="java.lang.String"/>
+	<field name="gen_head" class="java.lang.String"/>
+	<field name="gen_skull" class="java.lang.String"/>
+	<field name="gen_eyes" class="java.lang.String"/>
+	<field name="gen_ears" class="java.lang.String"/>
+	<field name="gen_nose" class="java.lang.String"/>
+	<field name="gen_skin" class="java.lang.String"/>
+	<field name="gen_hair" class="java.lang.String"/>
+	<field name="gen_nails" class="java.lang.String"/>
+	<field name="gen_lymph_nodes" class="java.lang.String"/>
+	<field name="oral_head" class="java.lang.String"/>
+	<field name="oral_facial_form" class="java.lang.String"/>
+	<field name="oral_hair" class="java.lang.String"/>
+	<field name="oral_skin" class="java.lang.String"/>
+	<field name="oral_eyes" class="java.lang.String"/>
+	<field name="oral_ear" class="java.lang.String"/>
+	<field name="oral_nose" class="java.lang.String"/>
+	<field name="oral_throat" class="java.lang.String"/>
+	<field name="oral_salivary_glands" class="java.lang.String"/>
+	<field name="oral_salivary_glands_palpable" class="java.lang.String"/>
+	<field name="oral_cranial_nerves_examination" class="java.lang.String"/>
+	<field name="oral_neck" class="java.lang.String"/>
+	<field name="oral_tmj" class="java.lang.String"/>
+	<field name="submental_submandibular" class="java.lang.String"/>
+	<field name="high_jugular" class="java.lang.String"/>
+	<field name="mid_jugular" class="java.lang.String"/>
+	<field name="low_jugular" class="java.lang.String"/>
+	<field name="posterior_jugular" class="java.lang.String"/>
+	<field name="tracheo_oesophageal" class="java.lang.String"/>
+	<field name="superior_mediastinal" class="java.lang.String"/>
+	<field name="mouth_opening" class="java.lang.String"/>
+	<field name="oral_hygiene_status" class="java.lang.String"/>
+	<field name="dentition_status" class="java.lang.String"/>
+	<field name="teeth_18" class="java.lang.String"/>
+	<field name="teeth_17" class="java.lang.String"/>
+	<field name="teeth_16" class="java.lang.String"/>
+	<field name="teeth_15" class="java.lang.String"/>
+	<field name="teeth_14" class="java.lang.String"/>
+	<field name="teeth_13" class="java.lang.String"/>
+	<field name="teeth_12" class="java.lang.String"/>
+	<field name="teeth_11" class="java.lang.String"/>
+	<field name="teeth_21" class="java.lang.String"/>
+	<field name="teeth_22" class="java.lang.String"/>
+	<field name="teeth_23" class="java.lang.String"/>
+	<field name="teeth_24" class="java.lang.String"/>
+	<field name="teeth_25" class="java.lang.String"/>
+	<field name="teeth_26" class="java.lang.String"/>
+	<field name="teeth_27" class="java.lang.String"/>
+	<field name="teeth_28" class="java.lang.String"/>
+	<field name="teeth_48" class="java.lang.String"/>
+	<field name="teeth_47" class="java.lang.String"/>
+	<field name="teeth_46" class="java.lang.String"/>
+	<field name="teeth_45" class="java.lang.String"/>
+	<field name="teeth_44" class="java.lang.String"/>
+	<field name="teeth_43" class="java.lang.String"/>
+	<field name="teeth_42" class="java.lang.String"/>
+	<field name="teeth_41" class="java.lang.String"/>
+	<field name="teeth_31" class="java.lang.String"/>
+	<field name="teeth_32" class="java.lang.String"/>
+	<field name="teeth_33" class="java.lang.String"/>
+	<field name="teeth_34" class="java.lang.String"/>
+	<field name="teeth_35" class="java.lang.String"/>
+	<field name="teeth_36" class="java.lang.String"/>
+	<field name="teeth_37" class="java.lang.String"/>
+	<field name="teeth_38" class="java.lang.String"/>
+	<field name="teeth_51" class="java.lang.String"/>
+	<field name="teeth_52" class="java.lang.String"/>
+	<field name="teeth_53" class="java.lang.String"/>
+	<field name="teeth_54" class="java.lang.String"/>
+	<field name="teeth_55" class="java.lang.String"/>
+	<field name="teeth_61" class="java.lang.String"/>
+	<field name="teeth_62" class="java.lang.String"/>
+	<field name="teeth_63" class="java.lang.String"/>
+	<field name="teeth_64" class="java.lang.String"/>
+	<field name="teeth_65" class="java.lang.String"/>
+	<field name="teeth_81" class="java.lang.String"/>
+	<field name="teeth_82" class="java.lang.String"/>
+	<field name="teeth_83" class="java.lang.String"/>
+	<field name="teeth_84" class="java.lang.String"/>
+	<field name="teeth_85" class="java.lang.String"/>
+	<field name="teeth_71" class="java.lang.String"/>
+	<field name="teeth_72" class="java.lang.String"/>
+	<field name="teeth_73" class="java.lang.String"/>
+	<field name="teeth_74" class="java.lang.String"/>
+	<field name="teeth_75" class="java.lang.String"/>
+	<field name="teeth_18_value" class="java.lang.String"/>
+	<field name="teeth_17_value" class="java.lang.String"/>
+	<field name="teeth_16_value" class="java.lang.String"/>
+	<field name="teeth_15_value" class="java.lang.String"/>
+	<field name="teeth_14_value" class="java.lang.String"/>
+	<field name="teeth_13_value" class="java.lang.String"/>
+	<field name="teeth_12_value" class="java.lang.String"/>
+	<field name="teeth_11_value" class="java.lang.String"/>
+	<field name="teeth_21_value" class="java.lang.String"/>
+	<field name="teeth_22_value" class="java.lang.String"/>
+	<field name="teeth_23_value" class="java.lang.String"/>
+	<field name="teeth_24_value" class="java.lang.String"/>
+	<field name="teeth_25_value" class="java.lang.String"/>
+	<field name="teeth_26_value" class="java.lang.String"/>
+	<field name="teeth_27_value" class="java.lang.String"/>
+	<field name="teeth_28_value" class="java.lang.String"/>
+	<field name="teeth_48_value" class="java.lang.String"/>
+	<field name="teeth_47_value" class="java.lang.String"/>
+	<field name="teeth_46_value" class="java.lang.String"/>
+	<field name="teeth_45_value" class="java.lang.String"/>
+	<field name="teeth_44_value" class="java.lang.String"/>
+	<field name="teeth_43_value" class="java.lang.String"/>
+	<field name="teeth_42_value" class="java.lang.String"/>
+	<field name="teeth_41_value" class="java.lang.String"/>
+	<field name="teeth_31_value" class="java.lang.String"/>
+	<field name="teeth_32_value" class="java.lang.String"/>
+	<field name="teeth_33_value" class="java.lang.String"/>
+	<field name="teeth_34_value" class="java.lang.String"/>
+	<field name="teeth_35_value" class="java.lang.String"/>
+	<field name="teeth_36_value" class="java.lang.String"/>
+	<field name="teeth_37_value" class="java.lang.String"/>
+	<field name="teeth_38_value" class="java.lang.String"/>
+	<field name="teeth_51_value" class="java.lang.String"/>
+	<field name="teeth_52_value" class="java.lang.String"/>
+	<field name="teeth_53_value" class="java.lang.String"/>
+	<field name="teeth_54_value" class="java.lang.String"/>
+	<field name="teeth_55_value" class="java.lang.String"/>
+	<field name="teeth_61_value" class="java.lang.String"/>
+	<field name="teeth_62_value" class="java.lang.String"/>
+	<field name="teeth_63_value" class="java.lang.String"/>
+	<field name="teeth_64_value" class="java.lang.String"/>
+	<field name="teeth_65_value" class="java.lang.String"/>
+	<field name="teeth_81_value" class="java.lang.String"/>
+	<field name="teeth_82_value" class="java.lang.String"/>
+	<field name="teeth_83_value" class="java.lang.String"/>
+	<field name="teeth_84_value" class="java.lang.String"/>
+	<field name="teeth_85_value" class="java.lang.String"/>
+	<field name="teeth_71_value" class="java.lang.String"/>
+	<field name="teeth_72_value" class="java.lang.String"/>
+	<field name="teeth_73_value" class="java.lang.String"/>
+	<field name="teeth_74_value" class="java.lang.String"/>
+	<field name="teeth_75_value" class="java.lang.String"/>
+	<field name="tongue_inspection" class="java.lang.String"/>
+	<field name="dorsum" class="java.lang.String"/>
+	<field name="ventral_surface" class="java.lang.String"/>
+	<field name="lateral_border" class="java.lang.String"/>
+	<field name="lateral_border_details" class="java.lang.String"/>
+	<field name="local_examination_findings" class="java.lang.String"/>
+	<field name="case_summary" class="java.lang.String"/>
+	<field name="visit_no" class="java.lang.Integer"/>
+	<field name="patient_age" class="java.lang.String"/>
+	<field name="visit_date" class="java.sql.Date"/>
+	<field name="mas_hospital_hospital_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="dob" class="java.sql.Date"/>
+	<field name="patientname" class="java.lang.String"/>
+	<field name="mas_administrative_sex_administrative_sex_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Prevent"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Prevent"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Prevent"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="168" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-99" positionType="Float" x="1" y="27" width="295" height="27" uuid="744df94f-fcfa-486c-a548-4f329f620185"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[18. During the past 12 months, did you use any of the following to try to stop using...?]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-37" positionType="Float" x="488" y="0" width="74" height="27" uuid="5f58a5a8-db67-482f-927a-0076c2f1f31e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{alcohol_quit_tobacoo_fromer}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-83" positionType="Float" x="488" y="68" width="74" height="18" uuid="dc8b36d2-5f28-49c4-9e47-cb976770ff69"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{alcohol_try_stop}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-38" positionType="Float" x="390" y="0" width="74" height="27" uuid="3eb67866-eab4-47dc-b8c7-472c424f3871"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smokeless_quit_tobacoo_fromer}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-84" positionType="Float" x="296" y="86" width="81" height="27" uuid="cb8e37a6-09fe-4f3a-94a8-1c493af4604f"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smoking_quit_period}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-98" positionType="Float" x="1" y="0" width="295" height="27" uuid="428dc16f-6327-44b6-b2e3-b6c2b3a2b644"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[17. During any visit to a doctor/hcp in the past 12 months were you asked if you use...?]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-119" positionType="Float" x="1" y="86" width="295" height="27" uuid="dcf41e00-9457-4dd6-8284-70ec875dd720"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[2.Thinking about te last time you tried to quit how long did you stop?]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-41" positionType="Float" x="488" y="27" width="74" height="27" uuid="c1ab1122-e00b-4c44-ada9-be83934b179f"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{alcohol_quit_any_fromer}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-118" positionType="Float" x="1" y="68" width="295" height="18" uuid="7b7fade9-e1ab-4f30-8519-ba20c8459a01"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[1. During the past 12 months have you tried to stop...?]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-40" positionType="Float" x="390" y="27" width="74" height="27" uuid="3a4f7f23-7f2a-426a-8e54-853cb95a96a2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smokeless_quit_any_fromer}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-86" positionType="Float" x="488" y="86" width="74" height="27" uuid="52cfbce8-d56f-4b76-b680-27fd985b7b1c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{alcohol_quit_period}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-85" positionType="Float" x="389" y="86" width="74" height="27" uuid="8351a9e0-91ae-4737-8f8f-7aa8cd53b1c4"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smokeless_quit_period}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-36" positionType="Float" x="296" y="0" width="82" height="27" uuid="019bec6d-c252-4345-9e96-cdef5e6a5fae"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smoking_quit_tobacoo_fromer}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-117" positionType="Float" x="1" y="54" width="561" height="14" uuid="0cb9e1de-23d2-41a9-a3dc-6d3fbed6d270"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[D.Cessation
+]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-82" positionType="Float" x="389" y="68" width="74" height="18" uuid="d88a2291-9040-464e-a1b8-44cd134b7b6c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smokeless_try_stop}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-81" positionType="Float" x="296" y="68" width="81" height="18" uuid="7faf7926-21a9-4921-b061-e313bc4e0ecb"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smoking_try_stop}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-39" positionType="Float" x="296" y="27" width="82" height="27" uuid="ec6dd445-60ee-4815-acb4-18971a66979e"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smoking_quit_any_fromer}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-52" positionType="Float" x="296" y="141" width="81" height="27" uuid="2ee0938c-3935-4469-90e5-cfbbd9856d12"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smoking_try_quitting}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-50" positionType="Float" x="389" y="114" width="74" height="27" uuid="74094d94-e829-40e5-98e2-fa70f6e0f918"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smokeless_try_stop_using}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-52" positionType="Float" x="1" y="114" width="295" height="27" uuid="91d6d30f-eab7-4d07-8dc2-98aa3f55f8b0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[3. During the past 12 months, did you use any of the following to try to stop using...]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-53" positionType="Float" x="389" y="141" width="74" height="27" uuid="26f8296f-aca6-4893-9dfd-892e697f51c0"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smokeless_try_quitting}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-51" positionType="Float" x="488" y="114" width="74" height="27" uuid="314bd503-7de5-44ea-97fe-1754cc827fb5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{alcohol_try_stop_using}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-53" positionType="Float" x="1" y="141" width="295" height="27" uuid="54189dc9-6611-409e-a67e-f1cf12133e70"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[4. Which of the following best describes your thinking about quitting smoking?]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-49" positionType="Float" x="296" y="114" width="81" height="27" uuid="8ac23070-ce6a-4bfa-be76-cea31763f13c"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{smoking_try_stop_using}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-54" positionType="Float" x="488" y="141" width="74" height="27" uuid="4b386a0e-b464-4896-9428-46728c397483"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{alcohol_try_quitting}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

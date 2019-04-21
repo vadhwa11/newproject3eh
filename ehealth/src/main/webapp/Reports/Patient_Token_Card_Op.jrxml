@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Patient_Token_Card" pageWidth="216" pageHeight="144" columnWidth="202" leftMargin="7" rightMargin="7" topMargin="7" bottomMargin="7" uuid="75d1c315-55f9-4acf-97e0-2a57b0f85aed">
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="pHinNo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="currentDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalToken" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="department" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="query" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pTokenNo" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select plq.visit_id,plq.total_hospital_visit,plq.token_no, p.full_name,p.age,d.department_name ,hin_no,plq.opd_date,h.hospital_name,p.hin_no,plq.opd_time,
+mas.administrative_sex_name as gender
+from pharmacy_lab_queue plq left outer join visit v on v.visit_id = plq.visit_id
+left outer join patient p on p.hin_id=v.hin_id
+left outer join  mas_department d on d.department_id=plq.department_id
+left outer join mas_hospital h on h.hospital_id = plq.hospital_id
+left outer join mas_administrative_sex mas on p.sex_id = mas.administrative_sex_id
+where
+case when $P{pTokenNo}!=0 then plq.total_hospital_visit=$P{pTokenNo}
+else 0=0
+end
+and
+case when $P{pHinNo}!='' then p.hin_no=$P{pHinNo}
+else 0=0
+end
+and plq.hospital_id=$P{hospitalId}
+and opd_date=$P{currentDate}
+and plq.status = 'P']]>
+	</queryString>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="total_hospital_visit" class="java.lang.Integer"/>
+	<field name="token_no" class="java.lang.Integer"/>
+	<field name="full_name" class="java.lang.String"/>
+	<field name="age" class="java.lang.String"/>
+	<field name="department_name" class="java.lang.String"/>
+	<field name="hin_no" class="java.lang.String"/>
+	<field name="opd_date" class="java.sql.Date"/>
+	<field name="hospital_name" class="java.lang.String"/>
+	<field name="opd_time" class="java.lang.String"/>
+	<field name="gender" class="java.lang.String"/>
+	<variable name="Token_No" class="java.lang.String">
+		<variableExpression><![CDATA[$F{total_hospital_visit}+"/"+$F{token_no}]]></variableExpression>
+		<initialValueExpression><![CDATA[new String("")]]></initialValueExpression>
+	</variable>
+	<group name="visit">
+		<groupExpression><![CDATA[$F{visit_id}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="123" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-8" x="7" y="63" width="55" height="13" uuid="32740864-b49e-4e95-9aa5-c72b94cb7213"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[UHID            :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="6" y="13" width="187" height="13" uuid="3497a1ef-3c23-471c-8e0e-700bc071b35f"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Serial No. "+$F{total_hospital_visit}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-6" x="5" y="122" width="189" height="1" uuid="7d447d81-4f0a-4de5-95d1-60fa2d6f90e3"/>
+			</line>
+			<line>
+				<reportElement key="line-3" x="5" y="0" width="189" height="1" uuid="306e6619-765a-4dbf-9cc3-33ab4336bd5d"/>
+			</line>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="6" y="1" width="187" height="12" uuid="50fadbcc-8646-4458-93b5-289722ab86f7"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hospital_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="62" y="48" width="130" height="13" uuid="f1fae35e-634b-4a93-87ce-91c95d62977d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{token_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="62" y="63" width="130" height="13" uuid="d8dcc954-0fdf-4171-93e7-7b4f92fa598a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hin_no}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="7" y="106" width="186" height="13" uuid="fb25b746-df81-4284-8486-aaef4053224a"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format($F{opd_date})+", "+$F{opd_time}+" hrs"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-3" x="7" y="33" width="55" height="13" uuid="6b9ee295-b142-44d6-8bb4-e13f086b672d"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Department  :]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="7" y="77" width="186" height="15" uuid="9086bf03-abd4-4147-b2bb-eb8b5b0e5011"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{full_name}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-2" x="194" y="0" width="1" height="122" uuid="9857b2de-8705-45d8-be38-9917ef3d7809"/>
+			</line>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="7" y="93" width="186" height="13" uuid="9a449635-23d9-46d3-8235-2f66ab0c2fd5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{age}+", "+$F{gender}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-5" x="5" y="0" width="1" height="122" uuid="ef4637be-7ae4-44cc-a596-27d6ec4fe220"/>
+			</line>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="62" y="33" width="130" height="13" uuid="eea70dd7-84c0-4a5e-8329-57de7ce74f33"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{department_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-1" x="6" y="48" width="55" height="13" uuid="113227c7-22cf-40d6-977d-db0bcfb4f219"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Token No.    :]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

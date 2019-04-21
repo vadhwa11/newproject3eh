@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+<hibernate-mapping package="jkt.hms.masters.business">
+	<class name="StoreStockTakingM" table="store_stock_taking_m">
+		<meta attribute="sync-DAO">false</meta>
+		<id name="Id" type="integer" column="id">
+			<generator class="sequence">
+				<param name="sequence">store_stock_taking_m_id_seq</param>
+			</generator>
+		</id>
+
+		<property name="PhysicalDate" column="physical_date" type="date"
+			not-null="false" />
+		
+		<property name="LastChangedDate" column="last_changed_date"
+			type="date" not-null="false" />
+		<property name="LastChangedTime" column="last_changed_time"
+			type="string" not-null="false" length="10" />
+			
+		<property name="Status" column="status" type="string"
+			not-null="false" length="1" />
+			
+			<property name="ApprovedDate" column="approved_date"
+			type="date" not-null="false" />
+			
+			<property name="Remarks" column="remarks" type="string"
+			not-null="false" length="200" />
+			
+		<many-to-one name="ApprovedBy" column="approved_by" class="MasEmployee"
+			not-null="false">
+		</many-to-one>	
+			
+		<many-to-one name="Hospital" column="hospital_id" class="MasHospital"
+			not-null="false">
+		</many-to-one>
+		<many-to-one name="Department" column="department_id"
+			class="MasDepartment" not-null="false">
+		</many-to-one>
+		
+		<many-to-one name="ItemGroup" column="item_group_id"
+			class="MasStoreGroup" not-null="false">
+		</many-to-one>
+		
+	<many-to-one name="LastChangedBy" column="last_changed_by"
+					class="Users" not-null="false">
+				</many-to-one>
+
+		<set name="StoreAdjustmentMs" inverse="true">
+			<key column="id" />
+			<one-to-many class="StoreAdjustmentM" />
+		</set>
+
+		<set name="StoreStockTakingTs" inverse="true">
+			<key column="id" />
+			<one-to-many class="StoreStockTakingT" />
+		</set>
+
+
+	</class>
+</hibernate-mapping>

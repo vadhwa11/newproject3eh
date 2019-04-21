@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AntenatalCard_usg_1_2" pageWidth="660" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="660" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isFloatColumnFooter="true" uuid="242ec24a-69d6-42d5-9f03-5e9244023d55">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="hinId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="opdvid" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select  opd_antenatal_usg_id ,    opd_antenatal_card_id ,    visit_id ,    hin_id ,    department_id ,    hospital_id ,    trimister ,        usg_parameter_value1 ,    usg_parameter_value2 ,    usg_parameter_value3 ,    usg_parameter_value4 ,    usg_parameter_value5 ,    usg_parameter_value6 ,    first_trim_weeks ,    usg_flag ,    visit_flag ,
+case when usg_parameter=usg_parameter1 then null else usg_parameter end as usg_parameter,usg_parameter_value1,usg_remarks
+from (
+select  oact.opd_antenatal_usg_id ,    oact.opd_antenatal_card_id ,    oact.visit_id ,    oact.hin_id ,    oact.department_id ,
+	oact.hospital_id ,    oact.trimister ,
+	oact.usg_parameter_value1 ,    oact.usg_parameter_value2 ,    oact.usg_parameter_value3 ,    oact.usg_parameter_value4 ,    oact.usg_parameter_value5 ,    oact.usg_parameter_value6 ,    oact.first_trim_weeks ,    oact.usg_flag ,    oact.visit_flag ,
+	oact.usg_parameter,lag(oact.usg_parameter) over (partition BY oact.visit_id ) as usg_parameter1
+,oac.usg_remarks
+from opd_antenatal_usg oact
+left outer join opd_antenatal_card oac   on oact.opd_antenatal_card_id = oac.opd_antenatal_card_id
+left outer join visit v on v.visit_id = oact.visit_id
+left outer join patient p on p.hin_id = oact.hin_id
+left outer join mas_hospital mh on mh.hospital_id = oac.hospital_id
+where
+case when $P{opdvid} != 0 then	oac.visit_id = $P{opdvid} else oac.hin_id = $P{hinId} end
+and oac.hospital_id = $P{hospitalId} and oact.trimister='First' and first_trim_weeks='Week10'
+)as b;]]>
+	</queryString>
+	<field name="opd_antenatal_usg_id" class="java.lang.Integer"/>
+	<field name="opd_antenatal_card_id" class="java.lang.Integer"/>
+	<field name="visit_id" class="java.lang.Integer"/>
+	<field name="hin_id" class="java.lang.Integer"/>
+	<field name="department_id" class="java.lang.Integer"/>
+	<field name="hospital_id" class="java.lang.Integer"/>
+	<field name="trimister" class="java.lang.String"/>
+	<field name="usg_parameter_value1" class="java.lang.String"/>
+	<field name="usg_parameter_value2" class="java.lang.String"/>
+	<field name="usg_parameter_value3" class="java.lang.String"/>
+	<field name="usg_parameter_value4" class="java.lang.String"/>
+	<field name="usg_parameter_value5" class="java.lang.String"/>
+	<field name="usg_parameter_value6" class="java.lang.String"/>
+	<field name="first_trim_weeks" class="java.lang.String"/>
+	<field name="usg_flag" class="java.lang.String"/>
+	<field name="visit_flag" class="java.lang.String"/>
+	<field name="usg_parameter" class="java.lang.String"/>
+	<field name="usg_remarks" class="java.lang.String"/>
+	<variable name="slno" class="java.lang.Integer">
+		<variableExpression><![CDATA[new Integer($V{PAGE_COUNT}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="19" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-15" positionType="Float" x="6" y="3" width="212" height="16" uuid="fc84dca4-d005-4853-81b2-31065d020ca1">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Top">
+					<font isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[USG First Report <10 weeks]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-1" positionType="Float" x="7" y="18" width="367" height="1" uuid="dc6773a4-f54b-4134-a645-4e76d0766211">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-2" positionType="Float" isPrintRepeatedValues="false" x="11" y="0" width="83" height="17" uuid="2f4f57dd-49a2-4b9d-9521-bcb61be6d7c4">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-3" positionType="Float" x="100" y="0" width="87" height="17" uuid="13e1eed6-96b6-4f6c-a9f6-e8dbf74b3196">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter_value1}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-2" positionType="Float" x="6" y="17" width="367" height="1" uuid="f7e38399-3ab1-4e25-a395-d1196b8b77f4">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-4" positionType="Float" x="282" y="0" width="87" height="17" uuid="3212ef23-0f3a-4a11-81e2-e1bcf97fab22">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter_value3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" x="190" y="0" width="87" height="17" uuid="64dc4da2-5739-4314-b4ec-e786e6189a71">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{usg_parameter_value2}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-3" positionType="Float" stretchType="RelativeToTallestObject" x="373" y="0" width="1" height="18" uuid="8d1a1648-fe9c-4adc-b423-d0e60d9de720">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-4" positionType="Float" stretchType="RelativeToTallestObject" x="6" y="0" width="1" height="18" uuid="3a310d19-120e-4696-a886-9107800f99f3">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-5" positionType="Float" stretchType="RelativeToTallestObject" x="278" y="0" width="1" height="18" uuid="240340c0-b30c-40fb-b408-cdf333bebdac">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-6" positionType="Float" stretchType="RelativeToTallestObject" x="94" y="0" width="1" height="18" uuid="d0422aa6-1529-4783-a202-efe9b2da0627">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement key="line-7" positionType="Float" stretchType="RelativeToTallestObject" x="187" y="0" width="1" height="18" uuid="9dfe1761-1677-4a0a-9dea-a46f133b6ec9">
+					<printWhenExpression><![CDATA[new Boolean($F{first_trim_weeks}.equals("Week10"))]]></printWhenExpression>
+				</reportElement>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

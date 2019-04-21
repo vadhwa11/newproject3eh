@@ -1,0 +1,1237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+	
+	<!-- <security:http>
+		<security:intercept-url pattern="/*"/>
+		<security:form-login 
+		    login-page="/hms/login?method=validate" 
+		    default-target-url="/hms/login?method=validate" 
+			username-parameter="loginName"
+			password-parameter="password"
+		
+			/>
+		<security:logout logout-success-url="/hms/hms/login?method=logout" />
+		<security:csrf/>
+	</security:http>
+	<security:authentication-manager>
+		<security:authentication-provider>
+		  <security:user-service>
+			<security:user name="admin" password="hmsjkt" authorities="ROLE_USER" />
+		  </security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	 -->
+ <!-- to activate annotations in beans already registered in the ApplicationContext --> 
+ 		<context:annotation-config /> 
+
+	<!-- scans packages to find and register beans within the application context -->
+	<context:component-scan base-package="com.jkt.services.indentservice" />
+
+	<!-- turn on spring transaction annotation -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- Transaction Manager -->
+	<!-- <bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean> -->
+	
+
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+			
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+     
+   <!--  <hibernate-configuration>
+    <session-factory>
+        <mapping class="com.jkt.services.indentservice.IndentServiceImpl" />
+    </session-factory>
+</hibernate-configuration> -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+
+
+		<property name="mappingDirectoryLocations">
+			<list>
+				<value>classpath:hbm</value>
+				<value>classpath:HrmsTblMapping</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.jdbc.batch_size">100</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>			  
+			</props>
+		</property>
+	</bean>
+
+
+	<bean  id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource">
+		<property name="url" value="${database.url}"/>
+		<property name="driverClassName" value="${database.driver}"/>
+		<property name="username" value="${database.user}" />
+		<property name="password" value="${database.password}" />
+		<property name="initialSize" value="${database.initialSize}" />
+		<property name="maxActive" value="${database.maxActive}" />
+		<property name="maxIdle" value="${database.maxIdle}" />
+		<property name="minIdle" value="${database.minIdle}" />
+	</bean>
+
+
+<bean id="transactionManager" autowire="default"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		lazy-init="default">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	 
+	</bean>
+
+	<bean id="transactionTemplate" autowire="default"
+		class="org.springframework.transaction.support.TransactionTemplate"
+      lazy-init="default">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+	</bean>
+
+	<bean id="userMasterHandlerService"
+		class="jkt.security.masters.handler.UserMasterHandlerServiceImpl">
+		<property name="userMasterDataService">
+			<ref bean="userMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="userMasterDataService"
+		class="jkt.security.masters.dataservice.UserMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+
+	</bean>
+	<bean id="nonExpandableHandlerService" class="jkt.hms.stores.handler.NonExpandableHandlerServiceImpl">
+		<property name="nonExpandableDataService">
+			<ref bean="nonExpandableDataService" />
+		</property>
+	</bean>
+
+	<bean id="nonExpandableDataService" class="jkt.hms.stores.dataservice.NonExpandableDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+
+	</bean>
+	
+		<bean id="coldChainHandlerService" class="jkt.hms.stores.handler.ColdChainHandlerServiceImpl">
+		<property name="coldChainDataService">
+			<ref bean="coldChainDataService" />
+		</property>
+	</bean>
+
+	<bean id="coldChainDataService" class="jkt.hms.stores.dataservice.ColdChainDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+
+	</bean>
+	<bean id="loginHandlerService" class="jkt.hms.login.handler.LoginHandlerServiceImpl">
+		<property name="loginDataService">
+			<ref bean="loginDataService" />
+		</property>
+	</bean>
+
+	<bean id="commonMasterHandlerService" class="jkt.hms.masters.handler.CommonMasterHandlerServiceImpl">
+		<property name="commonMasterDataService">
+			<ref bean="commonMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="storesHandlerService" class="jkt.hms.stores.handler.StoresHandlerServiceImpl">
+		<property name="storesDataService">
+			<ref bean="storesDataService" />
+		</property>
+	</bean>
+
+	<bean id="nonExpendableStoresHandlerService"
+		class="jkt.hms.stores.handler.NonExpendableStoresHandlerServiceImpl">
+		<property name="nonExpendableStoresDataService">
+			<ref bean="nonExpendableStoresDataService" />
+		</property>
+	</bean>
+
+	<bean id="nonExpendableNewStoresHandlerService"
+		class="jkt.hms.stores.handler.NonExpendableNewStoresHandlerServiceImpl">
+		<property name="nonExpendableNewStoresDataService">
+			<ref bean="nonExpendableNewStoresDataService" />
+		</property>
+	</bean>
+
+	<bean id="generalMasterHandlerService" class="jkt.hms.masters.handler.GeneralMasterHandlerServiceImpl">
+		<property name="generalMasterDataService">
+			<ref bean="generalMasterDataService" />
+		</property>
+	</bean>
+	<bean id="nursingCareMasterHandlerService"
+		class="jkt.hms.masters.handler.NursingCareMasterHandlerServiceImpl">
+		<property name="nursingCareMasterDataService">
+			<ref bean="nursingCareMasterDataService" />
+		</property>
+	</bean>
+	<bean id="canteenMasterHandlerService" class="jkt.hms.masters.handler.CanteenMasterHandlerServiceImpl">
+		<property name="canteenMasterDataService">
+			<ref bean="canteenMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="superAdminMasterHandlerService"
+		class="jkt.security.masters.handler.SuperAdminMasterHandlerServiceImpl">
+		<property name="superAdminMasterDataService">
+			<ref bean="superAdminMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="billingMasterHandlerService" class="jkt.hms.masters.handler.BillingMasterHandlerServiceImpl">
+		<property name="billingMasterDataService">
+			<ref bean="billingMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="opdMasterHandlerService" class="jkt.hms.masters.handler.OPDMasterHandlerServiceImpl">
+		<property name="opdMasterDataService">
+			<ref bean="opdMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="hospitalDetailsMasterHandlerService"
+		class="jkt.hms.masters.handler.HospitalDetailsMasterHandlerServiceImpl">
+		<property name="hospitalDetailsMasterDataService">
+			<ref bean="hospitalDetailsMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="systemRelatedMasterHandlerService"
+		class="jkt.hms.masters.handler.SystemRelatedMasterHandlerServiceImpl">
+		<property name="systemRelatedMasterDataService">
+			<ref bean="systemRelatedMasterDataService" />
+		</property>
+	</bean>
+
+
+	<bean id="inPatientMasterHandlerService"
+		class="jkt.hms.masters.handler.InPatientMasterHandlerServiceImpl">
+		<property name="inPatientMasterDataService">
+			<ref bean="inPatientMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="bloodBankMasterHandlerService"
+		class="jkt.hms.masters.handler.BloodBankMasterHandlerServiceImpl">
+		<property name="bloodBankMasterDataService">
+			<ref bean="bloodBankMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="laboratoryMasterHandlerService"
+		class="jkt.hms.masters.handler.LaboratoryMasterHandlerServiceImpl">
+		<property name="laboratoryMasterDataService">
+			<ref bean="laboratoryMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="appointmentHandlerService"
+		class="jkt.hms.appointment.handler.AppointmentHandlerServiceImpl">
+		<property name="appointmentDataService">
+			<ref bean="appointmentDataService" />
+		</property>
+	</bean>
+	<bean id="personnelMasterHandlerService"
+		class="jkt.hms.masters.handler.PersonnelMasterHandlerServiceImpl">
+		<property name="personnelMasterDataService">
+			<ref bean="personnelMasterDataService" />
+		</property>
+	</bean>
+	<bean id="pharmacyMasterHandlerService"
+		class="jkt.hms.masters.handler.PharmacyMasterHandlerServiceImpl">
+		<property name="pharmacyMasterDataService">
+			<ref bean="pharmacyMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="otMasterHandlerService" class="jkt.hms.masters.handler.OTMasterHandlerServiceImpl">
+		<property name="otMasterDataService">
+			<ref bean="otMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="bloodBankHandlerService" class="jkt.hms.bloodBank.handler.BloodBankHandlerServiceImpl">
+		<property name="bloodBankDataService">
+			<ref bean="bloodBankDataService" />
+		</property>
+	</bean>
+	
+
+<bean id="smsHandlerService" class="jkt.hms.sms.handler.SmsHandlerServiceImpl">
+		<property name="smsDataService">
+			<ref bean="smsDataService" />
+		</property>
+	</bean>
+	
+	<bean id="smsDataService" class="jkt.hms.sms.dataservice.SmsDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	
+	 
+	
+	
+	<bean id="registrationMasterHandlerService"
+		class="jkt.hms.masters.handler.RegistrationMasterHandlerServiceImpl">
+		<property name="registrationMasterDataService">
+			<ref bean="registrationMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="registrationHandlerService" class="jkt.hms.adt.handler.RegistrationHandlerServiceImpl">
+		<property name="registrationDataService">
+			<ref bean="registrationDataService" />
+		</property>
+		<property name="opBillingDataService">
+			<ref bean="opBillingDataService" />
+		</property>
+	</bean>
+
+	<bean id="commandentHandlerService" class="jkt.hms.adt.handler.CommandentHandlerServiceImpl">
+		<property name="commandentDataService">
+			<ref bean="commandentDataService" />
+		</property>
+	</bean>
+
+	<bean id="adtHandlerService" class="jkt.hms.adt.handler.ADTHandlerServiceImpl">
+		<property name="adtDataService">
+			<ref bean="adtDataService" />
+		</property>
+	</bean>
+
+	<bean id="purchaseOrderHandlerService"
+		class="jkt.hms.purchaseOrder.handler.PurchaseOrderHandlerServiceImpl">
+		<property name="purchaseOrderDataService">
+			<ref bean="purchaseOrderDataService" />
+		</property>
+	</bean>
+
+	<bean id="procurementHandlerService"
+		class="jkt.hms.purchaseOrder.handler.ProcurementHandlerServiceImpl">
+		<property name="procurementDataService">
+			<ref bean="procurementDataService" />
+		</property>
+	</bean>
+
+	<bean id="opdHandlerService" class="jkt.hms.opd.handler.OPDHandlerServiceImpl">
+		<property name="opdDataService">
+			<ref bean="opdDataService" />
+		</property>
+	</bean>
+	
+	
+	
+	<bean id="mlcHandlerService" class="jkt.hms.opd.handler.MLCHandlerServiceImpl">
+		<property name="mlcDataService">
+			<ref bean="mlcDataService" />
+		</property>
+	</bean>
+
+<bean id="pubHealthHandlerService" class="jkt.hms.pubHealth.handler.PubHealthHandlerServiceImpl">
+		<property name="pubHealthDataService">
+			<ref bean="pubHealthDataService" />
+		</property>
+	</bean>
+	
+	<bean id="ipdHandlerService" class="jkt.hms.ipd.handler.IPDHandlerServiceImpl">
+		<property name="ipdDataService">
+			<ref bean="ipdDataService" />
+		</property>
+	</bean>
+
+	<bean id="misHandlerService" class="jkt.hms.mis.handler.MISHandlerServiceImpl">
+		<property name="misDataService">
+			<ref bean="misDataService" />
+		</property>
+	</bean>
+
+	<bean id="dischargeHandlerService" class="jkt.hms.discharge.handler.DischargeHandlerServiceImpl">
+		<property name="dischargeDataService">
+			<ref bean="dischargeDataService" />
+		</property>
+	</bean>
+
+	<bean id="enquiryHandlerService" class="jkt.hms.enquiry.handler.EnquiryHandlerServiceImpl">
+		<property name="enquiryDataService">
+			<ref bean="enquiryDataService" />
+		</property>
+	</bean>
+
+	<bean id="tenderHandlerService" class="jkt.hms.tender.handler.TenderHandlerServiceImpl">
+		<property name="tenderDataService">
+			<ref bean="tenderDataService" />
+		</property>
+	</bean>
+
+	<bean id="labHandlerService" class="jkt.hms.lab.handler.LabHandlerServiceImpl">
+		<property name="labDataService">
+			<ref bean="labDataService" />
+		</property>
+	</bean>
+
+	<bean id="billingHandlerService" class="jkt.hms.billing.handler.BillingHandlerServiceImpl">
+		<property name="billingDataService">
+			<ref bean="billingDataService" />
+		</property>
+	</bean>
+
+	<bean id="investigationHandlerService"
+		class="jkt.hms.investigation.handler.InvestigationHandlerServiceImpl">
+		<property name="investigationDataService">
+			<ref bean="investigationDataService" />
+		</property>
+	</bean>
+
+	<bean id="dietHandlerService" class="jkt.hms.diet.handler.DietHandlerServiceImpl">
+		<property name="dietDataService">
+			<ref bean="dietDataService" />
+		</property>
+	</bean>
+	<bean id="otHandlerService" class="jkt.hms.ot.handler.OTHandlerServiceImpl">
+		<property name="otDataService">
+			<ref bean="otDataService" />
+		</property>
+	</bean>
+
+	<bean id="accountHandlerService" class="jkt.hms.account.handler.AccountHandlerServiceImpl">
+		<property name="accountDataService">
+			<ref bean="accountDataService" />
+		</property>
+	</bean>
+
+	<bean id="budgetHandlerService" class="jkt.hms.budget.handler.BudgetHandlerServiceImpl">
+		<property name="budgetDataService">
+			<ref bean="budgetDataService" />
+		</property>
+	</bean>
+
+	<bean id="loginDataService" class="jkt.hms.login.dataservice.LoginDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="appointmentDataService"
+		class="jkt.hms.appointment.dataservice.AppointmentDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="registrationDataService">
+			<ref bean="registrationDataService" />
+		</property>
+	</bean>
+
+	<bean id="commonMasterDataService" class="jkt.hms.masters.dataservice.CommonMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="storesDataService" class="jkt.hms.stores.dataservice.StoresDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="billingMasterDataService">
+			<ref bean="billingMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="nonExpendableStoresDataService"
+		class="jkt.hms.stores.dataservice.NonExpendableStoresDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="nonExpendableNewStoresDataService"
+		class="jkt.hms.stores.dataservice.NonExpendableNewStoresDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="generalMasterDataService"
+		class="jkt.hms.masters.dataservice.GeneralMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="nursingCareMasterDataService"
+		class="jkt.hms.masters.dataservice.NursingCareMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="canteenMasterDataService"
+		class="jkt.hms.masters.dataservice.CanteenMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="superAdminMasterDataService"
+		class="jkt.security.masters.dataservice.SuperAdminMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="hospitalDetailsMasterDataService"
+		class="jkt.hms.masters.dataservice.HospitalDetailsMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="billingMasterDataService"
+		class="jkt.hms.masters.dataservice.BillingMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="opBillingDataService">
+			<ref bean="opBillingDataService" />
+		</property>
+	</bean>
+
+	<bean id="opdMasterDataService" class="jkt.hms.masters.dataservice.OPDMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="inPatientMasterDataService"
+		class="jkt.hms.masters.dataservice.InPatientMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="systemRelatedMasterDataService"
+		class="jkt.hms.masters.dataservice.SystemRelatedMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="bloodBankMasterDataService"
+		class="jkt.hms.masters.dataservice.BloodBankMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="bloodBankDataService" class="jkt.hms.bloodBank.dataservice.BloodBankDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="laboratoryMasterDataService"
+		class="jkt.hms.masters.dataservice.LaboratoryMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="registrationMasterDataService"
+		class="jkt.hms.masters.dataservice.RegistrationMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="otMasterDataService" class="jkt.hms.masters.dataservice.OTMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	<bean id="personnelMasterDataService"
+		class="jkt.hms.masters.dataservice.PersonnelMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	<bean id="pharmacyMasterDataService"
+		class="jkt.hms.masters.dataservice.PharmacyMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="registrationDataService" class="jkt.hms.adt.dataservice.RegistrationDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="commandentDataService" class="jkt.hms.adt.dataservice.CommandentDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="adtDataService" class="jkt.hms.adt.dataservice.ADTDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="opBillingDataService">
+			<ref bean="opBillingDataService" />
+		</property>
+	</bean>
+
+	<bean id="purchaseOrderDataService"
+		class="jkt.hms.purchaseOrder.dataservice.PurchaseOrderDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	
+	<bean id="procurementDataService"
+		class="jkt.hms.purchaseOrder.dataservice.ProcurementDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="opdDataService" class="jkt.hms.opd.dataservice.OPDDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="billingMasterDataService">
+			<ref bean="billingMasterDataService" />
+		</property>
+		<property name="registrationDataService">
+			<ref bean="registrationDataService" />
+		</property>
+	</bean>
+	
+	
+	
+	<bean id="mlcDataService" class="jkt.hms.opd.dataservice.MLCDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		
+	</bean>
+	<bean id="pubHealthDataService" class="jkt.hms.pubHealth.dataservice.PubHealthDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<!-- added by amit das on 15-09-2016 -->
+		<property name="opdDataService">
+			<ref bean="opdDataService" />
+		</property>
+	</bean>
+	<bean id="ipdDataService" class="jkt.hms.ipd.dataservice.IPDDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="labDataService">
+			<ref bean="labDataService" />
+		</property>
+	</bean>
+
+	<bean id="misDataService" class="jkt.hms.mis.dataservice.MISDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="dischargeDataService" class="jkt.hms.discharge.dataservice.DischargeDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="enquiryDataService" class="jkt.hms.enquiry.dataservice.EnquiryDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="tenderDataService" class="jkt.hms.tender.dataservice.TenderDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="labDataService" class="jkt.hms.lab.dataservice.LabDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="opBillingDataService">
+			<ref bean="opBillingDataService" />
+		</property>
+		<property name="registrationDataService">
+			<ref bean="registrationDataService" />
+		</property>
+		<property name="billingMasterDataService">
+			<ref bean="billingMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="billingDataService" class="jkt.hms.billing.dataservice.BillingDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="opBillingDataService">
+			<ref bean="opBillingDataService" />
+		</property>
+	</bean>
+
+	<bean id="investigationDataService"
+		class="jkt.hms.investigation.dataservice.InvestigationDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="labDataService">
+			<ref bean="labDataService" />
+		</property>
+	</bean>
+
+	<bean id="otDataService" class="jkt.hms.ot.dataservice.OTDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="dietDataService" class="jkt.hms.diet.dataservice.DietDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="accountDataService" class="jkt.hms.account.dataservice.AccountDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="budgetDataService" class="jkt.hms.budget.dataservice.BudgetDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="laundryDataService" class="jkt.hms.laundry.dataservice.LaundryDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="cssdDataService" class="jkt.hms.cssd.dataservice.CssdDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="hesDataService" class="jkt.hms.hes.dataservice.HesDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	
+	<bean id="maintenanceDataService" class="jkt.hms.hes.dataservice.MaintenanceDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<!--
+		/////////////////////////////////////////////////////EHA/////////////////////////////////////////////
+	-->
+
+	<bean id="reportHandlerService" class="jkt.hrms.reports.handler.ReportHandlerServiceImpl">
+		<property name="reportDataService">
+			<ref bean="reportDataService" />
+		</property>
+	</bean>
+	<bean id="reportDataService" class="jkt.hrms.reports.dataservice.ReportDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="setupHandlerService" class="jkt.hrms.setup.handler.SetupHandlerServiceImpl">
+		<property name="setupDataService">
+			<ref bean="setupDataService" />
+		</property>
+	</bean>
+	<bean id="setupDataService" class="jkt.hrms.setup.dataservice.SetupDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="attendanceHandlerService"
+		class="jkt.hrms.attendance.handler.AttendanceHandlerServiceImpl">
+		<property name="attendanceDataService">
+			<ref bean="attendanceDataService" />
+		</property>
+	</bean>
+	<bean id="attendanceDataService"
+		class="jkt.hrms.attendance.dataservice.AttendanceDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="payrollMastersHandlerService"
+		class="jkt.hrms.payroll.handler.PayrollMastersHandlerServiceImpl">
+		<property name="payrollMastersDataService">
+			<ref bean="payrollMastersDataService" />
+		</property>
+	</bean>
+	<bean id="payrollMastersDataService"
+		class="jkt.hrms.payroll.dataservice.PayrollMastersDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="loanHandlerService" class="jkt.hrms.payroll.handler.LoanHandlerServiceImpl">
+		<property name="loanDataService">
+			<ref bean="loanDataService" />
+		</property>
+	</bean>
+	<bean id="loanDataService" class="jkt.hrms.payroll.dataservice.LoanDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="payrollHandlerService" class="jkt.hrms.payroll.handler.PayrollHandlerServiceImpl">
+		<property name="payrollDataService">
+			<ref bean="payrollDataService" />
+		</property>
+	</bean>
+	<bean id="payrollDataService" class="jkt.hrms.payroll.dataservice.PayrollDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	<bean id="applicantHandlerService"
+		class="jkt.hrms.applicant.handler.ApplicantRegistrationHandlerServiceImpl">
+		<property name="applicantRegistrationDataService">
+			<ref bean="applicantRegistrationDataService" />
+		</property>
+	</bean>
+	<bean id="applicantRegistrationDataService"
+		class="jkt.hrms.applicant.dataservice.ApplicantRegistrationDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<!--
+		/////////////////////////////////////////////////////EHA/////////////////////////////////////////////
+	-->
+	<bean id="sysCurrentParamHandlerService"
+		class="jkt.hms.sysparam.handler.SysCurrentParamHandlerServiceImpl">
+		<property name="sysCurrentParamDataService">
+			<ref bean="sysCurrentParamDataService" />
+		</property>
+	</bean>
+	<bean id="sysCurrentParamDataService"
+		class="jkt.hms.sysparam.dataservice.SysCurrentParamDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<!--
+		////////////////////////////////////////////// Recruitment
+		/////////////////////////////////////////////
+	-->
+	<bean id="recruitmentHandlerService"
+		class="jkt.hrms.recruitment.handler.RecruitmentHandlerServiceImpl">
+		<property name="recruitmentDataService">
+			<ref bean="recruitmentDataService" />
+		</property>
+	</bean>
+	<bean id="recruitmentDataService"
+		class="jkt.hrms.recruitment.dataservice.RecruitmentDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="resumeHandlerService" class="jkt.hrms.recruitment.handler.ResumeHandlerServiceImpl">
+		<property name="resumeDataService">
+			<ref bean="resumeDataService" />
+		</property>
+	</bean>
+	<bean id="resumeDataService" class="jkt.hrms.recruitment.dataservice.ResumeDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<!--
+		////////////////////////////////////////////// Leave
+		/////////////////////////////////////////////
+	-->
+	<bean id="leaveHandlerService" class="jkt.hrms.leave.handler.LeaveDetailsHandlerServiceImpl">
+		<property name="leaveDataService">
+			<ref bean="leaveDataService" />
+		</property>
+	</bean>
+	<bean id="leaveDataService" class="jkt.hrms.leave.dataservice.LeaveDetailsDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	<!--
+		////////////////////////////////////////////// Notice Board
+		/////////////////////////////////////////////
+	-->
+	<bean id="noticeBoardHandlerService"
+		class="jkt.hrms.noticeBoard.handler.NoticeBoardHandlerServiceImpl">
+		<property name="noticeBoardDataService">
+			<ref bean="noticeBoardDataService" />
+		</property>
+	</bean>
+	<bean id="noticeBoardDataService"
+		class="jkt.hrms.noticeBoard.dataservice.NoticeBoardDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<!--
+		////////////////////////////////////////////// hrms masters
+		/////////////////////////////////////////////
+	-->
+
+	<bean id="sectionMasterHandlerService"
+		class="jkt.hrms.masters.handler.SectionMasterHandlerServiceImpl">
+		<property name="sectionMasterDataService">
+			<ref bean="sectionMasterDataService" />
+		</property>
+	</bean>
+	
+	
+	
+	<bean id="sectionMasterDataService"
+		class="jkt.hrms.masters.dataservice.SectionMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="hrmsCommonMasterHandlerService"
+		class="jkt.hrms.masters.handler.HrmsCommonMasterHandlerServiceImpl">
+		<property name="hrmsCommonMasterDataService">
+			<ref bean="hrmsCommonMasterDataService" />
+		</property>
+	</bean>
+	<bean id="hrmsCommonMasterDataService"
+		class="jkt.hrms.masters.dataservice.HrmsCommonMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	<bean id="educationHandlerService" class="jkt.hrms.masters.handler.EducationHandlerServiceImpl">
+		<property name="educationDataService">
+			<ref bean="educationDataService" />
+		</property>
+	</bean>
+	<bean id="educationDataService" class="jkt.hrms.masters.dataservice.EducationDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="instituteHandlerService" class="jkt.hrms.masters.handler.InstituteHandlerServiceImpl">
+		<property name="instituteDataService">
+			<ref bean="instituteDataService" />
+		</property>
+	</bean>
+	<bean id="instituteDataService" class="jkt.hrms.masters.dataservice.InstituteDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="insuranceHandlerService" class="jkt.hrms.masters.handler.InsuranceHandlerServiceImpl">
+		<property name="insuranceDataService">
+			<ref bean="insuranceDataService" />
+		</property>
+	</bean>
+	<bean id="insuranceDataService" class="jkt.hrms.masters.dataservice.InsuranceDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="instalmentHandlerService" class="jkt.hrms.masters.handler.InstalmentHandlerServiceImpl">
+		<property name="instalmentDataService">
+			<ref bean="instalmentDataService" />
+		</property>
+	</bean>
+	<bean id="instalmentDataService" class="jkt.hrms.masters.dataservice.InstalmentDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<!--
+		HR Module handler and dataservice <bean id="hrHandlerService"
+		class="jkt.hrms.hr.handler.HRHandlerServiceImpl"> <property
+		name="hrDataService"><ref bean="hrDataService"/></property> </bean>
+		<bean id="hrDataService"
+		class="jkt.hrms.hr.dataservice.HRDataServiceImpl"> <property
+		name="sessionFactory"><ref bean="sessionFactory"/></property> </bean>
+	-->
+	<bean id="trainingHandlerService" class="jkt.hrms.training.handler.TrainingHandlerServiceImpl">
+		<property name="trainingDataService">
+			<ref bean="trainingDataService" />
+		</property>
+	</bean>
+	<bean id="trainingDataService" class="jkt.hrms.training.dataservice.TrainingDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="opBillingHandlerService" class="jkt.hms.billing.handler.OpBillingHandlerServiceImpl">
+		<property name="opBillingDataService">
+			<ref bean="opBillingDataService" />
+		</property>
+	</bean>
+	<bean id="opBillingDataService" class="jkt.hms.billing.dataservice.OpBillingDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="billingDataService">
+			<ref bean="billingDataService" />
+		</property>
+
+		<property name="adtDataService">
+			<ref bean="adtDataService" />
+		</property>
+		<property name="billingMasterDataService">
+			<ref bean="billingMasterDataService" />
+		</property>
+	</bean>
+
+
+	<bean id="packageBillingHandlerService"
+		class="jkt.hms.billing.handler.PackageBillingHandlerServiceImpl">
+		<property name="packageBillingDataService">
+			<ref bean="packageBillingDataService" />
+		</property>
+	</bean>
+
+	<bean id="packageBillingDataService"
+		class="jkt.hms.billing.dataservice.PackageBillingDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="cssdHandlerService" class="jkt.hms.cssd.handler.CssdHandlerServiceImpl">
+		<property name="cssdDataService">
+			<ref bean="cssdDataService" />
+		</property>
+	</bean>
+
+	<bean id="hesHandlerService" class="jkt.hms.hes.handler.HesHandlerServiceImpl">
+		<property name="hesDataService">
+			<ref bean="hesDataService" />
+		</property>
+	</bean>
+	
+	
+	
+	<bean id="maintenanceHandlerService" class="jkt.hms.hes.handler.MaintenanceHandlerServiceImpl">
+		<property name="maintenanceDataService">
+			<ref bean="maintenanceDataService" />
+		</property>
+	</bean>
+
+	<bean id="laundryHandlerService" class="jkt.hms.laundry.handler.LaundryHandlerServiceImpl">
+		<property name="laundryDataService">
+			<ref bean="laundryDataService" />
+		</property>
+	</bean>
+
+<!-- 	<bean id="cronTriggerForGRN" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<ref bean="batchProcessForGRN" />
+		</property>
+		<property name="cronExpression" value="0 30 11 * * ?" />
+	</bean>
+	<bean name="batchProcessForGRN" class="org.springframework.scheduling.quartz.JobDetailFactoryBean ">
+		<property name="jobClass">
+			<value>jkt.hms.billing.controller.GRNSchedulerController</value>
+		</property>
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="opBillingDataService" value-ref="opBillingDataService" />
+			</map>
+		</property>
+		<property name="durability">
+			<value>true</value>
+		</property>
+	</bean>
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerForGRN" />
+			</list>
+		</property>
+	</bean> -->
+	<bean id="incomeTaxMasHandlerService" class="jkt.hrms.masters.handler.IncomeTaxMasHandlerServiceImpl">
+		<property name="incomeTaxMasDataService">
+			<ref bean="incomeTaxMasDataService" />
+		</property>
+	</bean>
+	<bean id="incomeTaxMasDataService"
+		class="jkt.hrms.masters.dataservice.IncomeTaxMasDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="timesheetHandlerService" class="jkt.hrms.timesheet.handler.TimeSheetHandlerServiceImpl">
+		<property name="timesheetDataService">
+			<ref bean="timesheetDataService" />
+		</property>
+	</bean>
+	<bean id="timesheetDataService" class="jkt.hrms.timesheet.dataservice.TimeSheetDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<!--<bean id="dialysisHandlerService" class="jkt.hms.dialysis.handler.DialysisHandlerServiceImpl">
+		<property name="dialysisDataService">
+			<ref bean="dialysisDataService" />
+		</property>
+	</bean>
+	<bean id="dialysisDataService" class="jkt.hms.dialysis.dataservice.DialysisDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	--><!--
+	
+	<bean id="dialisisHandlerService" class="jkt.hms.dialysis.handler.DialisisHandlerServiceImpl">
+		<property name="dialisisDataService">
+			<ref bean="dialisisDataService" />
+		</property>
+	</bean>
+	<bean id="dialisisDataService" class="jkt.hms.dialysis.dataservice.DialisisDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	-->
+	<bean id="etravelHandlerService" class="jkt.hrms.etravel.handler.EtravelHandlerServiceImpl">
+		<property name="etravelDataService">
+			<ref bean="etravelDataService" />
+		</property>
+	</bean>
+	<bean id="etravelDataService" class="jkt.hrms.etravel.dataservice.EtravelDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+
+	<bean id="projectTrackingMasterHandlerService"
+		class="jkt.hrms.projectTracking.handler.ProjectTrackingMasterHandlerServiceImpl">
+		<property name="projectTrackingMasterDataService">
+			<ref bean="projectTrackingMasterDataService" />
+		</property>
+	</bean>
+
+	<bean id="projectTrackingMasterDataService"
+		class="jkt.hrms.projectTracking.dataservice.ProjectTrackingMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="projectTrackingHandlerService"
+		class="jkt.hrms.projectTracking.handler.ProjectTrackingHandlerServiceImpl">
+		<property name="projectTrackingDataService">
+			<ref bean="projectTrackingDataService" />
+		</property>
+	</bean>
+
+	<bean id="projectTrackingDataService"
+		class="jkt.hrms.projectTracking.dataservice.ProjectTrackingDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="etravelMasterHandlerService"
+		class="jkt.hrms.masters.handler.EtravelMasterHandlerServiceImpl">
+		<property name="etravelMasterDataService">
+			<ref bean="etravelMasterDataService" />
+		</property>
+	</bean>
+	<bean id="etravelMasterDataService"
+		class="jkt.hrms.masters.dataservice.EtravelMasterDataServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	
+	<bean class="jkt.hms.listener.SessionListener"></bean>
+	
+	<!--  <bean id="indentservice"
+		class="com.jkt.services.indentservice.IndentServiceImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean> 
+	 -->
+	
+	 <bean id="dbutils"
+          class="jkt.hms.util.DBUtils">
+    <property name="dataSource">
+        <ref bean="dataSource" />
+    </property>
+    </bean>
+</beans>

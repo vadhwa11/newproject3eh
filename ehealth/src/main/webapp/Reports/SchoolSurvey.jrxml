@@ -1,0 +1,941 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SchoolSurvey" pageWidth="3850" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="3810" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1d0af4d4-22f8-4290-afa4-8a0b39b62f8d">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="1402"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="toDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospitalId" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="query" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="currentDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="empName" class="java.lang.String"/>
+	<parameter name="rankName" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+	pvs.survey_id, place_name, pvs.address,
+	contact_type, std_code, pvsd.contact_no, pvsd.email_id,
+	person1_name, person1_contact_no,
+	person2_name, person2_contact_no,
+	survey_year as academic_year, school_class, male_count,
+	female_count, trans_count, total_count,
+	school_type, curriculum_type, facility_avaliable,
+	pvs.remarks, lat_long, survey_date, mh.hospital_name,
+	mht.hospital_name as parent_hospital
+FROM
+	ph_village_survey pvs
+	LEFT OUTER JOIN ph_village_survey_details pvsd ON pvs.survey_unique_id = pvsd.survey_id
+	LEFT OUTER JOIN ph_house_survey phs ON pvs.village_id = phs.village_id
+		LEFT OUTER JOIN mas_hospital mh ON pvs.hospital_id = mh.hospital_id
+	LEFT OUTER JOIN mas_hospital mht ON mh.parent_institute_id = mht.hospital_id
+WHERE
+	survey_type = 1002 and survey_date between $P{fromDate} and $P{toDate}
+	$P!{query}
+GROUP BY
+	pvs.survey_id, pvs.address,
+	contact_type, std_code, pvsd.contact_no, pvsd.email_id,
+	academic_year, school_class, male_count, female_count,
+	trans_count, total_count,
+	school_type, curriculum_type, facility_avaliable,
+	pvs.remarks, lat_long, survey_date,
+	mh.hospital_name, parent_hospital
+ORDER BY
+	survey_id]]>
+	</queryString>
+	<field name="survey_id" class="java.lang.Integer"/>
+	<field name="place_name" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<field name="contact_type" class="java.lang.String"/>
+	<field name="std_code" class="java.lang.Integer"/>
+	<field name="contact_no" class="java.lang.String"/>
+	<field name="email_id" class="java.lang.String"/>
+	<field name="person1_name" class="java.lang.String"/>
+	<field name="person1_contact_no" class="java.lang.String"/>
+	<field name="person2_name" class="java.lang.String"/>
+	<field name="person2_contact_no" class="java.lang.String"/>
+	<field name="academic_year" class="java.lang.String"/>
+	<field name="school_class" class="java.lang.String"/>
+	<field name="male_count" class="java.lang.Integer"/>
+	<field name="female_count" class="java.lang.Integer"/>
+	<field name="trans_count" class="java.lang.Integer"/>
+	<field name="total_count" class="java.lang.Integer"/>
+	<field name="school_type" class="java.lang.String"/>
+	<field name="curriculum_type" class="java.lang.String"/>
+	<field name="facility_avaliable" class="java.lang.String"/>
+	<field name="remarks" class="java.lang.String"/>
+	<field name="lat_long" class="java.lang.String"/>
+	<field name="survey_date" class="java.sql.Date"/>
+	<field name="hospital_name" class="java.lang.String"/>
+	<field name="parent_hospital" class="java.lang.String"/>
+	<variable name="ReportCount" class="java.lang.Integer" incrementType="Group" incrementGroup="School Class" calculation="Count">
+		<variableExpression><![CDATA[$F{survey_id}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<group name="School Class">
+		<groupExpression><![CDATA[$F{survey_id}]]></groupExpression>
+		<groupHeader>
+			<band height="40">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="1810" y="20" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="f265152a-7929-40cd-8823-5b59aba9ee95"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{curriculum_type}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="1660" y="20" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="d7893e41-e50f-4a1a-907d-f943ee79b712"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{school_type}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="570" y="20" width="120" height="20" isPrintWhenDetailOverflows="true" uuid="f672f067-18c6-48cf-825f-d47b1be92233"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[CONTACT]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="410" y="20" width="160" height="20" isPrintWhenDetailOverflows="true" uuid="149f10f2-161b-45fa-bc36-9fbe6a8de798"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[MOBILE/LANDLINE/FAX/EMAIL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="0" y="0" width="3810" height="20" uuid="4ac2af59-2d1d-4469-ac6b-0b687711c5dd"/>
+					<box>
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="840" y="20" width="100" height="20" isPrintWhenDetailOverflows="true" uuid="3f903fee-0559-4d94-b871-dc2dc36563ce"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{person1_contact_no}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="150" y="20" width="260" height="20" isPrintWhenDetailOverflows="true" uuid="d8252dbe-3f2c-4f4d-a1ec-f920275f1410"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{address}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="690" y="20" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="18551937-a21c-4175-a794-5518c88de134"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{person1_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="1090" y="20" width="100" height="20" isPrintWhenDetailOverflows="true" uuid="9a5f5802-ff72-48dc-af54-4d98801e4484"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{person2_contact_no}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="20" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="b699ddb3-186d-4136-a36b-47015f380e25"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{place_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="940" y="20" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="33495304-6f62-4ca5-a3b2-d71bc76c1937"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{person2_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="1190" y="20" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="6cfe5c12-cbb4-4367-8211-8c558ed3d575"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{academic_year}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="1340" y="20" width="80" height="20" isPrintWhenDetailOverflows="true" uuid="c7a84669-36b8-4576-9fd4-02cee32701b4"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[CLASS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1420" y="20" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="fa24db27-95e5-4c1c-9cf0-0c895c2a6306"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[M]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1480" y="20" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="ee349b75-0e16-4743-ab24-34dc8b38d656"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[F]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1540" y="20" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="12ab0bc4-8f3e-4e84-84ab-ff3bbb85150a"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[TG]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1600" y="20" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="91971c52-2a5d-4673-a096-f88219b7feec"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<text><![CDATA[TOTAL]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="1960" y="20" width="200" height="20" isPrintWhenDetailOverflows="true" uuid="bb47f1a3-1715-436e-8fb1-a018accae8b6"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="2160" y="20" width="200" height="20" isPrintWhenDetailOverflows="true" uuid="ccdeea6b-db30-40d8-80a0-232adf82f3cf"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="2360" y="20" width="500" height="20" isPrintWhenDetailOverflows="true" uuid="e9a4f756-9778-48c5-896e-80966367d0ff"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{facility_avaliable}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="2860" y="20" width="400" height="20" isPrintWhenDetailOverflows="true" uuid="a357815e-f7c4-4de9-ac44-2bc11aa230fa"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{remarks}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="3260" y="20" width="200" height="20" isPrintWhenDetailOverflows="true" uuid="321b4471-9df3-4701-aaa7-93ed378a7942"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{lat_long}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+					<reportElement x="3660" y="20" width="150" height="20" uuid="fcd35fdf-1683-4ce6-8cac-5825741b8089"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{survey_date}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="3460" y="20" width="200" height="20" uuid="c4b45348-809e-42c0-9c49-a9ff65dc43e3"/>
+					<box bottomPadding="0">
+						<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{hospital_name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="100" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="3810" height="20" uuid="7305a7aa-324b-4220-8fb9-6d0d7bb32a52"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[SCHOOL SURVEY]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="150" y="20" width="3310" height="20" uuid="56d38f30-4215-42fc-a183-c81c764f24d3"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{parent_hospital}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="3460" y="20" width="200" height="20" uuid="239f5a8c-67c1-4881-b6b8-25365595d8cc"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Report Generated Date :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="60" width="690" height="20" uuid="2f29b969-2915-4339-bdee-d770e1d94b93"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SCHOOL SURVEY DETAILS]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="3660" y="20" width="150" height="20" uuid="826f2351-709c-4f79-877c-4154fc281c93"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{currentDate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="150" y="40" width="540" height="20" uuid="071c6fb6-377e-47d3-a39a-50f74c018d00"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{empName}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="20" width="150" height="20" uuid="84bedd99-df33-4ecd-a665-b1232d8a441d">
+					<printWhenExpression><![CDATA[$F{parent_hospital}.equals("")?Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reporting Institute Name :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="150" height="20" uuid="11db5d6d-df37-430d-b574-805f4bbf2aeb">
+					<printWhenExpression><![CDATA[$P{empName}.equals("")?Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Name :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="3460" y="40" width="200" height="20" uuid="1c2a984d-7af9-43d8-97f9-067f226d8045"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Report Count :]]></text>
+			</staticText>
+			<textField evaluationTime="Report" isBlankWhenNull="true">
+				<reportElement x="3660" y="40" width="150" height="20" uuid="ae2617a0-1fd2-4801-886b-561e30f2d2f2"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{ReportCount}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="840" y="40" width="2620" height="20" uuid="475cf47c-ac07-4876-81a9-913ccacd991d"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{rankName}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="690" y="40" width="150" height="20" uuid="9ea15542-910d-4c0f-b814-d3e5a1924821">
+					<printWhenExpression><![CDATA[$P{rankName}.equals("")?Boolean.FALSE:Boolean.TRUE]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Designation :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="3460" y="60" width="350" height="20" uuid="e2f46788-c6df-4e37-b74e-e40018737570"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SURVEY DETAILS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="80" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="2ad28b5f-5db9-42bf-8fdd-6563d701c95b"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[NAME OF SCHOOL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2360" y="80" width="500" height="20" isPrintWhenDetailOverflows="true" uuid="cbd57af6-405a-4d1c-a4ab-ebc8cae86e0a"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[FACILITIES AVAILABLE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2860" y="80" width="400" height="20" uuid="82898dd6-aa1f-4c04-a2d6-4fec9414318b"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[REMARKS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="3460" y="80" width="200" height="20" uuid="68f5cdce-da60-4f58-8777-99e51b7a265e"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[HOSPITAL NAME]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="3660" y="80" width="150" height="20" uuid="99c502e7-290a-4317-a908-40bbabe0c340"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[SURVEY DATE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="150" y="80" width="260" height="20" isPrintWhenDetailOverflows="true" uuid="09d18db5-68d3-4a97-b2e7-9d999c82dcd3"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[ADDRESS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="690" y="80" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="7493764d-bc76-4b32-b57c-ce8596e9cf06"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[NAME]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="840" y="80" width="100" height="20" isPrintWhenDetailOverflows="true" uuid="66f4e73d-3764-4f28-adff-5c10b16d1212"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[CONTACT NO.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1190" y="80" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="57b6de67-20e8-429d-b18c-e455896c66ee"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[CURRENT ACADEMIC YEAR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1340" y="80" width="320" height="20" isPrintWhenDetailOverflows="true" uuid="b447628b-b620-4772-baf1-ca9a8f1ead5e"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[NO. OF STUDENTS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1660" y="80" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="b448dc01-d6b3-4bf8-a810-6229d6bf6dcf"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[TYPE OF SCHOOL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1810" y="80" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="cf66a313-a0ff-437d-a743-7abad9c43330"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[CURRICULUM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1960" y="80" width="200" height="20" isPrintWhenDetailOverflows="true" uuid="a8a77747-77f7-4f08-a843-ac588cd544d0"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[TYPE OF COOKING FUEL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2160" y="80" width="200" height="20" isPrintWhenDetailOverflows="true" uuid="201da383-9055-46c4-a191-70175b3bd701"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[SOURCE OF WATER-DRINKING]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="3260" y="80" width="200" height="20" isPrintWhenDetailOverflows="true" uuid="08786c4c-b60e-4681-a802-4cb7f669e322"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[LATTITUDE AND LONGITUDE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="410" y="80" width="280" height="20" uuid="1e6307cd-0f2f-4f9f-ba86-c5cf96930259"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONTACT INFO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="690" y="60" width="250" height="20" uuid="aa2eed6d-3add-468f-aea1-aff2d98ebf36"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[PRINCIPAL/HEADMASTER]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="940" y="60" width="250" height="20" uuid="fe85eea3-7631-4923-bf69-3d28c8787b9a"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[PTA CHAIRPERSON]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="940" y="80" width="150" height="20" isPrintWhenDetailOverflows="true" uuid="76716308-03b5-437c-b5be-5b5010695f4e"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[NAME]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1090" y="80" width="100" height="20" isPrintWhenDetailOverflows="true" uuid="3352d782-8151-4029-ad4c-6b393e0b8717"/>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<text><![CDATA[CONTACT NO.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1190" y="60" width="2270" height="20" uuid="20796105-1c10-42f1-8cc8-9c5d8fe67803"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SCHOOL SURVEY DETAILS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="570" y="0" width="120" height="20" isPrintWhenDetailOverflows="true" uuid="ea0cb82e-2bfc-4eb6-9418-bc1cc6353723">
+					<printWhenExpression><![CDATA[new Boolean($F{contact_type}.equals( "Email" ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{email_id}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="570" y="0" width="40" height="20" isPrintWhenDetailOverflows="true" uuid="a96d3929-bff1-45f9-a291-00a552894fc5">
+					<printWhenExpression><![CDATA[new Boolean(!($F{contact_type}.equals( "Email" ) || $F{contact_type}.equals( "" )))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{std_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="410" y="0" width="160" height="20" isPrintWhenDetailOverflows="true" uuid="c89cb4e7-ddb0-45db-8b16-4f0bd2f585aa">
+					<printWhenExpression><![CDATA[new Boolean(!$F{contact_type}.equals( null ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{contact_type}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="610" y="0" width="80" height="20" isPrintWhenDetailOverflows="true" uuid="f003bcf3-a0d2-41c5-a79b-ed52289dcf29">
+					<printWhenExpression><![CDATA[new Boolean(!($F{contact_type}.equals( "Email" ) && $F{contact_type}.equals( null )))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{contact_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1340" y="0" width="80" height="20" isPrintWhenDetailOverflows="true" uuid="edb75fd3-8de2-44c6-8178-5636b7f3b6ab">
+					<printWhenExpression><![CDATA[new Boolean($F{contact_type}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{school_class}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1420" y="0" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="62ee9d80-6eb3-49a9-bfc9-d03a63de1c7a">
+					<printWhenExpression><![CDATA[new Boolean($F{contact_type}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{male_count}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1480" y="0" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="e1f1f0ad-300e-4ae7-9a0a-525456688039">
+					<printWhenExpression><![CDATA[new Boolean($F{contact_type}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{female_count}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1540" y="0" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="d473d8f7-9228-4ac6-a5e4-676fa701e406">
+					<printWhenExpression><![CDATA[new Boolean($F{contact_type}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{trans_count}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1600" y="0" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="17e5e5a8-42dc-43a4-994b-9b18b83a3455">
+					<printWhenExpression><![CDATA[new Boolean($F{contact_type}.equals( "" ))]]></printWhenExpression>
+				</reportElement>
+				<box bottomPadding="0">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[$F{total_count}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="3810" y="0" width="1" height="20" uuid="bb80f89f-862d-4b37-876e-6b70b82f2754"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="0" width="1" height="20" uuid="3d67f74e-07a6-4fe7-bcf8-e7690659f956"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+	<summary>
+		<band height="1" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="0" width="3810" height="1" uuid="6e3e6c91-7b2d-44e6-a9bd-8888c208917c"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

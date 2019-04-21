@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="sub_net_amt"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="535"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="fromDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toDate" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()
+]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromTime" isForPrompting="true" class="java.sql.Time">
+		<defaultValueExpression ><![CDATA[java.sql.Time.valueOf("00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="toTime" isForPrompting="true" class="java.sql.Time">
+		<defaultValueExpression ><![CDATA[java.sql.Time.valueOf("00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="hospital_name" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["C:\\Documents and Settings\\anand\\Desktop\\Day End Report on 192.168.203.20\\New Folder\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="op_amt" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="ip_amt" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="net_amt" isForPrompting="true" class="java.math.BigDecimal"/>
+	<queryString><![CDATA[select "Net Amt" as type, ifnull(hhmain.op_amt,0) as op_amt,ifnull(ip_amt,0)as ip_amt,(ifnull(op_amt,0)+ifnull(ip_amt,0))as tot_amt from (select (ifnull(hmain.op_amt,0)+ifnull(hmain1.op_amt,0)-ifnull(hmain3.op_amt,0)) as op_amt,(ifnull(hmain.ip_amt,0)+ifnull(hmain1.ip_amt,0)-ifnull(hmain3.ip_amt,0)) as ip_amt from (select  ifnull(main.op_amt,0) as op_amt,ifnull(main.ip_amt,0) as ip_amt ,(ifnull(op_amt,0)+ifnull(ip_Amt,0)) as Total from
+(select (ifnull(sum(if(receipt_type = 'opb',ifnull(brh.amount,0.0),0)),0)+
+ifnull(sum(if(receipt_type = 'bld',if(brh.inpatient_id is  null,ifnull(brh.amount,0),0.0),0)),0)) as op_amt,
+(sum(if(receipt_type = 'chs',ifnull(brh.amount,0),0))+
+ifnull(sum(if(receipt_type = 'bld',if(brh.inpatient_id is not null,ifnull(brh.amount,0),0.0),0)),0)) as ip_amt
+FROM bl_receipt_header as brh
+left outer join bl_receipt_details as brd on brh.receipt_header_id = brd.receipt_header_id
+where brd.payment_mode = 'C'
+and brh.receipt_date between $P{fromDate} and $P{toDate} 
+and brh.receipt_time between $P{fromTime} and $P{toTime} 
+) as main) as hmain,
+(select ifnull(op_amt,0) as op_amt,ifnull(ip_amt,0) as ip_amt,
+(ifnull(op_amt,0)+ifnull(ip_amt,0)) as tot
+from (select sum(if(inpatient_id is  null,ifnull(brd.amount ,0.0),0)) as op_amt,
+sum(if(inpatient_id is  not null,ifnull(brd.amount ,0.0),0)) as ip_amt from  bl_receipt_header as brh
+left outer join bl_receipt_details as brd
+on brh.receipt_header_id = brd.receipt_header_id
+where brd.payment_mode= 'c'
+and brh.receipt_type in ('fs','adv')
+and brh.receipt_date between $P{fromDate} and $P{toDate} 
+and brh.receipt_time between $P{fromTime} and $P{toTime} 
+) as main1) as hmain1,
+(select op_Amt,ip_amt,(op_amt+ip_amt) as tot_amt
+from (select ifnull(sum(if(inpatient_id is null,ifnull(cash_advice_amt,0),0)),0) as op_amt,ifnull(sum(if(b.inpatient_id is not null,ifnull(b.cash_advice_amt,0),0)),0) as ip_amt from bl_payment_advice_header b
+where payment_advice_date    between $P{fromDate} and $P{toDate} 
+and payment_advice_time between $P{fromTime} and $P{toTime} 
+
+) as main3) as hmain3) as hhmain]]></queryString>
+
+	<field name="type" class="java.lang.String"/>
+	<field name="op_amt" class="java.math.BigDecimal"/>
+	<field name="ip_amt" class="java.math.BigDecimal"/>
+	<field name="tot_amt" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="21"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="37"
+						y="2"
+						width="85"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{type}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="177"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{op_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="285"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{ip_amt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="426"
+						y="2"
+						width="100"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{tot_amt}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="535"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>
